@@ -147,3 +147,58 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 });
+
+// Edit account card
+document.addEventListener("DOMContentLoaded", function () {
+    const toggleButtons = document.querySelectorAll(".toggle-password");
+    toggleButtons.forEach((button) => {
+        button.addEventListener("click", function () {
+            const targetId = this.getAttribute("data-target");
+            const passwordInput = document.getElementById(targetId);
+            const icon = this.querySelector("i");
+
+            if (passwordInput.type === "password") {
+                passwordInput.type = "text";
+                icon.classList.remove("bi-eye");
+                icon.classList.add("bi-eye-slash");
+            } else {
+                passwordInput.type = "password";
+                icon.classList.remove("bi-eye-slash");
+                icon.classList.add("bi-eye");
+            }
+        });
+    });
+
+    const profilePictureInput = document.getElementById("profile_picture");
+    if (profilePictureInput) {
+        profilePictureInput.addEventListener("change", function () {
+            if (this.files && this.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    const imageContainer =
+                        document.querySelector(
+                            ".rounded-circle.overflow-hidden"
+                        ) || document.querySelector(".rounded-circle.bg-light");
+
+                    if (imageContainer) {
+                        imageContainer.innerHTML = "";
+                        imageContainer.classList.remove(
+                            "bg-light",
+                            "d-flex",
+                            "align-items-center",
+                            "justify-content-center"
+                        );
+                        imageContainer.classList.add("overflow-hidden");
+
+                        const img = document.createElement("img");
+                        img.src = e.target.result;
+                        img.classList.add("w-100", "h-100");
+                        img.style.objectFit = "cover";
+                        imageContainer.appendChild(img);
+                    }
+                };
+                reader.readAsDataURL(this.files[0]);
+            }
+        });
+    }
+});
