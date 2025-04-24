@@ -343,39 +343,75 @@ h6,
     color: var(--dark);
 }
 
-.form-signin {
-    width: 100%;
-    max-width: 330px;
-    padding: 15px;
-    margin: auto;
-    margin-bottom: 190px;
-}
-
-.form-signin .form-floating:focus-within {
-    z-index: 2;
-}
-
-.form-signin input[type="email"] {
-    margin-bottom: -1px;
-    border-bottom-right-radius: 0;
-    border-bottom-left-radius: 0;
-}
-
-.form-signin input[type="password"] {
-    margin-bottom: 10px;
-    border-top-left-radius: 0;
-    border-top-right-radius: 0;
-}
-
+/* Form Styles */
+.form-signin,
 .form-registration {
     width: 100%;
     max-width: 330px;
     padding: 15px;
     margin: auto;
+    transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.form-signin {
+    margin-bottom: 190px;
+}
+
+.form-registration {
     margin-bottom: 80px;
 }
 
+/* Input Fields Animation */
+.form-signin input[type="email"],
+.form-signin input[type="password"],
 .form-registration input {
-    border-radius: 0;
-    margin-bottom: -1px;
+    transition: all 0.3s ease-in-out;
+    position: relative;
+}
+
+.form-signin input[type="email"]:focus,
+.form-signin input[type="password"]:focus,
+.form-registration input:focus {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Profile Picture Hover Effect */
+.profile-picture img {
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.profile-picture:hover img {
+    transform: scale(1.05);
+    filter: brightness(1.05);
+}
+
+/* Card Animation */
+.card {
+    transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    backface-visibility: hidden;
+}
+
+.card:hover {
+    transform: translateY(-7px) scale(1.02);
+    box-shadow: 0 12px 25px rgba(0, 0, 0, 0.12) !important;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 767.98px) {
+    .col-md-8 h4 {
+        font-size: 1.4rem;
+        transition: font-size 0.3s ease;
+    }
+
+    div[style*="min-width: 80px"] {
+        min-width: 70px !important;
+        margin-right: 0.5rem !important;
+        transition: all 0.3s ease;
+    }
+
+    /* Mobile-friendly card animation */
+    .card:hover {
+        transform: translateY(-3px);
+    }
 }
