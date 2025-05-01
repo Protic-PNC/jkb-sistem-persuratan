@@ -8,7 +8,7 @@
                 <div class="col-lg-6">
                     <h1 class="display-4 mb-3 animated slideInDown"
                         style="font-family: 'Poppins', sans-serif; font-weight: 700;">
-                        Website Persuratan Mahasiswa Jurusan Komputer dan Bisnis Politeknik Negeri Cilacap
+                        Sistem Persuratan Mahasiswa Jurusan Komputer dan Bisnis
                     </h1>
                     <a href="/login" class="btn btn-primary btn-lg py-3 px-4 animated slideInDown"
                         style="transition: background-color 0.3s ease-in-out, border-color 0.3s ease-in-out;">
