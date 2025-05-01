@@ -18,12 +18,12 @@ document.addEventListener("DOMContentLoaded", function () {
         const icon = togglePassword.querySelector("i");
         if (passwordInput.type === "password") {
             passwordInput.type = "text";
-            icon.classList.remove("fa-eye-slash");
-            icon.classList.add("fa-eye");
-        } else {
-            passwordInput.type = "password";
             icon.classList.remove("fa-eye");
             icon.classList.add("fa-eye-slash");
+        } else {
+            passwordInput.type = "password";
+            icon.classList.remove("fa-eye-slash");
+            icon.classList.add("fa-eye");
         }
     });
 });
@@ -524,153 +524,56 @@ async function updateProfile() {
     });
 }
 
+// Function akun
 async function updateUser() {
-    let originalNamaPemilik = document
+    const originalNamaPemilik = document
         .getElementById("original_nama_pemilik")
         .value.trim();
-    let originalPassword = document
-        .getElementById("original_password")
-        .value.trim();
-    let originalNoTelp = document
-        .getElementById("original_no_telp")
-        .value.trim();
-    let originalEmail = document.getElementById("original_email").value.trim();
-
-    let noTelp = document.getElementById("no_telp").value.trim();
-    let email = document.getElementById("email").value.trim();
-    let password = document.getElementById("password").value.trim();
-    let passwordConfirmation = document
-        .getElementById("password_confirmation")
-        .value.trim();
-    let originalUsername = document
+    const originalUsername = document
         .getElementById("original_username")
         .value.trim();
-    let originalRole = document.getElementById("original_role").value.trim();
-    let originalKelas = document.getElementById("original_kelas").value.trim();
-    let originalJurusan = document
+    const originalEmail = document
+        .getElementById("original_email")
+        .value.trim();
+    const originalPassword = document
+        .getElementById("original_password")
+        .value.trim();
+    const originalRole = document.getElementById("original_role").value.trim();
+    const originalKelas = document
+        .getElementById("original_kelas")
+        .value.trim();
+    const originalJurusan = document
         .getElementById("original_jurusan")
         .value.trim();
-    let originalPerguruanTinggi = document
+    const originalPerguruanTinggi = document
         .getElementById("original_perguruan_tinggi")
         .value.trim();
-    let namaPemilik = document.getElementById("nama_pemilik").value.trim();
-    let username = document.getElementById("username").value.trim();
-    let role = document.getElementById("role_id").value.trim();
-    let kelas = document.getElementById("kelas_id").value.trim();
-    let jurusan = document.getElementById("jurusan").value.trim();
-    let perguruanTinggi = document
+
+    const namaPemilik = document.getElementById("nama_pemilik").value.trim();
+    const username = document.getElementById("username").value.trim();
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value.trim();
+    const passwordConfirm = document
+        .getElementById("password_confirmation")
+        .value.trim();
+    const role = document.getElementById("role_id").value.trim();
+    const kelas = document.getElementById("kelas_id").value.trim();
+    const jurusan = document.getElementById("jurusan").value.trim();
+    const perguruanTinggi = document
         .getElementById("perguruan_tinggi")
         .value.trim();
 
-    if (role_id == 1) {
-        if (
-            !namaPemilik ||
-            !username ||
-            !noTelp ||
-            !email ||
-            !role ||
-            !kelas ||
-            !jurusan ||
-            !perguruanTinggi
-        ) {
-            Swal.fire({
-                title: "Gagal!",
-                text: "Harap isi semua data yang diperlukan.",
-                icon: "error",
-                timer: 1500,
-                showConfirmButton: false,
-            });
-            return;
-        }
-    } else {
-        if (!noTelp || !email) {
-            Swal.fire({
-                title: "Gagal!",
-                text: "Harap isi semua data yang diperlukan.",
-                icon: "error",
-                timer: 1500,
-                showConfirmButton: false,
-            });
-            return;
-        }
-    }
-
-    let isDataChanged = false;
-
-    isDataChanged =
-        namaPemilik !== originalNamaPemilik ||
-        username !== originalUsername ||
-        noTelp !== originalNoTelp ||
-        email !== originalEmail ||
-        role !== originalRole ||
-        kelas !== originalKelas ||
-        jurusan !== originalJurusan ||
-        perguruanTinggi !== originalPerguruanTinggi;
-
-    if (password || passwordConfirmation) {
-        if (password === passwordConfirmation) {
-            if (password !== originalPassword) {
-                isDataChanged = true;
-            } else {
-                Swal.fire({
-                    title: "Informasi",
-                    text: "Password baru tidak berbeda dari password lama.",
-                    icon: "info",
-                    showConfirmButton: false,
-                    timer: 1500,
-                });
-                return;
-            }
-        } else {
-            Swal.fire({
-                title: "Gagal!",
-                text: "Password dan Konfirmasi Password tidak cocok.",
-                icon: "error",
-                timer: 1500,
-                showConfirmButton: false,
-            });
-            return;
-        }
-    }
-
-    if (!isDataChanged) {
-        Swal.fire({
-            title: "Informasi",
-            text: "Tidak ada perubahan data yang dilakukan.",
-            icon: "info",
-            showConfirmButton: false,
-            timer: 1500,
-        });
-        return;
-    }
-
-    Swal.fire({
-        title: "Data berhasil diubah",
-        icon: "success",
-        showConfirmButton: false,
-        timer: 1500,
-    }).then(() => {
-        document.getElementById("update-form-user").submit();
-    });
-}
-
-async function saveUser() {
-    let namaPemilik = document.getElementById("nama_pemilik").value.trim();
-    let username = document.getElementById("username").value.trim();
-    let noTelp = document.getElementById("no_telp").value.trim();
-    let email = document.getElementById("email").value.trim();
-    let password = document.getElementById("password").value.trim();
-    let confirmPassword = document
-        .getElementById("password_confirmation")
-        .value.trim();
+    const specialRoles = ["1", "5", "6"];
+    const isSpecialRole = specialRoles.includes(role);
 
     if (
         !namaPemilik ||
         !username ||
-        !noTelp ||
         !email ||
-        !password ||
-        !confirmPassword
+        !role ||
+        (!isSpecialRole && !kelas) ||
+        !jurusan ||
+        !perguruanTinggi
     ) {
         Swal.fire({
             title: "Gagal!",
@@ -682,16 +585,223 @@ async function saveUser() {
         return;
     }
 
-    Swal.fire({
-        title: "Data berhasil disimpan!",
-        icon: "success",
-        showConfirmButton: false,
-        timer: 1500,
-    }).then(() => {
-        document.getElementById("create-form-user").submit();
-    });
+    let isDataChanged =
+        namaPemilik !== originalNamaPemilik ||
+        username !== originalUsername ||
+        email !== originalEmail ||
+        role !== originalRole ||
+        (!isSpecialRole && kelas !== originalKelas) ||
+        jurusan !== originalJurusan ||
+        perguruanTinggi !== originalPerguruanTinggi;
+
+    let passwordChanged = false;
+    if (password || passwordConfirm) {
+        if (password && passwordConfirm) {
+            if (password !== passwordConfirm) {
+                Swal.fire({
+                    title: "Gagal!",
+                    text: "Password dan Konfirmasi Password tidak cocok.",
+                    icon: "error",
+                    timer: 1500,
+                    showConfirmButton: false,
+                });
+                return;
+            }
+            if (password.length < 8) {
+                Swal.fire({
+                    title: "Gagal!",
+                    text: "Password harus terdiri dari minimal 8 karakter.",
+                    icon: "error",
+                    timer: 1500,
+                    showConfirmButton: false,
+                });
+                return;
+            }
+            passwordChanged = true;
+        } else {
+            Swal.fire({
+                title: "Gagal!",
+                text: "Harap isi kedua field password.",
+                icon: "error",
+                timer: 1500,
+                showConfirmButton: false,
+            });
+            return;
+        }
+    }
+
+    if (!isDataChanged && !passwordChanged) {
+        Swal.fire({
+            title: "Informasi",
+            text: "Tidak ada perubahan data yang dilakukan.",
+            icon: "info",
+            timer: 1500,
+            showConfirmButton: false,
+        });
+        return;
+    }
+
+    const form = document.getElementById("update-form-user");
+    const formData = new FormData(form);
+    const updateUrl = form.getAttribute("action");
+
+    formData.append("ajax_submit", "true");
+
+    try {
+        const response = await fetch(updateUrl, {
+            method: "POST",
+            body: formData,
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            Swal.fire({
+                title: "Data berhasil diubah",
+                icon: "success",
+                showConfirmButton: false,
+                timer: 1500,
+            }).then(() => {
+                window.location.href = "/dashboard/admin/user";
+            });
+        } else if (response.status === 422) {
+            const data = await response.json();
+
+            let errorMessages = "";
+
+            if (data.errors && data.errors.username && data.errors.email) {
+                Object.keys(data.errors).forEach((field) => {
+                    if (Array.isArray(data.errors[field])) {
+                        data.errors[field].forEach((error) => {
+                            errorMessages += `- ${error}<br>`;
+                        });
+                    }
+                });
+            } else if (data.message) {
+                errorMessages = data.message;
+            } else {
+                errorMessages =
+                    "Terjadi kesalahan validasi yang tidak spesifik.";
+            }
+
+            Swal.fire({
+                title: "Gagal!",
+                html: errorMessages,
+                icon: "error",
+                timer: 3000,
+                showConfirmButton: false,
+            });
+        } else {
+            Swal.fire({
+                title: "Error Server!",
+                text: `Server merespons dengan status: ${response.status}`,
+                icon: "error",
+                timer: 2000,
+                showConfirmButton: false,
+            });
+        }
+    } catch (error) {
+        console.error("Error detail:", error);
+        Swal.fire({
+            title: "Error Jaringan!",
+            text: "Terjadi kesalahan koneksi: " + error.message,
+            icon: "error",
+            timer: 2000,
+            showConfirmButton: false,
+        });
+    }
 }
 
+async function saveUser() {
+    let namaPemilik = document.getElementById("nama_pemilik").value.trim();
+    let username = document.getElementById("username").value.trim();
+    let email = document.getElementById("email").value.trim();
+    let password = document.getElementById("password").value.trim();
+    let confirmPassword = document
+        .getElementById("password_confirmation")
+        .value.trim();
+
+    if (!namaPemilik || !username || !email || !password || !confirmPassword) {
+        Swal.fire({
+            title: "Gagal!",
+            text: "Harap isi semua data yang diperlukan.",
+            icon: "error",
+            timer: 1500,
+            showConfirmButton: false,
+        });
+        return;
+    }
+
+    const form = document.getElementById("create-form-user");
+    const formData = new FormData(form);
+    const updateUrl = form.getAttribute("action");
+
+    formData.append("ajax_submit", "true");
+
+    try {
+        const response = await fetch(updateUrl, {
+            method: "POST",
+            body: formData,
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            Swal.fire({
+                title: "Data berhasil diubah",
+                icon: "success",
+                showConfirmButton: false,
+                timer: 1500,
+            }).then(() => {
+                window.location.href = "/dashboard/admin/user";
+            });
+        } else if (response.status === 422) {
+            const data = await response.json();
+
+            let errorMessages = "";
+
+            if (data.errors && data.errors.username && data.errors.email) {
+                Object.keys(data.errors).forEach((field) => {
+                    if (Array.isArray(data.errors[field])) {
+                        data.errors[field].forEach((error) => {
+                            errorMessages += `- ${error}<br>`;
+                        });
+                    }
+                });
+            } else if (data.message) {
+                errorMessages = data.message;
+            } else {
+                errorMessages =
+                    "Terjadi kesalahan validasi yang tidak spesifik.";
+            }
+
+            Swal.fire({
+                title: "Gagal!",
+                html: errorMessages,
+                icon: "error",
+                timer: 3000,
+                showConfirmButton: false,
+            });
+        } else {
+            Swal.fire({
+                title: "Error Server!",
+                text: `Server merespons dengan status: ${response.status}`,
+                icon: "error",
+                timer: 2000,
+                showConfirmButton: false,
+            });
+        }
+    } catch (error) {
+        console.error("Error detail:", error);
+        Swal.fire({
+            title: "Error Jaringan!",
+            text: "Terjadi kesalahan koneksi: " + error.message,
+            icon: "error",
+            timer: 2000,
+            showConfirmButton: false,
+        });
+    }
+}
+
+// Function kelas
 async function updateKelas() {
     let originalNamaKelas = document
         .getElementById("original_nama_kelas")
@@ -730,23 +840,83 @@ async function updateKelas() {
         return;
     }
 
-    Swal.fire({
-        title: "Data berhasil diubah",
-        icon: "success",
-        showConfirmButton: false,
-        timer: 1500,
-    }).then(() => {
-        document.getElementById("update-form-kelas").submit();
-    });
+    const form = document.getElementById("update-form-kelas");
+    const formData = new FormData(form);
+    const updateUrl = form.getAttribute("action");
+
+    formData.append("ajax_submit", "true");
+
+    try {
+        const response = await fetch(updateUrl, {
+            method: "POST",
+            body: formData,
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            Swal.fire({
+                title: "Data berhasil diubah",
+                icon: "success",
+                showConfirmButton: false,
+                timer: 1500,
+            }).then(() => {
+                window.location.href = "/dashboard/admin/kelas";
+            });
+        } else if (response.status === 422) {
+            const data = await response.json();
+
+            let errorMessages = "";
+
+            if (data.errors && data.errors.namaKelas && data.errors.usernameDosenWali) {
+                Object.keys(data.errors).forEach((field) => {
+                    if (Array.isArray(data.errors[field])) {
+                        data.errors[field].forEach((error) => {
+                            errorMessages += `- ${error}<br>`;
+                        });
+                    }
+                });
+            } else if (data.message) {
+                errorMessages = data.message;
+            } else {
+                errorMessages =
+                    "Terjadi kesalahan validasi yang tidak spesifik.";
+            }
+
+            Swal.fire({
+                title: "Gagal!",
+                html: errorMessages,
+                icon: "error",
+                timer: 3000,
+                showConfirmButton: false,
+            });
+        } else {
+            Swal.fire({
+                title: "Error Server!",
+                text: `Server merespons dengan status: ${response.status}`,
+                icon: "error",
+                timer: 2000,
+                showConfirmButton: false,
+            });
+        }
+    } catch (error) {
+        console.error("Error detail:", error);
+        Swal.fire({
+            title: "Error Jaringan!",
+            text: "Terjadi kesalahan koneksi: " + error.message,
+            icon: "error",
+            timer: 2000,
+            showConfirmButton: false,
+        });
+    }
 }
 
 async function saveKelas() {
     let namaKelas = document.getElementById("nama_kelas").value.trim();
-    let namaDosenWali = document
+    let usernameDosenWali = document
         .getElementById("username_dosen_wali")
         .value.trim();
 
-    if (!namaKelas || !namaDosenWali) {
+    if (!namaKelas || !usernameDosenWali) {
         Swal.fire({
             title: "Gagal!",
             text: "Harap isi semua data yang diperlukan.",
@@ -757,14 +927,78 @@ async function saveKelas() {
         return;
     }
 
-    Swal.fire({
-        title: "Data berhasil disimpan!",
-        icon: "success",
-        showConfirmButton: false,
-        timer: 1500,
-    }).then(() => {
-        document.getElementById("create-form-kelas").submit();
-    });
+    const form = document.getElementById("create-form-kelas");
+    const formData = new FormData(form);
+    const updateUrl = form.getAttribute("action");
+
+    formData.append("ajax_submit", "true");
+
+    try {
+        const response = await fetch(updateUrl, {
+            method: "POST",
+            body: formData,
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            Swal.fire({
+                title: "Data berhasil diubah",
+                icon: "success",
+                showConfirmButton: false,
+                timer: 1500,
+            }).then(() => {
+                window.location.href = "/dashboard/admin/kelas";
+            });
+        } else if (response.status === 422) {
+            const data = await response.json();
+
+            let errorMessages = "";
+
+            if (
+                data.errors &&
+                data.errors.namaKelas &&
+                data.errors.usernameDosenWali
+            ) {
+                Object.keys(data.errors).forEach((field) => {
+                    if (Array.isArray(data.errors[field])) {
+                        data.errors[field].forEach((error) => {
+                            errorMessages += `- ${error}<br>`;
+                        });
+                    }
+                });
+            } else if (data.message) {
+                errorMessages = data.message;
+            } else {
+                errorMessages =
+                    "Terjadi kesalahan validasi yang tidak spesifik.";
+            }
+
+            Swal.fire({
+                title: "Gagal!",
+                html: errorMessages,
+                icon: "error",
+                timer: 3000,
+                showConfirmButton: false,
+            });
+        } else {
+            Swal.fire({
+                title: "Error Server!",
+                text: `Server merespons dengan status: ${response.status}`,
+                icon: "error",
+                timer: 2000,
+                showConfirmButton: false,
+            });
+        }
+    } catch (error) {
+        console.error("Error detail:", error);
+        Swal.fire({
+            title: "Error Jaringan!",
+            text: "Terjadi kesalahan koneksi: " + error.message,
+            icon: "error",
+            timer: 2000,
+            showConfirmButton: false,
+        });
+    }
 }
 
 async function updatePelanggaranAkademik(role_id, nama_pemilik) {
