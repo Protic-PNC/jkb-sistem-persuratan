@@ -63,6 +63,8 @@ Route::get('/dashboard/admin/user/get-mahasiswa-by-npm', [AdminUserController::c
 Route::get('/dashboard/admin/user/get-dosen-wali', [AdminUserController::class, 'getDosenWali'])->middleware('admin');
 Route::get('/dashboard/admin/user', [AdminUserController::class, 'index'])->middleware('admin');
 Route::get('/dashboard/admin/user/create', [AdminUserController::class, 'create'])->middleware('admin');
+Route::get('/dashboard/admin/user/import', [AdminUserController::class, 'showImportForm'])->middleware('admin');
+Route::post('/dashboard/admin/user/import', [AdminUserController::class, 'importCSV'])->middleware('admin');
 Route::post('/dashboard/admin/user', [AdminUserController::class, 'store'])->middleware('admin');
 Route::get('/dashboard/admin/user/{user}/edit', [AdminUserController::class, 'edit'])->middleware('admin');
 Route::put('/dashboard/admin/user/{user}', [AdminUserController::class, 'update'])->middleware('admin');
