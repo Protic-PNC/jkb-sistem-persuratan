@@ -12,7 +12,6 @@
                         <input type="hidden" id="original_nama_pemilik" name="original_nama_pemilik"
                             value="{{ $users->nama_pemilik }}">
                         <input type="hidden" id="original_username" id="original_username" value="{{ $users->username }}">
-                        <input type="hidden" id="original_no_telp" id="original_no_telp" value="{{ $users->no_telp }}">
                         <input type="hidden" id="original_email" id="original_email" value="{{ $users->email }}">
                         <input type="hidden" id="original_password" id="original_password" value="{{ $users->password }}">
                         <input type="hidden" id="original_role" id="original_role" value="{{ $users->role_id }}">
@@ -36,16 +35,6 @@
                             <input type="text" class="form-control @error('username') is-invalid @enderror"
                                 id="username" name="username" value="{{ old('username', $users->username) }}">
                             @error('username')
-                                <div class="invalid-feedback">
-                                    {{ $message }}
-                                </div>
-                            @enderror
-                        </div>
-                        <div class="mb-3">
-                            <label for="no_telp" class="form-label">Nomor Telepon</label>
-                            <input type="no_telp" class="form-control @error('no_telp') is-invalid @enderror" id="no_telp"
-                                name="no_telp" value="{{ old('no_telp', $users->no_telp) }}">
-                            @error('no_telp')
                                 <div class="invalid-feedback">
                                     {{ $message }}
                                 </div>
@@ -129,8 +118,8 @@
                         </div>
                         <a href="/dashboard/admin/user" class="btn btn-success"><i class="bi bi-arrow-left-square"></i>
                             Kembali</a>
-                        <button type="button" class="btn btn-primary" onclick="updateUser()">Edit
-                            User</button>
+                        <button type="button" class="btn btn-primary" onclick="updateUser()">Ubah
+                            Akun</button>
                     </form>
                 </div>
             </div>
