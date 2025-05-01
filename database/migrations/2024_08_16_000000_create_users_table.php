@@ -15,7 +15,6 @@ return new class extends Migration
             $table->id();
             $table->string('nama_pemilik');
             $table->string('username');
-            $table->string('no_telp');
             $table->string('email');
             $table->string('password');
             $table->unsignedBigInteger('role_id');
