@@ -42,7 +42,6 @@ class DatabaseSeeder extends Seeder
         User::create([
             'nama_pemilik' => 'Admin',
             'username' => '123',
-            'no_telp' => '6281548406337',
             'email' => 'example@gmail.com',
             'role_id' => '1',
             'jurusan' => 'Komputer dan Bisnis',
