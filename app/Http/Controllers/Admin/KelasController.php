@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Admin;
 use App\Models\Kelas;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 
 class KelasController extends Controller
 {
@@ -33,15 +35,24 @@ class KelasController extends Controller
 
     public function store(Request $request)
     {
+    try {
         $validatedData = $request->validate([
-            'nama_kelas' => 'required|string|max:255',
-            'username_dosen_wali' => 'required|string|max:255'
+            'nama_kelas' => 'required|string|max:255|unique:kelas,nama_kelas',
+            'username_dosen_wali' => 'required|string|max:255|unique:kelas,username_dosen_wali',
+        ], [
+            'nama_kelas.unique' => 'Nama kelas sudah terdaftar.',
+            'username_dosen_wali.unique' => 'Username dosen wali sudah terdaftar.',
         ]);
 
         Kelas::create($validatedData);
 
-        return redirect('/dashboard/admin/kelas');
+        return response()->json(['message' => 'Data berhasil disimpan.']);
+    }catch (ValidationException $e) {
+    return response()->json([
+        'message' => collect($e->errors())->flatten()->first()
+    ], 422);
     }
+}
 
     public function edit(Kelas $kelas)
     {
@@ -53,29 +64,24 @@ class KelasController extends Controller
 
     public function update(Request $request, Kelas $kelas)
     {
-        $rules = [
-            'nama_kelas' => 'required|string|max:255',
-            'username_dosen_wali' => 'required|string|max:255',
-        ];
-
-        $validatedData = $request->validate($rules);
-
-        $dataChanged = false;
-        foreach ($validatedData as $key => $value) {
-            if ($value != $kelas->$key) {
-                $dataChanged = true;
-                break;
-            }
-        }
-
-        if (!$dataChanged) {
-            return redirect('/dashboard/admin/kelas');
-        }
+    try{
+        $validatedData = $request->validate([
+            'nama_kelas' => ['required', 'string', 'max:255', Rule::unique('kelas')->ignore($kelas->id)],
+            'username_dosen_wali' => ['required', 'string', 'max:255', Rule::unique('kelas')->ignore($kelas->id)],
+        ], [
+            'nama_kelas.unique' => 'Nama kelas sudah terdaftar.',
+            'username_dosen_wali.unique' => 'Username dosen wali sudah terdaftar.',
+        ]);
 
         $kelas->update($validatedData);
-
-        return redirect('/dashboard/admin/kelas');
-    }
+        
+        return response()->json(['message' => 'Data berhasil diubah']);
+    } catch (ValidationException $e) {
+        return response()->json([
+            'message' => collect($e->errors())->flatten()->first()
+        ], 422);
+        }
+}
 
     public function destroy(Kelas $kelas)
     {
