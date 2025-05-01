@@ -9,6 +9,9 @@ use App\Models\Kelas;
 use App\Models\Role;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Imports\UsersImport;
 
 class UserController extends Controller
 {
@@ -38,32 +41,42 @@ class UserController extends Controller
 
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'nama_pemilik' => 'required|string|max:255',
-            'username' => 'required|string|max:255|unique:users',
-            'no_telp' => 'required|string|max:255|unique:users',
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8|confirmed',
-            'role_id' => 'required|exists:roles,id_role',
-            'kelas_id' => 'nullable|string|max:255',
-            'jurusan' => 'required|string|max:255',
-            'perguruan_tinggi' => 'required|string|max:255',
-        ]);
+        try {
+            $validated = $request->validate([
+                'nama_pemilik' => 'required|string|max:255',
+                'username' => 'required|string|max:255|unique:users',
+                'email' => 'required|string|email|max:255|unique:users',
+                'password' => 'required|string|min:8|confirmed',
+                'role_id' => 'required|exists:roles,id_role',
+                'kelas_id' => 'nullable|string|max:255',
+                'jurusan' => 'required|string|max:255',
+                'perguruan_tinggi' => 'required|string|max:255',
+            ], [
+                'username.unique' => 'Username sudah digunakan oleh akun lain.',
+                'email.unique' => 'Email sudah digunakan oleh akun lain.',
+                'password.confirmed' => 'Password dan konfirmasi password tidak cocok.',
+            ]);
 
-        User::create([
-            'nama_pemilik' => $validated['nama_pemilik'],
-            'username' => $validated['username'],
-            'no_telp' => $validated['no_telp'],
-            'email' => $validated['email'],
-            'password' => Hash::make($validated['password']),
-            'role_id' => $validated['role_id'],
-            'kelas_id' => $validated['kelas_id'] ?? null,
-            'jurusan' => $validated['jurusan'],
-            'perguruan_tinggi' => $validated['perguruan_tinggi']
-        ]);
-
-        return redirect('/dashboard/admin/user');
+            User::create([
+                'nama_pemilik' => $validated['nama_pemilik'],
+                'username' => $validated['username'],
+                'email' => $validated['email'],
+                'password' => Hash::make($validated['password']),
+                'role_id' => $validated['role_id'],
+                'kelas_id' => $validated['kelas_id'] ?? null,
+                'jurusan' => $validated['jurusan'],
+                'perguruan_tinggi' => $validated['perguruan_tinggi'],
+            ]);
+    
+            return response()->json(['message' => 'Data berhasil disimpan.']);
+    
+        } catch (ValidationException $e) {
+            return response()->json([
+                'message' => collect($e->errors())->flatten()->first()
+            ], 422);
+        }
     }
+    
 
     public function edit(User $user)
     {
@@ -76,32 +89,35 @@ class UserController extends Controller
     }
 
     public function update(Request $request, User $user)
-    {
+{
+    try {
         $validated = $request->validate([
             'nama_pemilik' => 'required|string|max:255',
-            'username' => [
-                'required', 'string', 'max:255',
-                Rule::unique('users')->ignore($user->id),
+            'username'     => ['required','string','max:255', Rule::unique('users')->ignore($user->id)],
+            'email'        => ['required','string','email','max:255', Rule::unique('users')->ignore($user->id)],
+            'password'     => [
+                'nullable',
+                'string',
+                'min:8',
+                'confirmed',
+                function ($attribute, $value, $fail) use ($user) {
+                    if ($value && Hash::check($value, $user->password)) {
+                        $fail('Password baru tidak boleh sama dengan password lama.');
+                    }
+                },
             ],
-            'no_telp' => [
-                'required', 'string', 'max:255',
-                Rule::unique('users')->ignore($user->id),
-            ],
-            'email' => [
-                'required', 'string', 'max:255',
-                Rule::unique('users')->ignore($user->id),
-            ],
-            'password' => 'nullable|string|min:8|confirmed',
             'role_id' => 'required|exists:roles,id_role',
             'kelas_id' => 'nullable|string|max:255',
             'jurusan' => 'required|string|max:255',
-            'perguruan_tinggi' => 'required|string|max:255',
+            'perguruan_tinggi' => 'required|string|max:255'],
+            [
+                'username.unique' => 'Username sudah digunakan oleh akun lain',
+                'email.unique' => 'Email sudah digunakan oleh akun lain',
         ]);
 
         $user->update([
             'nama_pemilik' => $validated['nama_pemilik'],
             'username' => $validated['username'],
-            'no_telp' => $validated['no_telp'],
             'email' => $validated['email'],
             'password' => $validated['password'] ? Hash::make($validated['password']) : $user->password,
             'role_id' => $validated['role_id'],
@@ -110,8 +126,14 @@ class UserController extends Controller
             'perguruan_tinggi' => $validated['perguruan_tinggi'],
         ]);
 
-        return redirect('/dashboard/admin/user');
+        return response()->json(['message' => 'Data berhasil diubah']);
+    } catch (ValidationException $e) {
+        return response()->json([
+            'message' => collect($e->errors())->flatten()->first()
+        ], 422);
     }
+}
+
 
     public function destroy(User $user)
     {
@@ -144,5 +166,27 @@ class UserController extends Controller
     }
 
     return response()->json(['nama_mhs' => '']);
+    }
+
+    public function showImportForm()
+    {
+        return view('dashboard.admin.users.import', [
+            'title' => 'User'
+        ]);
+    }
+
+    public function importCSV(Request $request)
+    {
+        $request->validate([
+            'csv_file' => 'required|mimes:csv,txt'
+        ]);
+
+        try {
+            Excel::import(new UsersImport, $request->file('csv_file'));
+
+            return redirect()->route('users.index')->with('success', 'Data berhasil diimport.');
+        } catch (\Exception $e) {
+            return back()->with('error', 'Terjadi kesalahan saat mengimport data: ' . $e->getMessage());
+        }
     }
 }
