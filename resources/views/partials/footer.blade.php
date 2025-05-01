@@ -4,7 +4,7 @@
             <!-- Logo section -->
             <div style="display: flex; align-items: center;">
                 <img src="{{ asset('img/jkb_logo.png') }}" style="height: 48px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));" alt="JKB Logo" />
-                <span style="font-size: 22px; font-weight: 600; margin-left: 16px; color: #2d3748; letter-spacing: -0.5px;">Jurusan Komputer dan Bisnis</span>
+                <span style="font-size: 22px; font-weight: 600; margin-left: 16px; color: #2d3748; letter-spacing: -0.5px;">Arsip Surat</span>
             </div>
             
             <!-- Social media links with modern styling -->
