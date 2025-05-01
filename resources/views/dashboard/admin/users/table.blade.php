@@ -4,7 +4,6 @@
             <th scope="col" style="white-space: nowrap; text-align: center;">No.</th>
             <th scope="col" style="white-space: nowrap; text-align: center;">Nama Pemilik</th>
             <th scope="col" style="white-space: nowrap; text-align: center;">Username</th>
-            <th scope="col" style="white-space: nowrap; text-align: center;">Nomor Telepon</th>
             <th scope="col" style="white-space: nowrap; text-align: center;">Email</th>
             <th scope="col" style="white-space: nowrap; text-align: center;">Role</th>
             <th scope="col" style="white-space: nowrap; text-align: center;">Kelas</th>
@@ -19,7 +18,6 @@
                 <td style="white-space: nowrap; text-align: center;">{{ $user->id }}</td>
                 <td style="white-space: nowrap; text-align: center;">{{ $user->nama_pemilik }}</td>
                 <td style="white-space: nowrap; text-align: center;">{{ $user->username }}</td>
-                <td style="white-space: nowrap; text-align: center;">{{ $user->no_telp }}</td>
                 <td style="white-space: nowrap; text-align: center;">{{ $user->email }}</td>
                 <td style="white-space: nowrap; text-align: center;">{{ optional($user->role)->nama_role }}</td>
                 <td style="white-space: nowrap; text-align: center;">{{ optional($user->kelas)->nama_kelas }}</td>
