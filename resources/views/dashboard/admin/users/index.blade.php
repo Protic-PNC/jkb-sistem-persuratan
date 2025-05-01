@@ -29,7 +29,10 @@
             @endif
             <div class="d-flex align-items-center justify-content-between mb-4">
                 <h6 class="mb-0">Daftar Akun</h6>
-                <a href="/dashboard/admin/user/create" class="btn btn-primary">Tambah User</a>
+                <div>
+                    <a href="/dashboard/admin/user/create" class="btn btn-primary">Tambah Akun</a>
+                    <a href="/dashboard/admin/user/import" class="btn btn-info ms-2 text-white">Upload CSV</a>
+                </div>
             </div>
 
             <div class="table-responsive">
