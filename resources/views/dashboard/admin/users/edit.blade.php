@@ -5,7 +5,7 @@
         <div class="row g-4">
             <div class="col-sm-12 col-xl-6">
                 <div class="bg-light rounded h-100 p-4">
-                    <h6 class="mb-4">Edit Kelas</h6>
+                    <h6 class="mb-4">Edit Akun</h6>
                     <form id="update-form-user" method="post" action="/dashboard/admin/user/{{ $users->id }}">
                         @method('put')
                         @csrf
@@ -118,7 +118,8 @@
                         </div>
                         <a href="/dashboard/admin/user" class="btn btn-success"><i class="bi bi-arrow-left-square"></i>
                             Kembali</a>
-                        <button type="button" class="btn btn-primary" onclick="updateUser()">Ubah
+                        <button type="button" class="btn btn-primary" onclick="updateUser()"><i
+                            class="bi bi-check2 me-1"></i>Ubah
                             Akun</button>
                     </form>
                 </div>
