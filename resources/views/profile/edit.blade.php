@@ -18,7 +18,6 @@
                             enctype="multipart/form-data">
                             @method('put')
                             @csrf
-                            <input type="hidden" id="original_no_telp" value="{{ $users->no_telp }}">
                             <input type="hidden" id="original_email" value="{{ $users->email }}">
                             <input type="hidden" id="original_password" value="{{ $users->password }}">
                             <input type="hidden" id="original_profile_picture" value="{{ $users->profile_picture }}">
@@ -58,22 +57,6 @@
                                 <div class="text-muted mb-3 small"><i class="bi bi-person-badge me-1"></i>Informasi Kontak
                                 </div>
 
-                                <!-- Phone Number -->
-                                <div class="mb-3">
-                                    <label for="no_telp" class="form-label small">Nomor Telepon</label>
-                                    <div class="input-group">
-                                        <span class="input-group-text bg-white border-end-0">
-                                            <i class="bi bi-telephone text-primary small"></i>
-                                        </span>
-                                        <input type="text"
-                                            class="form-control border-start-0 ps-0 @error('no_telp') is-invalid @enderror"
-                                            id="no_telp" name="no_telp" value="{{ old('no_telp', $users->no_telp) }}"
-                                            style="border-top-right-radius: 6px; border-bottom-right-radius: 6px;">
-                                    </div>
-                                    @error('no_telp')
-                                        <div class="text-danger small mt-1">{{ $message }}</div>
-                                    @enderror
-                                </div>
 
                                 <!-- Email -->
                                 <div class="mb-0">
@@ -173,7 +156,7 @@
                                     <i class="bi bi-arrow-left-square me-1"></i> Kembali
                                 </a>
                                 <button type="button" class="btn btn-primary" onclick="updateProfile()">
-                                    <i class="bi bi-check2 me-1"></i> Edit User
+                                    <i class="bi bi-check2 me-1"></i> Ubah Akun
                                 </button>
                             </div>
                         </form>
