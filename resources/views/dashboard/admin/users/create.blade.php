@@ -76,7 +76,7 @@
                                 </div>
                             @enderror
                         </div>
-                        <div class="mb-3">
+                        <div class="mb-3" id="kelas-wrapper">
                             <label for="kelas_id" class="form-label">Kelas</label>
                             <select class="form-select @error('kelas_id') is-invalid @enderror" id="kelas_id"
                                 name="kelas_id">
@@ -106,7 +106,8 @@
                         </div>
                         <a href="/dashboard/admin/user" class="btn btn-success"><i class="bi bi-arrow-left-square"></i>
                             Kembali</a>
-                        <button type="button" class="btn btn-primary" onclick="saveUser()">Buat Akun</button>
+                        <button type="button" class="btn btn-primary" onclick="saveUser()"><i
+                            class="bi bi-check2 me-1"></i>Buat Akun</button>
                     </form>
                 </div>
             </div>
