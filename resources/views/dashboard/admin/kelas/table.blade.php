@@ -16,7 +16,7 @@
                 <td>
                     <div class="d-flex justify-content-start">
                         <a class="btn btn-sm btn-warning me-2"
-                            href="/dashboard/admin/kelas/{{ $kls->id_kelas }}/edit">Edit</a>
+                            href="/dashboard/admin/kelas/{{ $kls->id_kelas }}/edit">Ubah</a>
                         <form action="/dashboard/admin/kelas/{{ $kls->id_kelas }}" method="post"
                             class="d-inline" id="delete-form-{{ $kls->id_kelas }}">
                             @method('delete')
