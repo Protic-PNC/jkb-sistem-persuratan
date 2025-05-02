@@ -53,19 +53,13 @@
                                             </div>
 
                                             <div style="display: flex; align-items: center; margin-bottom: 0.8rem;">
-                                                <i class="bi bi-telephone text-primary me-2" style="width: 24px;"></i>
-                                                <strong style="min-width: 80px; margin-right: 1rem;">No Telp:</strong>
-                                                <span>{{ $user->no_telp }}</span>
-                                            </div>
-
-                                            <div style="display: flex; align-items: center; margin-bottom: 0.8rem;">
                                                 <i class="bi bi-envelope text-primary me-2" style="width: 24px;"></i>
                                                 <strong style="min-width: 80px; margin-right: 1rem;">Email:</strong>
                                                 <span>{{ $user->email }}</span>
                                             </div>
 
                                             <div style="display: flex; align-items: center; margin-bottom: 0.8rem;">
-                                                <i class="bi bi-mortarboard text-primary me-2" style="width: 24px;"></i>
+                                                <i class="bi bi-building text-primary me-2" style="width: 24px;"></i>
                                                 <strong style="min-width: 80px; margin-right: 1rem;">Kelas:</strong>
                                                 <span>{{ $user->kelas->nama_kelas ?? '-' }}</span>
                                             </div>
@@ -73,7 +67,7 @@
 
                                         <div class="mt-3 d-grid d-md-flex justify-content-md-end">
                                             <a href="/profile/{{ $user->id }}/edit" class="btn btn-primary">
-                                                <i class="bi bi-pencil-square me-2"></i>Edit
+                                                <i class="bi bi-pencil-square me-2"></i>Ubah Akun
                                             </a>
                                         </div>
                                     </div>
