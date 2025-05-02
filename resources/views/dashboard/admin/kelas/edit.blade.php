@@ -36,7 +36,8 @@
                         </div>
                         <a href="/dashboard/admin/kelas" class="btn btn-success"><i class="bi bi-arrow-left-square"></i>
                             Kembali</a>
-                        <button type="button" class="btn btn-primary" onclick="updateKelas()">Edit Kelas</button>
+                        <button type="button" class="btn btn-primary" onclick="updateKelas()"><i
+                                class="bi bi-check2 me-1"></i>Ubah Kelas</button>
                     </form>
                 </div>
             </div>
