@@ -76,7 +76,6 @@ class UserController extends Controller
             ], 422);
         }
     }
-    
 
     public function edit(User $user)
     {
@@ -113,6 +112,7 @@ class UserController extends Controller
             [
                 'username.unique' => 'Username sudah digunakan oleh akun lain',
                 'email.unique' => 'Email sudah digunakan oleh akun lain',
+                'password.min' => 'Password harus terdiri dari minimal 8 karakter.',
         ]);
 
         $user->update([
@@ -176,17 +176,28 @@ class UserController extends Controller
     }
 
     public function importCSV(Request $request)
-    {
+{
+    try {
         $request->validate([
             'csv_file' => 'required|mimes:csv,txt'
+        ], [
+            'csv_file.required' => 'Silakan unggah file CSV terlebih dahulu.',
+            'csv_file.mimes' => 'Format file harus CSV atau TXT.'
         ]);
 
-        try {
-            Excel::import(new UsersImport, $request->file('csv_file'));
+        Excel::import(new UsersImport, $request->file('csv_file'));
 
-            return redirect()->route('users.index')->with('success', 'Data berhasil diimport.');
-        } catch (\Exception $e) {
-            return back()->with('error', 'Terjadi kesalahan saat mengimport data: ' . $e->getMessage());
-        }
+        return response()->json(['message' => 'Data berhasil diimport.']);
+    } catch (ValidationException $e) {
+        return response()->json([
+            'errors' => $e->errors(),
+            'message' => collect($e->errors())->flatten()->first()
+        ], 422);
+    } catch (\Exception $e) {
+        return response()->json([
+            'message' => 'Terjadi kesalahan saat mengimport data: ' . $e->getMessage()
+        ], 500);
     }
+}
+
 }
