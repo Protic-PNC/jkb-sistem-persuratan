@@ -1,9 +1,9 @@
 @extends('dashboard.admin.layouts.main')
 
 @section('container')
-    <div class="container-fluid mb-4 pt-4 px-4">
-        <div class="row g-4">
-            <div class="col-sm-12 col-xl-6">
+    <div class="container-fluid mb-4 pt-4 px-4 d-flex justify-content-center align-items-center" style="min-height: 100vh;">
+        <div class="row g-4 w-100">
+            <div class="col-sm-12 col-xl-6 mx-auto">
                 <div class="bg-light rounded h-100 p-4">
                     <h6 class="mb-4">Edit Akun</h6>
                     <form id="update-form-user" method="post" action="/dashboard/admin/user/{{ $users->id }}">
@@ -11,14 +11,13 @@
                         @csrf
                         <input type="hidden" id="original_nama_pemilik" name="original_nama_pemilik"
                             value="{{ $users->nama_pemilik }}">
-                        <input type="hidden" id="original_username" id="original_username" value="{{ $users->username }}">
-                        <input type="hidden" id="original_email" id="original_email" value="{{ $users->email }}">
-                        <input type="hidden" id="original_password" id="original_password" value="{{ $users->password }}">
-                        <input type="hidden" id="original_role" id="original_role" value="{{ $users->role_id }}">
-                        <input type="hidden" id="original_kelas" id="original_kelas" value="{{ $users->kelas_id }}">
-                        <input type="hidden" id="original_jurusan" id="original_jurusan" value="{{ $users->jurusan }}">
-                        <input type="hidden" id="original_perguruan_tinggi" id="original_perguruan_tinggi"
-                            value="{{ $users->perguruan_tinggi }}">
+                        <input type="hidden" id="original_username" value="{{ $users->username }}">
+                        <input type="hidden" id="original_email" value="{{ $users->email }}">
+                        <input type="hidden" id="original_password" value="{{ $users->password }}">
+                        <input type="hidden" id="original_role" value="{{ $users->role_id }}">
+                        <input type="hidden" id="original_kelas" value="{{ $users->kelas_id }}">
+                        <input type="hidden" id="original_jurusan" value="{{ $users->jurusan }}">
+                        <input type="hidden" id="original_perguruan_tinggi" value="{{ $users->perguruan_tinggi }}">
                         <div class="mb-3">
                             <label for="nama_pemilik" class="form-label">Nama Pemilik</label>
                             <input type="text" class="form-control @error('nama_pemilik') is-invalid @enderror"
@@ -119,8 +118,7 @@
                         <a href="/dashboard/admin/user" class="btn btn-success"><i class="bi bi-arrow-left-square"></i>
                             Kembali</a>
                         <button type="button" class="btn btn-primary" onclick="updateUser()"><i
-                            class="bi bi-check2 me-1"></i>Ubah
-                            Akun</button>
+                                class="bi bi-check2 me-1"></i>Ubah Akun</button>
                     </form>
                 </div>
             </div>
