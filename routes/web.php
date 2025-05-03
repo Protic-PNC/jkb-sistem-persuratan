@@ -46,9 +46,17 @@ Route::controller(LoginController::class)->group(function () {
 });
 
 Route::get('/dashboard/admin', [AdminDashboardController::class, 'index'])->middleware('admin');
-Route::get('/dashboard/admin/pernyataan-magang/{pernyataanMagang}/cetak', [AdminPernyataanMagangController::class, 'cetak'])->middleware('admin');
-Route::post('/check-username', [AdminPernyataanMagangController::class, 'checkUsername'])->name('check-username');
-Route::resource('/dashboard/admin/pernyataan-magang', AdminPernyataanMagangController::class)->middleware('admin');
+Route::middleware('admin')->group(function () {
+    Route::resource('/dashboard/admin/pernyataan-magang', AdminPernyataanMagangController::class);
+
+    Route::get('/dashboard/admin/pernyataan-magang/{pernyataanMagang}/cetak', [AdminPernyataanMagangController::class, 'cetak']);
+    Route::post('/check-username', [AdminPernyataanMagangController::class, 'checkUsername'])->name('check-username');
+
+    Route::get('/dashboard/admin/pernyataan-magang/{pernyataanMagang}/upload', [AdminPernyataanMagangController::class, 'uploadForm'])->name('pernyataan.upload.form');
+    Route::post('/dashboard/admin/pernyataan-magang/{pernyataanMagang}/upload', [AdminPernyataanMagangController::class, 'upload'])->name('pernyataan.upload');
+    Route::post('/dashboard/admin/pernyataan-magang/{pernyataanMagang}/setujui', [AdminPernyataanMagangController::class, 'setujui'])->name('pernyataan.setujui');
+    Route::post('/dashboard/admin/pernyataan-magang/{pernyataanMagang}/tolak', [AdminPernyataanMagangController::class, 'tolak'])->name('pernyataan.tolak');
+});
 
 Route::get('/dashboard/admin/pelanggaran-akademik/{pelanggaranAkademik}/cetak', [AdminPelanggaranAkademikController::class, 'cetak'])->middleware('admin');
 Route::resource('/dashboard/admin/pelanggaran-akademik', AdminPelanggaranAkademikController::class)->middleware('admin');
