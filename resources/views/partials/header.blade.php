@@ -8,8 +8,9 @@
 <!-- Navbar Start -->
 <nav class="navbar navbar-expand-lg bg-white navbar-light sticky-top p-0 px-4 px-lg-5">
     <a class="navbar-brand d-flex align-items-center">
-        <h2 class="m-0 text-primary">
-            <img class="img-fluid me-3" src="{{ asset('img/jkb_logo.png') }}" alt="logo jkb" style="width: 45px;">
+        <h2>
+            <img class="img-fluid me-3" src="{{ asset('img/jkb_logo.png') }}" alt="logo jkb"
+                style="color: #2d3748; width: 45px;">
             Arsip Surat
         </h2>
     </a>
@@ -18,7 +19,7 @@
     </button>
     <div class="collapse navbar-collapse" id="navbarCollapse">
         <div class="navbar-nav ms-auto py-4 py-lg-0">
-            <a href="/" class="nav-item nav-link {{ Request::is('/') ? 'active' : '' }}">Home</a>
+            <a href="/" class="nav-item nav-link {{ Request::is('/') ? 'active' : '' }}">Beranda</a>
             @auth
                 <div class="nav-item dropdown">
                     <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown"><i
