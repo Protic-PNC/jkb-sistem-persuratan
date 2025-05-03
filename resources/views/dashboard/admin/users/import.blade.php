@@ -1,9 +1,9 @@
 @extends('dashboard.admin.layouts.main')
 
 @section('container')
-    <div class="container-fluid mb-4 pt-4 px-4">
-        <div class="row g-4">
-            <div class="col-sm-12 col-xl-6">
+    <div class="container pt-4 px-4 d-flex justify-content-center">
+        <div class="row g-4 w-100">
+            <div class="col-sm-12 col-xl-6 mx-auto">
                 <div class="bg-light rounded h-100 p-4">
                     <h6 class="mb-4">Upload CSV</h6>
                     <form id="import-form-user" action="/dashboard/admin/user/import" method="POST"
@@ -21,9 +21,8 @@
                         </div>
                         <a href="/dashboard/admin/user" class="btn btn-success"><i class="bi bi-arrow-left-square"></i>
                             Kembali</a>
-                        <button type="submit" class="btn btn-primary" onclick= "event.preventDefault(); importAkunCSV()"><i
-                            class="bi bi-check2 me-1"></i>Import
-                            CSV</button>
+                        <button type="submit" class="btn btn-primary" onclick="event.preventDefault(); importAkunCSV()"><i
+                                class="bi bi-check2 me-1"></i>Import CSV</button>
                     </form>
                 </div>
             </div>
