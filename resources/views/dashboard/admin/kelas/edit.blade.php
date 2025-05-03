@@ -1,9 +1,9 @@
 @extends('dashboard.admin.layouts.main')
 
 @section('container')
-    <div class="container-fluid mb-4 pt-4 px-4">
-        <div class="row g-4">
-            <div class="col-sm-12 col-xl-6">
+    <div class="container-fluid mb-4 pt-4 px-4 d-flex justify-content-center align-items-center">
+        <div class="row g-4 w-100">
+            <div class="col-sm-12 col-xl-6 mx-auto">
                 <div class="bg-light rounded h-100 p-4">
                     <h6 class="mb-4">Edit Kelas</h6>
                     <form id="update-form-kelas" method="post" action="/dashboard/admin/kelas/{{ $kelas->id_kelas }}">
