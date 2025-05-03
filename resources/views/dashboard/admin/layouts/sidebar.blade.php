@@ -1,8 +1,8 @@
 <!-- Sidebar Start -->
-<div class="sidebar pe-4 pb-3">
+<div class="sidebar pe-4 pb-3 d-flex flex-column">
     <nav class="navbar bg-light navbar-light">
         <a class="navbar-brand mx-4 mb-3">
-            <h3 class="text-primary"><img width="35px" style="margin-right: 10px;" src="{{ asset('img/jkb_logo.png') }}"
+            <h3><img width="35px" style="margin-right: 10px; color: #2d3748;" src="{{ asset('img/jkb_logo.png') }}"
                     alt="logo jkb"> Arsip Surat
             </h3>
         </a>
@@ -27,35 +27,43 @@
                     class='fas fa-clipboard-list me-2'></i>Dashboard</a>
             <div class="nav-item dropdown">
                 <a href="#"
-                    class="nav-link dropdown-toggle {{ Request::is('pernyataans') || Request::is('pelanggarans') || Request::is('pengundurans') ? 'active' : '' }}"
+                    class="nav-link dropdown-toggle {{ Request::is('pernyataans') || Request::is('pelanggarans') || Request::is('pengundurans') ? 'active' : '' }} "
                     data-bs-toggle="dropdown"><i class="far fa-file-alt me-2"></i>Surat</a>
                 <div class="dropdown-menu bg-transparent border-0">
                     <a href="/dashboard/admin/pernyataan-magang"
-                        class="dropdown-item {{ Request::is('dashboard/admin/pernyataan-magang*') ? 'active' : '' }}">
+                        class="dropdown-item {{ Request::is('dashboard/admin/pernyataan-magang*') ? 'active' : '' }} ">
                         Surat Pernyataan Magang</a>
                     <a href="/dashboard/admin/pelanggaran-akademik"
-                        class="dropdown-item {{ Request::is('dashboard/admin/pelanggaran-akademik*') ? 'active' : '' }}">
+                        class="dropdown-item {{ Request::is('dashboard/admin/pelanggaran-akademik*') ? 'active' : '' }} ">
                         Surat Pelanggaran Peraturan Akademik</a>
                     <a href="/dashboard/admin/pengunduran-diri"
-                        class="dropdown-item {{ Request::is('dashboard/admin/pengunduran-diri*') ? 'active' : '' }}">
-                        Surat Pengunduran
-                        Diri</a>
+                        class="dropdown-item {{ Request::is('dashboard/admin/pengunduran-diri*') ? 'active' : '' }} ">
+                        Surat Pengunduran Diri</a>
                 </div>
             </div>
             <div class="nav-item dropdown">
                 <a href="#"
-                    class="nav-link dropdown-toggle {{ Request::is('users') || Request::is('kelas') ? 'active' : '' }}"
+                    class="nav-link dropdown-toggle {{ Request::is('users') || Request::is('kelas') ? 'active' : '' }} "
                     data-bs-toggle="dropdown"><i class="bi bi-gear-fill me-2"></i></i>Pengaturan</a>
                 <div class="dropdown-menu bg-transparent border-0">
                     <a href="/dashboard/admin/user"
-                        class="dropdown-item {{ Request::is('dashboard/admin/user*') ? 'active' : '' }}">
+                        class="dropdown-item {{ Request::is('dashboard/admin/user*') ? 'active' : '' }} ">
                         Akun</a>
                     <a href="/dashboard/admin/kelas"
-                        class="dropdown-item {{ Request::is('dashboard/admin/kelas*') ? 'active' : '' }}">
+                        class="dropdown-item {{ Request::is('dashboard/admin/kelas*') ? 'active' : '' }} ">
                         Kelas</a>
                 </div>
             </div>
         </div>
     </nav>
+
+    <!-- Copyright Section -->
+    <div class="mt-auto text-center py-3"
+        style="font-size: 12px; color: #888; background-color: #f8f9fa; border-top: 1px solid #ddd;">
+        <p style="font-size: 14px; color: #555; font-weight: 500; letter-spacing: 0.5px;">
+            &copy; 2024 Arsip Surat. All Rights Reserved.
+        </p>
+    </div>
+
 </div>
 <!-- Sidebar End -->
