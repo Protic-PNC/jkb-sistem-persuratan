@@ -10,7 +10,7 @@
     <meta content="" name="description">
 
     <!-- Favicon -->
-    <link href="{{ asset('img/iconWeb.png') }}" rel="icon">
+    <link href="{{ asset('img/jkb_logo.png') }}" rel="icon">
 
     <!-- Datatables -->
     <link rel="stylesheet" href="https://cdn.datatables.net/2.1.5/css/dataTables.dataTables.css" />
@@ -62,8 +62,6 @@
             @include('dashboard.admin.layouts.header')
 
             @yield('container')
-
-            @include('dashboard.admin.layouts.footer')
         </div>
         {{-- Content End --}}
         <!-- Back to Top -->
@@ -81,7 +79,6 @@
     <script src="{{ asset('dashmin/lib/tempusdominus/js/moment.min.js') }}"></script>
     <script src="{{ asset('dashmin/lib/tempusdominus/js/moment-timezone.min.js') }}"></script>
     <script src="{{ asset('dashmin/lib/tempusdominus/js/tempusdominus-bootstrap-4.min.js') }}"></script>
-
     <!-- Template Javascript -->
     <script src="{{ asset('dashmin/js/main.js') }}"></script>
     <script src="{{ asset('js/main.js') }}"></script>
