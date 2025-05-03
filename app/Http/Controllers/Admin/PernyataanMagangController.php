@@ -2,10 +2,14 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Http\Controllers\Controller;
-use App\Models\PernyataanMagang;
-use Barryvdh\DomPDF\Facade\Pdf;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Barryvdh\DomPDF\Facade\Pdf;
+use App\Models\PernyataanMagang;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
+use App\Mail\StatusSuratPernyataanMagangChangedMail;
 
 class PernyataanMagangController extends Controller
 {
@@ -109,4 +113,78 @@ class PernyataanMagangController extends Controller
 
         return $pdf->stream('Surat Pernyataan Magang_' . $pernyataanMagang->nama_mhs .'_'. $pernyataanMagang->username .'_'. $pernyataanMagang->jurusan . '.pdf');
     }
+
+    public function uploadForm($id)
+{
+    $pernyataans = PernyataanMagang::findOrFail($id);
+    return view('dashboard.admin.pernyataan_magangs.upload', [
+    'title' => 'Pernyataan Magang',
+    'pernyataans' => $pernyataans
+]);
+}
+
+public function upload(Request $request, $id)
+{
+    if (!$request->hasFile('file_pdf')) {
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Tidak ada file yang diupload.'
+        ]);
+    }
+
+    $request->validate([
+        'file_pdf' => 'required|mimes:pdf|max:2048',
+    ]);
+
+    $pernyataans = PernyataanMagang::findOrFail($id);
+    $file = $request->file('file_pdf');
+
+    if ($pernyataans->file_pdf && Storage::disk('public')->exists($pernyataans->file_pdf)) {
+        $old = Storage::get('public/' . $pernyataans->file_pdf);
+        if (md5_file($file->getRealPath()) === md5($old)) {
+            return response()->json([
+                'status' => 'info',
+                'message' => 'Tidak ada perubahan data yang dilakukan.'
+            ]);
+        }
+    }
+
+    $path = $file->store('surat-magang', 'public');
+    $pernyataans->file_pdf = $path;
+    $pernyataans->save();
+
+    return response()->json([
+        'status' => 'success',
+        'message' => 'File berhasil diupload.'
+    ]);
+}
+
+
+
+public function setujui($id)
+{
+    $pernyataans = PernyataanMagang::findOrFail($id);
+    $pernyataans->status = 'approved';
+    $pernyataans->alasan = null;
+    $pernyataans->save();
+    $user = User::where('username', $pernyataans->username)->first();
+
+    Mail::to($user->email)->send(new StatusSuratPernyataanMagangChangedMail($pernyataans, 'approved'));
+
+    return response()->json(['message' => 'Surat disetujui.']);
+}
+
+public function tolak(Request $request, $id)
+{
+    $request->validate(['alasan' => 'required|string']);
+    $pernyataans = PernyataanMagang::findOrFail($id);
+    $pernyataans->status = 'rejected';
+    $pernyataans->alasan = $request->alasan;
+    $pernyataans->save();
+    $user = User::where('username', $pernyataans->username)->first();
+
+    Mail::to($user->email)->send(new StatusSuratPernyataanMagangChangedMail($pernyataans, 'rejected'));
+
+    return response()->json(['message' => 'Surat ditolak.']);
+}
 }
