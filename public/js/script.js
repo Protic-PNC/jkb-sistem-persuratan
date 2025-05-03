@@ -291,7 +291,7 @@ $(document).ready(function () {
     });
 });
 
-function confirmDelete(id) {
+async function confirmDelete(id) {
     const swalWithBootstrapButtons = Swal.mixin({
         customClass: {
             confirmButton: "btn btn-success",
@@ -317,7 +317,7 @@ function confirmDelete(id) {
                         title: "Terhapus!",
                         text: "Data anda telah dihapus.",
                         icon: "success",
-                        timer: 1500,
+                        timer: 3000,
                         showConfirmButton: false,
                     })
                     .then(() => {
@@ -328,7 +328,7 @@ function confirmDelete(id) {
                     title: "Dibatalkan",
                     text: "Tidak ada perubahan yang dilakukan.",
                     icon: "error",
-                    timer: 1500,
+                    timer: 3000,
                     showConfirmButton: false,
                 });
             }
@@ -363,7 +363,7 @@ async function checkusernameExists(username) {
             title: "Error!",
             text: "Gagal memeriksa username. Silakan coba lagi.",
             icon: "error",
-            timer: 1500,
+            timer: 3000,
             showConfirmButton: false,
         });
         return false;
@@ -421,7 +421,7 @@ async function updatePernyataanMagang() {
             title: "Gagal!",
             text: "Harap isi semua data yang diperlukan.",
             icon: "error",
-            timer: 1500,
+            timer: 3000,
             showConfirmButton: false,
         });
         return;
@@ -442,21 +442,19 @@ async function updatePernyataanMagang() {
             text: "Tidak ada perubahan data yang dilakukan.",
             icon: "info",
             showConfirmButton: false,
-            timer: 2000,
-        }).then(() => {
-            window.history.back();
+            timer: 3000,
         });
         return;
     }
 
-    if (username !== originalusername) {
+    if (username !== originalUsername) {
         let usernameExists = await checkusernameExists(username);
         if (usernameExists) {
             Swal.fire({
                 title: "Gagal!",
                 text: "Harap cek kembali data yang dimasukkan.",
                 icon: "error",
-                timer: 1500,
+                timer: 3000,
                 showConfirmButton: false,
             });
             return;
@@ -467,7 +465,7 @@ async function updatePernyataanMagang() {
         title: "Data berhasil diubah",
         icon: "success",
         showConfirmButton: false,
-        timer: 1500,
+        timer: 3000,
     }).then(() => {
         document.getElementById("update-form-magang").submit();
     });
@@ -499,7 +497,7 @@ async function savePernyataanMagang() {
             title: "Gagal!",
             text: "Harap isi semua data yang diperlukan.",
             icon: "error",
-            timer: 1500,
+            timer: 3000,
             showConfirmButton: false,
         });
         return;
@@ -511,7 +509,7 @@ async function savePernyataanMagang() {
             title: "Gagal!",
             text: "Harap cek kembali data yang dimasukkan.",
             icon: "error",
-            timer: 1500,
+            timer: 3000,
             showConfirmButton: false,
         });
         return;
@@ -521,7 +519,7 @@ async function savePernyataanMagang() {
         title: "Data berhasil disimpan!",
         icon: "success",
         showConfirmButton: false,
-        timer: 1500,
+        timer: 3000,
     }).then(() => {
         document.getElementById("create-form-magang").submit();
     });
@@ -552,7 +550,7 @@ async function updateProfile() {
             title: "Gagal!",
             text: "Harap isi semua data yang diperlukan.",
             icon: "error",
-            timer: 1500,
+            timer: 3000,
             showConfirmButton: false,
         });
         return;
@@ -587,7 +585,7 @@ async function updateProfile() {
             title: "Gagal!",
             text: "Password dan Konfirmasi Password tidak cocok.",
             icon: "error",
-            timer: 1500,
+            timer: 3000,
             showConfirmButton: false,
         });
         return;
@@ -599,7 +597,7 @@ async function updateProfile() {
             text: "Tidak ada perubahan data yang dilakukan.",
             icon: "info",
             showConfirmButton: false,
-            timer: 1500,
+            timer: 3000,
         });
         return;
     }
@@ -614,7 +612,7 @@ async function updateProfile() {
             text: "Password baru tidak berbeda dari password lama.",
             icon: "info",
             showConfirmButton: false,
-            timer: 1500,
+            timer: 3000,
         });
         return;
     }
@@ -637,7 +635,7 @@ async function updateProfile() {
                 text: "Tidak ada perubahan data yang dilakukan.",
                 icon: "info",
                 showConfirmButton: false,
-                timer: 1500,
+                timer: 3000,
             });
             return;
         }
@@ -648,7 +646,7 @@ async function updateProfile() {
                 title: "Data berhasil diubah",
                 icon: "success",
                 showConfirmButton: false,
-                timer: 1500,
+                timer: 3000,
             }).then(() => {
                 window.location.href = "/profile";
             });
@@ -683,7 +681,7 @@ async function updateProfile() {
                 title: "Error Server!",
                 text: `Server merespons dengan status: ${response.status}`,
                 icon: "error",
-                timer: 2000,
+                timer: 3000,
                 showConfirmButton: false,
             });
         }
@@ -693,7 +691,7 @@ async function updateProfile() {
             title: "Error Jaringan!",
             text: "Terjadi kesalahan koneksi: " + error.message,
             icon: "error",
-            timer: 2000,
+            timer: 3000,
             showConfirmButton: false,
         });
     }
@@ -754,7 +752,7 @@ async function updateUser() {
             title: "Gagal!",
             text: "Harap isi semua data yang diperlukan.",
             icon: "error",
-            timer: 1500,
+            timer: 3000,
             showConfirmButton: false,
         });
         return;
@@ -777,7 +775,7 @@ async function updateUser() {
                     title: "Gagal!",
                     text: "Password dan Konfirmasi Password tidak cocok.",
                     icon: "error",
-                    timer: 1500,
+                    timer: 3000,
                     showConfirmButton: false,
                 });
                 return;
@@ -787,7 +785,7 @@ async function updateUser() {
                     title: "Gagal!",
                     text: "Password harus terdiri dari minimal 8 karakter.",
                     icon: "error",
-                    timer: 1500,
+                    timer: 3000,
                     showConfirmButton: false,
                 });
                 return;
@@ -798,7 +796,7 @@ async function updateUser() {
                 title: "Gagal!",
                 text: "Harap isi kedua field password.",
                 icon: "error",
-                timer: 1500,
+                timer: 3000,
                 showConfirmButton: false,
             });
             return;
@@ -810,7 +808,7 @@ async function updateUser() {
             title: "Informasi",
             text: "Tidak ada perubahan data yang dilakukan.",
             icon: "info",
-            timer: 1500,
+            timer: 3000,
             showConfirmButton: false,
         });
         return;
@@ -834,7 +832,7 @@ async function updateUser() {
                 title: "Data berhasil diubah",
                 icon: "success",
                 showConfirmButton: false,
-                timer: 1500,
+                timer: 3000,
             }).then(() => {
                 window.location.href = "/dashboard/admin/user";
             });
@@ -870,7 +868,7 @@ async function updateUser() {
                 title: "Error Server!",
                 text: `Server merespons dengan status: ${response.status}`,
                 icon: "error",
-                timer: 2000,
+                timer: 3000,
                 showConfirmButton: false,
             });
         }
@@ -880,7 +878,7 @@ async function updateUser() {
             title: "Error Jaringan!",
             text: "Terjadi kesalahan koneksi: " + error.message,
             icon: "error",
-            timer: 2000,
+            timer: 3000,
             showConfirmButton: false,
         });
     }
@@ -900,7 +898,7 @@ async function saveUser() {
             title: "Gagal!",
             text: "Harap isi semua data yang diperlukan.",
             icon: "error",
-            timer: 1500,
+            timer: 3000,
             showConfirmButton: false,
         });
         return;
@@ -924,7 +922,7 @@ async function saveUser() {
                 title: "Data berhasil disimpan",
                 icon: "success",
                 showConfirmButton: false,
-                timer: 1500,
+                timer: 3000,
             }).then(() => {
                 window.location.href = "/dashboard/admin/user";
             });
@@ -960,7 +958,7 @@ async function saveUser() {
                 title: "Error Server!",
                 text: `Server merespons dengan status: ${response.status}`,
                 icon: "error",
-                timer: 2000,
+                timer: 3000,
                 showConfirmButton: false,
             });
         }
@@ -970,7 +968,7 @@ async function saveUser() {
             title: "Error Jaringan!",
             text: "Terjadi kesalahan koneksi: " + error.message,
             icon: "error",
-            timer: 2000,
+            timer: 3000,
             showConfirmButton: false,
         });
     }
@@ -995,7 +993,7 @@ async function updateKelas() {
             title: "Gagal!",
             text: "Harap isi semua data yang diperlukan.",
             icon: "error",
-            timer: 1500,
+            timer: 3000,
             showConfirmButton: false,
         });
         return;
@@ -1010,7 +1008,7 @@ async function updateKelas() {
             text: "Tidak ada perubahan data yang dilakukan.",
             icon: "info",
             showConfirmButton: false,
-            timer: 1500,
+            timer: 3000,
         });
         return;
     }
@@ -1033,7 +1031,7 @@ async function updateKelas() {
                 title: "Data berhasil diubah",
                 icon: "success",
                 showConfirmButton: false,
-                timer: 1500,
+                timer: 3000,
             }).then(() => {
                 window.location.href = "/dashboard/admin/kelas";
             });
@@ -1073,7 +1071,7 @@ async function updateKelas() {
                 title: "Error Server!",
                 text: `Server merespons dengan status: ${response.status}`,
                 icon: "error",
-                timer: 2000,
+                timer: 3000,
                 showConfirmButton: false,
             });
         }
@@ -1083,7 +1081,7 @@ async function updateKelas() {
             title: "Error Jaringan!",
             text: "Terjadi kesalahan koneksi: " + error.message,
             icon: "error",
-            timer: 2000,
+            timer: 3000,
             showConfirmButton: false,
         });
     }
@@ -1100,7 +1098,7 @@ async function saveKelas() {
             title: "Gagal!",
             text: "Harap isi semua data yang diperlukan.",
             icon: "error",
-            timer: 1500,
+            timer: 3000,
             showConfirmButton: false,
         });
         return;
@@ -1124,7 +1122,7 @@ async function saveKelas() {
                 title: "Data berhasil diubah",
                 icon: "success",
                 showConfirmButton: false,
-                timer: 1500,
+                timer: 3000,
             }).then(() => {
                 window.location.href = "/dashboard/admin/kelas";
             });
@@ -1164,7 +1162,7 @@ async function saveKelas() {
                 title: "Error Server!",
                 text: `Server merespons dengan status: ${response.status}`,
                 icon: "error",
-                timer: 2000,
+                timer: 3000,
                 showConfirmButton: false,
             });
         }
@@ -1174,7 +1172,7 @@ async function saveKelas() {
             title: "Error Jaringan!",
             text: "Terjadi kesalahan koneksi: " + error.message,
             icon: "error",
-            timer: 2000,
+            timer: 3000,
             showConfirmButton: false,
         });
     }
@@ -1251,7 +1249,7 @@ async function updatePelanggaranAkademik(role_id, nama_pemilik) {
             title: "Gagal!",
             text: "Harap isi semua data yang diperlukan.",
             icon: "error",
-            timer: 1500,
+            timer: 3000,
             showConfirmButton: false,
         });
         return;
@@ -1275,7 +1273,7 @@ async function updatePelanggaranAkademik(role_id, nama_pemilik) {
             text: "Tidak ada perubahan data yang dilakukan.",
             icon: "info",
             showConfirmButton: false,
-            timer: 1500,
+            timer: 3000,
         });
         return;
     }
@@ -1290,7 +1288,7 @@ async function updatePelanggaranAkademik(role_id, nama_pemilik) {
             title: "Gagal!",
             text: "Tanda tangan harus berupa gambar.",
             icon: "error",
-            timer: 1500,
+            timer: 3000,
             showConfirmButton: false,
         });
         return;
@@ -1300,7 +1298,7 @@ async function updatePelanggaranAkademik(role_id, nama_pemilik) {
         title: "Data berhasil diubah",
         icon: "success",
         showConfirmButton: false,
-        timer: 1500,
+        timer: 3000,
     }).then(() => {
         document.getElementById("update-form-pelanggaran").submit();
     });
@@ -1340,7 +1338,7 @@ async function savePelanggaranAkademik(role_id) {
             title: "Gagal!",
             text: "Harap isi semua data yang diperlukan.",
             icon: "error",
-            timer: 1500,
+            timer: 3000,
             showConfirmButton: false,
         });
         return;
@@ -1356,7 +1354,7 @@ async function savePelanggaranAkademik(role_id) {
             title: "Gagal!",
             text: "Tanda tangan harus berupa gambar.",
             icon: "error",
-            timer: 1500,
+            timer: 3000,
             showConfirmButton: false,
         });
         return;
@@ -1366,7 +1364,7 @@ async function savePelanggaranAkademik(role_id) {
         title: "Data berhasil disimpan!",
         icon: "success",
         showConfirmButton: false,
-        timer: 1500,
+        timer: 3000,
     }).then(() => {
         document.getElementById("create-form-pelanggaran").submit();
     });
@@ -1406,7 +1404,7 @@ async function savePengunduranDiri(role_id) {
             title: "Gagal!",
             text: "Harap isi semua data yang diperlukan.",
             icon: "error",
-            timer: 1500,
+            timer: 3000,
             showConfirmButton: false,
         });
         return;
@@ -1422,7 +1420,7 @@ async function savePengunduranDiri(role_id) {
             title: "Gagal!",
             text: "Tanda tangan harus berupa gambar.",
             icon: "error",
-            timer: 1500,
+            timer: 3000,
             showConfirmButton: false,
         });
         return;
@@ -1432,7 +1430,7 @@ async function savePengunduranDiri(role_id) {
         title: "Data berhasil disimpan!",
         icon: "success",
         showConfirmButton: false,
-        timer: 1500,
+        timer: 3000,
     }).then(() => {
         document.getElementById("create-form-pengunduran").submit();
     });
@@ -1501,7 +1499,7 @@ async function updatePengunduranDiri(role_id) {
             title: "Gagal!",
             text: "Harap isi semua data yang diperlukan.",
             icon: "error",
-            timer: 1500,
+            timer: 3000,
             showConfirmButton: false,
         });
         return;
@@ -1525,7 +1523,7 @@ async function updatePengunduranDiri(role_id) {
                 title: "Gagal!",
                 text: "Harap cek kembali data yang dimasukkan.",
                 icon: "error",
-                timer: 1500,
+                timer: 3000,
                 showConfirmButton: false,
             });
             return;
@@ -1552,7 +1550,7 @@ async function updatePengunduranDiri(role_id) {
             text: "Tidak ada perubahan data yang dilakukan.",
             icon: "info",
             showConfirmButton: false,
-            timer: 1500,
+            timer: 3000,
         });
         return;
     }
@@ -1566,7 +1564,7 @@ async function updatePengunduranDiri(role_id) {
             title: "Gagal!",
             text: "Tanda tangan harus berupa gambar.",
             icon: "error",
-            timer: 1500,
+            timer: 3000,
             showConfirmButton: false,
         });
         return;
@@ -1576,7 +1574,7 @@ async function updatePengunduranDiri(role_id) {
         title: "Data berhasil diubah",
         icon: "success",
         showConfirmButton: false,
-        timer: 1500,
+        timer: 3000,
     }).then(() => {
         document.getElementById("update-form-pengunduran").submit();
     });
@@ -1606,7 +1604,7 @@ async function confirmTolak(noSurat) {
                         title: "Ditolak!",
                         text: "Surat telah ditolak.",
                         icon: "success",
-                        timer: 1500,
+                        timer: 3000,
                         showConfirmButton: false,
                     })
                     .then(() => {
@@ -1619,7 +1617,7 @@ async function confirmTolak(noSurat) {
                     title: "Dibatalkan",
                     text: "Tidak ada perubahan yang dilakukan.",
                     icon: "error",
-                    timer: 1500,
+                    timer: 3000,
                     showConfirmButton: false,
                 });
             }
@@ -1651,7 +1649,7 @@ async function importAkunCSV() {
                 title: "Data berhasil diimport",
                 icon: "success",
                 showConfirmButton: false,
-                timer: 1500,
+                timer: 3000,
             }).then(() => {
                 window.location.href = "/dashboard/admin/user";
             });
@@ -1687,7 +1685,7 @@ async function importAkunCSV() {
                 title: "Error Server!",
                 text: `Server merespons dengan status: ${response.status}`,
                 icon: "error",
-                timer: 2000,
+                timer: 3000,
                 showConfirmButton: false,
             });
         }
@@ -1697,7 +1695,7 @@ async function importAkunCSV() {
             title: "Error Jaringan!",
             text: "Terjadi kesalahan koneksi: " + error.message,
             icon: "error",
-            timer: 2000,
+            timer: 3000,
             showConfirmButton: false,
         });
     }
@@ -1722,7 +1720,7 @@ async function importKelasCSV() {
                 title: "Data berhasil diimport",
                 icon: "success",
                 showConfirmButton: false,
-                timer: 1500,
+                timer: 3000,
             }).then(() => {
                 window.location.href = "/dashboard/admin/kelas";
             });
@@ -1762,7 +1760,7 @@ async function importKelasCSV() {
                 title: "Error Server!",
                 text: `Server merespons dengan status: ${response.status}`,
                 icon: "error",
-                timer: 2000,
+                timer: 3000,
                 showConfirmButton: false,
             });
         }
@@ -1772,8 +1770,149 @@ async function importKelasCSV() {
             title: "Error Jaringan!",
             text: "Terjadi kesalahan koneksi: " + error.message,
             icon: "error",
-            timer: 2000,
+            timer: 3000,
             showConfirmButton: false,
         });
     }
+}
+
+async function approveSurat(id) {
+    try {
+        const response = await fetch(
+            `/dashboard/admin/pernyataan-magang/${id}/setujui`,
+            {
+                method: "POST",
+                headers: {
+                    "X-CSRF-TOKEN": document.querySelector(
+                        'meta[name="csrf-token"]'
+                    ).content,
+                    Accept: "application/json",
+                },
+            }
+        );
+
+        const data = await response.json();
+
+        Swal.fire({
+            icon: "success",
+            title: "Berhasil!",
+            timer: 3000,
+            text: data.message,
+            showConfirmButton: false,
+        }).then(() => {
+            location.reload();
+        });
+    } catch (error) {
+        Swal.fire({
+            icon: "error",
+            title: "Gagal!",
+            text: "Terjadi kesalahan saat menyetujui surat.",
+        });
+    }
+}
+
+async function rejectSurat(id) {
+    const { value: alasan } = await Swal.fire({
+        title: "Tolak Surat",
+        input: "text",
+        inputLabel: "Alasan Penolakan",
+        inputPlaceholder: "Masukkan alasan penolakan",
+        showCancelButton: true,
+        confirmButtonText: "Tolak",
+        cancelButtonText: "Batal",
+        inputValidator: (value) => {
+            if (!value) {
+                return "Alasan wajib diisi!";
+            }
+        },
+    });
+
+    if (alasan) {
+        try {
+            const response = await fetch(
+                `/dashboard/admin/pernyataan-magang/${id}/tolak`,
+                {
+                    method: "POST",
+                    headers: {
+                        "X-CSRF-TOKEN": document.querySelector(
+                            'meta[name="csrf-token"]'
+                        ).content,
+                        "Content-Type": "application/json",
+                        Accept: "application/json",
+                    },
+                    body: JSON.stringify({ alasan }),
+                }
+            );
+
+            const data = await response.json();
+
+            Swal.fire({
+                icon: "success",
+                title: "Ditolak!",
+                timer: 3000,
+                text: data.message,
+                showConfirmButton: false,
+            }).then(() => {
+                location.reload();
+            });
+        } catch (error) {
+            Swal.fire({
+                icon: "error",
+                title: "Gagal!",
+                timer: 3000,
+                text: "Terjadi kesalahan saat menolak surat.",
+                showConfirmButton: false,
+            });
+        }
+    }
+}
+
+function uploadSuratMagang() {
+    const form = document.getElementById("upload-magang-form");
+
+    if (!form) {
+        console.error("Form upload tidak ditemukan.");
+        return;
+    }
+
+    const formData = new FormData(form);
+    const action = form.getAttribute("action");
+
+    fetch(action, {
+        method: "POST",
+        headers: {
+            "X-CSRF-TOKEN": document.querySelector('input[name="_token"]')
+                .value,
+        },
+        body: formData,
+    })
+        .then((response) => response.json())
+        .then((data) => {
+            Swal.fire({
+                icon:
+                    data.status === "success"
+                        ? "success"
+                        : data.status === "info"
+                        ? "info"
+                        : "error",
+                title:
+                    data.status === "success"
+                        ? "Berhasil"
+                        : data.status === "info"
+                        ? "Info"
+                        : "Gagal",
+                text: data.message,
+                timer: 3000,
+                showConfirmButton: false,
+            });
+        })
+        .catch((error) => {
+            Swal.fire({
+                icon: "error",
+                title: "Terjadi Kesalahan",
+                text: "Gagal mengupload surat.",
+                timer: 3000,
+                showConfirmButton: false,
+            });
+        });
 }
