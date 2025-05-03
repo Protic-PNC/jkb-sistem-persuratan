@@ -10,7 +10,7 @@
     <meta content="" name="description">
 
     <!-- Favicon -->
-    <link href="{{ asset('img/iconWeb.png') }}" rel="icon">
+    <link href="{{ asset('img/jkb_logo.png') }}" rel="icon">
 
     <!-- Datatables -->
     <link rel="stylesheet" href="https://cdn.datatables.net/2.1.5/css/dataTables.dataTables.css" />
