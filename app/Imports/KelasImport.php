@@ -30,23 +30,22 @@ class KelasImport implements ToCollection, WithHeadingRow
                 ],
                 'username_dosen_wali' => [
                     'required',
-                    'string',
                     'max:255',
                     Rule::unique('kelas', 'username_dosen_wali'),
                     function ($attribute, $value, $fail) {
                         $user = User::where('username', $value)->first();
                         if (!$user) {
-                            $fail("Username '{$value}' tidak ditemukan di sistem.");
-                        } elseif ($user->role !== 'dosen wali') {
-                            $fail("Username '{$value}' bukan dosen wali.");
+                            $fail("Username {$value} tidak ditemukan di sistem.");
+                        } elseif ($user->role_id !== 4) {
+                            $fail("Username {$value} bukan dosen wali.");
                         }
                     }
                 ],
             ], [
                 'nama_kelas.required' => "Baris ".($index + 2).": Nama kelas tidak boleh kosong.",
                 'username_dosen_wali.required' => "Baris ".($index + 2).": Username dosen wali tidak boleh kosong.",
-                'nama_kelas.unique' => "Baris ".($index + 2).": Nama kelas '{$namaKelas}' sudah terdaftar.",
-                'username_dosen_wali.unique' => "Baris ".($index + 2).": Username '{$username}' sudah digunakan.",
+                'nama_kelas.unique' => "Baris ".($index + 2).": Nama kelas {$namaKelas} sudah terdaftar.",
+                'username_dosen_wali.unique' => "Baris ".($index + 2).": Username {$username} sudah digunakan.",
             ]);
 
             if ($validator->fails()) {
