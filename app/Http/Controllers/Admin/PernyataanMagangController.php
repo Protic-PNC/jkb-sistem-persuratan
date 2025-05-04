@@ -10,24 +10,27 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use App\Mail\StatusSuratPernyataanMagangChangedMail;
+use Illuminate\Validation\ValidationException;
 
 class PernyataanMagangController extends Controller
 {
     public function index(Request $request)
-    {
+{
     $pernyataans = PernyataanMagang::all();
     $totalPernyataanMagang = PernyataanMagang::count();
+    $totalBelumSelesai = PernyataanMagang::whereNull('status')->orWhere('status', 'belum selesai')->count();
 
     if ($request->ajax()) {
         return view('dashboard.admin.pernyataan_magangs.table', compact('pernyataans'))->render();
     }
+
     return view('dashboard.admin.pernyataan_magangs.index', [
         'title' => 'Pernyataan Magang',
         'pernyataans' => $pernyataans,
         'totalPernyataanMagang' => $totalPernyataanMagang,
+        'totalBelumSelesai' => $totalBelumSelesai,
     ]);
-    }
-
+}
 
     public function create()
     {
@@ -36,23 +39,44 @@ class PernyataanMagangController extends Controller
         ]);
     }
 
-    public function store(Request $request)
-    {
+public function store(Request $request)
+{
+    try {
         $validatedData = $request->validate([
             'nama_ortu' => 'required|string|max:255',
             'alamat' => 'required|string',
             'no_telp' => 'required|string|max:255',
             'nama_mhs' => 'required|string|max:255',
-            'username' => 'required|string|max:255|unique:pernyataan_magangs,username',
+            'username' => [
+                'required',
+                'string',
+                'max:255',
+                'unique:pernyataan_magangs,username',
+                function ($attribute, $value, $fail) {
+                    $user = User::where('username', $value)->first();
+                    if (!$user) {
+                        $fail("Username {$value} tidak ditemukan.");
+                    } elseif ($user->role_id !== 2) {
+                        $fail("Username {$value} bukan mahasiswa.");
+                    }
+                }
+            ],
             'jurusan' => 'required|string|max:255',
             'perguruan_tinggi' => 'required|string|max:255',
-            'tglSurat' => 'required|date'
-        ]);
+            'tglSurat' => 'required|date',],
+            [
+                'username.unique' => 'Username tersebut sudah digunakan dalam surat pernyataan magang lain.',
+            ]);
 
         PernyataanMagang::create($validatedData);
 
-        return redirect('/dashboard/admin/pernyataan-magang');
+        return response()->json(['message' => 'Data berhasil disimpan']);
+    } catch (ValidationException $e) {
+        return response()->json([
+            'message' => collect($e->errors())->flatten()->first()
+        ], 422);
     }
+}
 
     public function checkUsername(Request $request)
     {
@@ -78,24 +102,42 @@ class PernyataanMagangController extends Controller
         ]);
     }
 
-    public function update(Request $request, PernyataanMagang $pernyataanMagang)
-    {
-        $rules = [
+public function update(Request $request, PernyataanMagang $pernyataanMagang)
+{
+    try {
+        $validatedData = $request->validate([
             'nama_ortu' => 'required|string|max:255',
             'alamat' => 'required|string',
             'no_telp' => 'required|string|max:255',
             'nama_mhs' => 'required|string|max:255',
-            'username' => 'required|string|max:255',
+            'username' => [
+                'required', 'string', 'max:255',
+                function ($attribute, $value, $fail) {
+                    $user = User::where('username', $value)->first();
+                    if (!$user) {
+                        $fail("Username {$value} tidak ditemukan.");
+                    } elseif ($user->role_id !== 2) {
+                        $fail("Username {$value} bukan mahasiswa.");
+                    }
+                }
+            ],
             'jurusan' => 'required|string|max:255',
             'perguruan_tinggi' => 'required|string|max:255',
-            'tglSurat' => 'required|date',
-        ];
+            'tglSurat' => 'required|date',],
+            [
+                'username.unique' => 'Username tersebut sudah digunakan dalam surat pernyataan magang lain.',
+            ]);
 
-        $validatedData = $request->validate($rules);
         $pernyataanMagang->update($validatedData);
 
-        return redirect('/dashboard/admin/pernyataan-magang');
+        return response()->json(['message' => 'Data berhasil diubah']);
+    } catch (ValidationException $e) {
+        return response()->json([
+            'message' => collect($e->errors())->flatten()->first()
+        ], 422);
     }
+}
+
 
     public function destroy(PernyataanMagang $pernyataanMagang)
     {
