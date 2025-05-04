@@ -1,9 +1,9 @@
 @extends('dashboard.mahasiswa.layouts.main')
 
 @section('container')
-    <div class="container-fluid mb-4 pt-4 px-4">
-        <div class="row g-4">
-            <div class="col-sm-12 col-xl-6">
+    <div class="container-fluid mb-4 pt-4 px-4 d-flex justify-content-center">
+        <div class="row g-4 w-100">
+            <div class="col-sm-12 col-xl-6 mx-auto">
                 <div class="bg-light rounded h-100 p-4">
                     <h6 class="mb-4">Buat Surat Pernyataan Magang</h6>
                     <form id="create-form-magang" method="post" action="/dashboard/mahasiswa/pernyataan-magang">
@@ -62,7 +62,7 @@
                         <div class="mb-3">
                             <label for="jurusan" class="form-label">Jurusan</label>
                             <input type="text" class="form-control @error('jurusan') is-invalid @enderror" id="jurusan"
-                                name="jurusan" value="{{ auth()->user()->jurusan ?? old('jurusan') }}">
+                                name="jurusan" value="{{ auth()->user()->jurusan ?? old('jurusan') }}" readonly>
                             @error('jurusan')
                                 <div class="invalid-feedback">
                                     {{ $message }}
@@ -73,7 +73,7 @@
                             <label for="perguruan_tinggi" class="form-label">Perguruan Tinggi</label>
                             <input type="text" class="form-control @error('perguruan_tinggi') is-invalid @enderror"
                                 id="perguruan_tinggi" name="perguruan_tinggi"
-                                value="{{ auth()->user()->perguruan_tinggi ?? old('perguruan_tinggi') }}">
+                                value="{{ auth()->user()->perguruan_tinggi ?? old('perguruan_tinggi') }}" readonly>
                             @error('perguruan_tinggi')
                                 <div class="invalid-feedback">
                                     {{ $message }}
@@ -92,7 +92,8 @@
                         </div>
                         <a href="/dashboard/mahasiswa/pernyataan-magang" class="btn btn-success"><i
                                 class="bi bi-arrow-left-square"></i> Kembali</a>
-                        <button type="button" class="btn btn-primary" onclick="savePernyataanMagang()">Buat Surat</button>
+                        <button type="button" class="btn btn-primary" onclick="saveMahasiswaPernyataanMagang()">Buat
+                            Surat</button>
                     </form>
                 </div>
             </div>
