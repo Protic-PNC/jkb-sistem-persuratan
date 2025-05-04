@@ -9,8 +9,8 @@
                     <form id="update-form-user" method="post" action="/dashboard/admin/user/{{ $users->id }}">
                         @method('put')
                         @csrf
-                        <input type="hidden" id="original_nama_pemilik" name="original_nama_pemilik"
-                            value="{{ $users->nama_pemilik }}">
+                        <!-- Hidden inputs -->
+                        <input type="hidden" name="original_nama_pemilik" value="{{ $users->nama_pemilik }}">
                         <input type="hidden" id="original_username" value="{{ $users->username }}">
                         <input type="hidden" id="original_email" value="{{ $users->email }}">
                         <input type="hidden" id="original_password" value="{{ $users->password }}">
@@ -18,57 +18,67 @@
                         <input type="hidden" id="original_kelas" value="{{ $users->kelas_id }}">
                         <input type="hidden" id="original_jurusan" value="{{ $users->jurusan }}">
                         <input type="hidden" id="original_perguruan_tinggi" value="{{ $users->perguruan_tinggi }}">
+
                         <div class="mb-3">
                             <label for="nama_pemilik" class="form-label">Nama Pemilik</label>
                             <input type="text" class="form-control @error('nama_pemilik') is-invalid @enderror"
                                 id="nama_pemilik" name="nama_pemilik"
                                 value="{{ old('nama_pemilik', $users->nama_pemilik) }}">
                             @error('nama_pemilik')
-                                <div class="invalid-feedback">
-                                    {{ $message }}
-                                </div>
+                                <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
+
                         <div class="mb-3">
                             <label for="username" class="form-label">Username</label>
                             <input type="text" class="form-control @error('username') is-invalid @enderror"
                                 id="username" name="username" value="{{ old('username', $users->username) }}">
                             @error('username')
-                                <div class="invalid-feedback">
-                                    {{ $message }}
-                                </div>
+                                <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
+
                         <div class="mb-3">
                             <label for="email" class="form-label">Email</label>
                             <input type="email" class="form-control @error('email') is-invalid @enderror" id="email"
                                 name="email" value="{{ old('email', $users->email) }}">
                             @error('email')
-                                <div class="invalid-feedback">
-                                    {{ $message }}
-                                </div>
+                                <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
+
                         <div class="mb-3">
                             <label for="password" class="form-label">Password</label>
-                            <input type="password" class="form-control @error('password') is-invalid @enderror"
-                                id="password" name="password" placeholder="Masukkan password baru jika ingin mengganti">
+                            <div class="input-group">
+                                <input type="password" class="form-control @error('password') is-invalid @enderror"
+                                    id="password" name="password"
+                                    placeholder="Masukkan password baru jika ingin mengganti">
+                                <button class="btn btn-outline-secondary" type="button"
+                                    onclick="togglePassword('password', this)">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                            </div>
                             @error('password')
-                                <div class="invalid-feedback">
-                                    {{ $message }}
-                                </div>
+                                <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
+
                         <div class="mb-3">
                             <label for="password_confirmation" class="form-label">Konfirmasi Password</label>
-                            <input type="password" class="form-control @error('password_confirmation') is-invalid @enderror"
-                                id="password_confirmation" name="password_confirmation">
+                            <div class="input-group">
+                                <input type="password"
+                                    class="form-control @error('password_confirmation') is-invalid @enderror"
+                                    id="password_confirmation" name="password_confirmation">
+                                <button class="btn btn-outline-secondary" type="button"
+                                    onclick="togglePassword('password_confirmation', this)">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                            </div>
                             @error('password_confirmation')
-                                <div class="invalid-feedback">
-                                    {{ $message }}
-                                </div>
+                                <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
+
                         <div class="mb-3">
                             <label for="role_id" class="form-label">Role</label>
                             <select class="form-select @error('role_id') is-invalid @enderror" id="role_id"
@@ -82,11 +92,10 @@
                                 @endforeach
                             </select>
                             @error('role_id')
-                                <div class="invalid-feedback">
-                                    {{ $message }}
-                                </div>
+                                <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
+
                         <div class="mb-3">
                             <label for="kelas_id" class="form-label">Kelas</label>
                             <select class="form-select @error('kelas_id') is-invalid @enderror" id="kelas_id"
@@ -100,21 +109,22 @@
                                 @endforeach
                             </select>
                             @error('kelas_id')
-                                <div class="invalid-feedback">
-                                    {{ $message }}
-                                </div>
+                                <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
+
                         <div class="mb-3">
                             <label for="jurusan" class="form-label">Jurusan</label>
                             <input type="text" class="form-control" id="jurusan" name="jurusan"
-                                value="Komputer dan Bisnis">
+                                value="{{ old('jurusan', $users->jurusan ?? 'Komputer dan Bisnis') }}">
                         </div>
+
                         <div class="mb-3">
                             <label for="perguruan_tinggi" class="form-label">Perguruan Tinggi</label>
                             <input type="text" class="form-control" id="perguruan_tinggi" name="perguruan_tinggi"
-                                value="Politeknik Negeri Cilacap">
+                                value="{{ old('perguruan_tinggi', $users->perguruan_tinggi ?? 'Politeknik Negeri Cilacap') }}">
                         </div>
+
                         <a href="/dashboard/admin/user" class="btn btn-success"><i class="bi bi-arrow-left-square"></i>
                             Kembali</a>
                         <button type="button" class="btn btn-primary" onclick="updateUser()"><i
