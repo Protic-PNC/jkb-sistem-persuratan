@@ -37,17 +37,17 @@
                         <span class="badge bg-secondary">Belum Selesai</span>
                     @endif
                 </td>
-                <td>
-                    <div class="d-flex justify-content-start">
-                        <a class="btn btn-sm btn-primary me-2"
+                <td style="max-width: 250px; overflow-x: auto;">
+                    <div class="d-flex justify-content-start" style="min-width: max-content; gap: 0.5rem;">
+                        <a class="btn btn-sm btn-primary"
                             href="/dashboard/mahasiswa/pernyataan-magang/{{ $pernyataan->noSurat }}">Detail</a>
-                        <a class="btn btn-sm btn-warning me-2"
+                        <a class="btn btn-sm btn-warning"
                             href="/dashboard/mahasiswa/pernyataan-magang/{{ $pernyataan->noSurat }}/edit">Ubah</a>
                         <form action="/dashboard/mahasiswa/pernyataan-magang/{{ $pernyataan->noSurat }}" method="post"
-                            class="d-inline" id="delete-form-{{ $pernyataan->noSurat }}">
+                            class="d-inline">
                             @method('delete')
                             @csrf
-                            <button type="button" class="btn btn-sm btn-danger me-2 border-0"
+                            <button type="button" class="btn btn-sm btn-danger border-0"
                                 onclick="confirmDelete('{{ $pernyataan->noSurat }}')">Hapus</button>
                         </form>
                         <a class="btn btn-sm btn-info text-white"
