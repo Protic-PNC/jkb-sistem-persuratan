@@ -4,11 +4,20 @@
     <div class="container-fluid pt-4 px-4">
         <div class="row g-4">
             <div class="col-sm-6 col-xl-5">
-                <div class="bg-light rounded d-flex align-items-center justify-content-between p-4">
-                    <i class="fa fa-chart-line fa-3x text-primary me-3"></i>
+                <div class="bg-light rounded d-flex align-items-center justify-content-start gap-3 p-4">
+                    <i class="fa fa-file-alt fa-3x text-primary"></i>
                     <div class="ms-3">
                         <p class="mb-2">Total Surat Pernyataan Magang</p>
                         <h6 class="mb-0">{{ $totalPernyataanMagang }}</h6>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-xl-5">
+                <div class="bg-light rounded d-flex align-items-center justify-content-start gap-3 p-4">
+                    <i class="fa fa-clock fa-3x text-warning"></i>
+                    <div class="ms-3">
+                        <p class="mb-2">Surat Belum Selesai</p>
+                        <h6 class="mb-0">{{ $totalBelumSelesai }}</h6>
                     </div>
                 </div>
             </div>
@@ -29,12 +38,12 @@
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
             @endif
+
             <div class="d-flex align-items-center justify-content-between mb-4">
                 <h6 class="mb-0">Daftar Surat Pernyataan Magang</h6>
-                <div>
-                    <a href="/dashboard/admin/pernyataan-magang/create" class="btn btn-primary">Tambah Surat</a>
-                </div>
+                <a href="/dashboard/admin/pernyataan-magang/create" class="btn btn-primary">Tambah Surat</a>
             </div>
+
             <div class="table-responsive">
                 @include('dashboard.admin.pernyataan_magangs.table')
             </div>
