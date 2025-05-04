@@ -193,6 +193,11 @@ public function upload(Request $request, $id)
 
     $path = $file->store('surat-magang', 'public');
     $pernyataans->file_pdf = $path;
+    if ($pernyataans->status === 'rejected') {
+        $pernyataans->status = 'belum selesai';
+        $pernyataans->alasan = null;
+    }
+
     $pernyataans->save();
 
     return response()->json([
@@ -200,6 +205,7 @@ public function upload(Request $request, $id)
         'message' => 'File berhasil diupload.'
     ]);
 }
+
 
 
 
