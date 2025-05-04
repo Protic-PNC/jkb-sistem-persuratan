@@ -43,7 +43,7 @@
                             <!-- Mata Icon -->
                             <span id="toggle-password"
                                 style="position: absolute; top: 50%; right: 10px; transform: translateY(-50%); cursor: pointer;">
-                                <i class="fas fa-eye-slash"></i>
+                                <i class="fas fa-eye"></i>
                             </span>
                         </div>
 
