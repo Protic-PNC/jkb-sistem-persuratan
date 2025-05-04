@@ -20,7 +20,7 @@
                     <div class="text-danger">{{ $message }}</div>
                 @enderror
             </div>
-            <button type="button" class="btn btn-primary" onclick="uploadSuratMagang()">Upload</button>
+            <button type="button" class="btn btn-primary" onclick="uploadAdminSuratMagang()">Upload</button>
             <a href="/dashboard/admin/pernyataan-magang" class="btn btn-success">Kembali</a>
         </form>
     </div>
