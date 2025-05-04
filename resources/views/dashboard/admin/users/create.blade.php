@@ -13,9 +13,7 @@
                             <input type="text" class="form-control @error('nama_pemilik') is-invalid @enderror"
                                 id="nama_pemilik" name="nama_pemilik" value="{{ old('nama_pemilik') }}">
                             @error('nama_pemilik')
-                                <div class="invalid-feedback">
-                                    {{ $message }}
-                                </div>
+                                <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
                         <div class="mb-3">
@@ -23,9 +21,7 @@
                             <input type="text" class="form-control @error('username') is-invalid @enderror"
                                 id="username" name="username" value="{{ old('username') }}">
                             @error('username')
-                                <div class="invalid-feedback">
-                                    {{ $message }}
-                                </div>
+                                <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
                         <div class="mb-3">
@@ -33,29 +29,36 @@
                             <input type="email" class="form-control @error('email') is-invalid @enderror" id="email"
                                 name="email" value="{{ old('email') }}">
                             @error('email')
-                                <div class="invalid-feedback">
-                                    {{ $message }}
-                                </div>
+                                <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
                         <div class="mb-3">
                             <label for="password" class="form-label">Password</label>
-                            <input type="password" class="form-control @error('password') is-invalid @enderror"
-                                id="password" name="password">
+                            <div class="input-group">
+                                <input type="password" class="form-control @error('password') is-invalid @enderror"
+                                    id="password" name="password">
+                                <button class="btn btn-outline-secondary" type="button"
+                                    onclick="togglePassword('password', this)">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                            </div>
                             @error('password')
-                                <div class="invalid-feedback">
-                                    {{ $message }}
-                                </div>
+                                <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
                         <div class="mb-3">
                             <label for="password_confirmation" class="form-label">Konfirmasi Password</label>
-                            <input type="password" class="form-control @error('password_confirmation') is-invalid @enderror"
-                                id="password_confirmation" name="password_confirmation">
+                            <div class="input-group">
+                                <input type="password"
+                                    class="form-control @error('password_confirmation') is-invalid @enderror"
+                                    id="password_confirmation" name="password_confirmation">
+                                <button class="btn btn-outline-secondary" type="button"
+                                    onclick="togglePassword('password_confirmation', this)">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                            </div>
                             @error('password_confirmation')
-                                <div class="invalid-feedback">
-                                    {{ $message }}
-                                </div>
+                                <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
                         <div class="mb-3">
@@ -71,9 +74,7 @@
                                 @endforeach
                             </select>
                             @error('role_id')
-                                <div class="invalid-feedback">
-                                    {{ $message }}
-                                </div>
+                                <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
                         <div class="mb-3" id="kelas-wrapper">
@@ -89,9 +90,7 @@
                                 @endforeach
                             </select>
                             @error('kelas_id')
-                                <div class="invalid-feedback">
-                                    {{ $message }}
-                                </div>
+                                <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
                         <div class="mb-3">
@@ -104,10 +103,12 @@
                             <input type="text" class="form-control" id="perguruan_tinggi" name="perguruan_tinggi"
                                 value="Politeknik Negeri Cilacap">
                         </div>
-                        <a href="/dashboard/admin/user" class="btn btn-success"><i class="bi bi-arrow-left-square"></i>
-                            Kembali</a>
-                        <button type="button" class="btn btn-primary" onclick="saveUser()"><i
-                                class="bi bi-check2 me-1"></i>Buat Akun</button>
+                        <a href="/dashboard/admin/user" class="btn btn-success">
+                            <i class="bi bi-arrow-left-square"></i> Kembali
+                        </a>
+                        <button type="button" class="btn btn-primary" onclick="saveUser()">
+                            <i class="bi bi-check2 me-1"></i>Buat Akun
+                        </button>
                     </form>
                 </div>
             </div>
