@@ -92,9 +92,9 @@ class KelasController extends Controller
                     function ($attribute, $value, $fail) {
                         $user = User::where('username', $value)->first();
                         if (!$user) {
-                            $fail("Username '{$value}' tidak ditemukan.");
+                            $fail("Username {$value} tidak ditemukan.");
                         } elseif ($user->role_id !== 4) {
-                            $fail("Username '{$value}' bukan dosen wali.");
+                            $fail("Username {$value} bukan dosen wali.");
                         }
                     }
                 ],
