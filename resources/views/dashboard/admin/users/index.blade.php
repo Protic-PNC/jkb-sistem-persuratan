@@ -6,7 +6,7 @@
         <div class="row g-4">
             <div class="col-sm-6 col-xl-5">
                 <div class="bg-light rounded d-flex flex-row align-items-center p-4">
-                    <i class="fa fa-chart-line fa-3x text-primary me-3"></i>
+                    <i class="fa fa-user-circle fa-3x text-info me-3"></i>
                     <div class="ms-3">
                         <p class="mb-2">Total Akun</p>
                         <h6 class="mb-0">{{ $totalUser }}</h6>
