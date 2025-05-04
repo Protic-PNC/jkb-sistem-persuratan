@@ -109,7 +109,7 @@
                         </div>
                         <a href="/dashboard/admin/pernyataan-magang" class="btn btn-success"><i
                                 class="bi bi-arrow-left-square"></i> Kembali</a>
-                        <button type="button" class="btn btn-primary" onclick="updatePernyataanMagang()"><i
+                        <button type="button" class="btn btn-primary" onclick="updateAdminPernyataanMagang()"><i
                                 class="bi bi-check2 me-1"></i>Edit Surat</button>
                     </form>
                 </div>
