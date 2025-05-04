@@ -91,7 +91,8 @@
                         </div>
                         <a href="/dashboard/admin/pernyataan-magang" class="btn btn-success"><i
                                 class="bi bi-arrow-left-square"></i> Kembali</a>
-                        <button type="button" class="btn btn-primary" onclick="savePernyataanMagang()">Buat Surat</button>
+                        <button type="button" class="btn btn-primary" onclick="saveAdminPernyataanMagang()">Buat
+                            Surat</button>
                     </form>
                 </div>
             </div>
