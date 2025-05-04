@@ -5,8 +5,8 @@
     <div class="container-fluid pt-4 px-4">
         <div class="row g-4">
             <div class="col-sm-6 col-xl-5">
-                <div class="bg-light rounded d-flex align-items-center justify-content-between p-4">
-                    <i class="fa fa-chart-bar fa-3x text-primary me-3"></i>
+                <div class="bg-light rounded d-flex flex-row align-items-center p-4">
+                    <i class="fa fa-file-alt fa-3x text-primary me-3"></i>
                     <div class="ms-3">
                         <p class="mb-2">Total Surat Pernyataan Magang</p>
                         <h6 class="mb-0">{{ $totalPernyataan }}</h6>
@@ -14,8 +14,8 @@
                 </div>
             </div>
             <div class="col-sm-6 col-xl-5">
-                <div class="bg-light rounded d-flex align-items-center justify-content-between p-4">
-                    <i class="fa fa-chart-bar fa-3x text-primary me-3"></i>
+                <div class="bg-light rounded d-flex flex-row align-items-center p-4">
+                    <i class="fa fa-file-alt fa-3x text-primary me-3"></i>
                     <div class="ms-3">
                         <p class="mb-2">Total Surat Pengunduran Diri</p>
                         <h6 class="mb-0">{{ $totalPengunduran }}</h6>
@@ -23,8 +23,8 @@
                 </div>
             </div>
             <div class="col-sm-6 col-xl-5">
-                <div class="bg-light rounded d-flex align-items-center justify-content-between p-4">
-                    <i class="fa fa-chart-bar fa-3x text-primary me-3"></i>
+                <div class="bg-light rounded d-flex flex-row align-items-center p-4">
+                    <i class="fa fa-file-alt fa-3x text-primary me-3"></i>
                     <div class="ms-3">
                         <p class="mb-2">Total Surat Peringatan Pelanggaran Peraturan Akademik</p>
                         <h6 class="mb-0">{{ $totalPelanggaran }}</h6>
