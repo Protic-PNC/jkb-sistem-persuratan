@@ -1,5 +1,5 @@
 <!-- Sidebar Start -->
-<div class="sidebar pe-4 pb-3">
+<div class="sidebar pe-4 pb-3 d-flex flex-column">
     <nav class="navbar bg-light navbar-light">
         <a class="navbar-brand mx-4 mb-3">
             <h3><img width="35px" style="margin-right: 10px; color: #2d3748;" src="{{ asset('img/jkb_logo.png') }}"
@@ -44,5 +44,12 @@
             </div>
         </div>
     </nav>
+    <!-- Copyright Section -->
+    <div class="mt-auto text-center py-3"
+        style="font-size: 12px; color: #888; background-color: #f8f9fa; border-top: 1px solid #ddd;">
+        <p style="font-size: 14px; color: #555; font-weight: 500; letter-spacing: 0.5px;">
+            &copy; 2024 Arsip Surat. All Rights Reserved.
+        </p>
+    </div>
 </div>
 <!-- Sidebar End -->
