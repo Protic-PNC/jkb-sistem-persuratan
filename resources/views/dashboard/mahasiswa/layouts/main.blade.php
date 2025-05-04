@@ -63,7 +63,6 @@
 
             @yield('container')
 
-            @include('dashboard.mahasiswa.layouts.footer')
         </div>
         {{-- Content End --}}
         <!-- Back to Top -->
