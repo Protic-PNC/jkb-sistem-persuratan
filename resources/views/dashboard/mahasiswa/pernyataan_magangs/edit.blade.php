@@ -1,11 +1,11 @@
 @extends('dashboard.mahasiswa.layouts.main')
 
 @section('container')
-    <div class="container-fluid mb-4 pt-4 px-4">
-        <div class="row g-4">
-            <div class="col-sm-12 col-xl-6">
+    <div class="container-fluid mb-4 pt-4 px-4 d-flex justify-content-center align-items-center">
+        <div class="row g-4 w-100">
+            <div class="col-sm-12 col-xl-6 mx-auto">
                 <div class="bg-light rounded h-100 p-4">
-                    <h6 class="mb-4">Edit Surat Pernyataan Magang</h6>
+                    <h6 class="mb-4">Ubah Surat Pernyataan Magang</h6>
                     <form id="update-form-magang" method="post"
                         action="/dashboard/mahasiswa/pernyataan-magang/{{ $pernyataans->noSurat }}">
                         @method('put')
@@ -59,8 +59,7 @@
                         <div class="mb-3">
                             <label for="nama_mhs" class="form-label">Nama Mahasiswa</label>
                             <input type="text" class="form-control @error('nama_mhs') is-invalid @enderror"
-                                id="nama_mhs" name="nama_mhs"
-                                value="{{ auth()->user()->nama_pemilik ?? old('nama_mhs') }}" readonly>
+                                id="nama_mhs" name="nama_mhs" value="{{ old('nama_mhs', $pernyataans->nama_mhs) }}">
                             @error('nama_mhs')
                                 <div class="invalid-feedback">
                                     {{ $message }}
@@ -70,8 +69,7 @@
                         <div class="mb-3">
                             <label for="username" class="form-label">NPM</label>
                             <input type="text" class="form-control @error('username') is-invalid @enderror"
-                                id="username" name="username" value="{{ auth()->user()->username ?? old('username') }}"
-                                readonly>
+                                id="username" name="username" value="{{ old('username', $pernyataans->username) }}">
                             @error('username')
                                 <div class="invalid-feedback">
                                     {{ $message }}
@@ -111,7 +109,7 @@
                         </div>
                         <a href="/dashboard/mahasiswa/pernyataan-magang" class="btn btn-success"><i
                                 class="bi bi-arrow-left-square"></i> Kembali</a>
-                        <button type="button" class="btn btn-primary" onclick="updatePernyataanMagang()">Edit
+                        <button type="button" class="btn btn-primary" onclick="updateMahasiswaPernyataanMagang()">Edit
                             Surat</button>
                     </form>
                 </div>
