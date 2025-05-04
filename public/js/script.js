@@ -1,146 +1,3 @@
-// Menghilangkan dropdown kelas jika role_id == "2"
-document.addEventListener("DOMContentLoaded", function () {
-    const roleSelect = document.getElementById("role_id");
-    const kelasWrapper = document.getElementById("kelas-wrapper");
-
-    function toggleKelas() {
-        if (roleSelect.value !== "2") {
-            kelasWrapper.style.display = "none";
-            const kelasSelect = document.getElementById("kelas_id");
-            kelasSelect.value = "";
-            kelasSelect.disabled = true;
-        } else {
-            kelasWrapper.style.display = "";
-            document.getElementById("kelas_id").disabled = false;
-        }
-    }
-
-    toggleKelas();
-    roleSelect.addEventListener("change", toggleKelas);
-});
-
-document.addEventListener("DOMContentLoaded", function () {
-    const loginErrorElement = document.getElementById("loginError");
-    if (loginErrorElement) {
-        const message = loginErrorElement.getAttribute("data-message");
-
-        Swal.fire({
-            icon: "error",
-            title: "Login Gagal",
-            text: message,
-            confirmButtonText: "Ok",
-        });
-    }
-
-    const togglePassword = document.getElementById("toggle-password");
-    const passwordInput = document.getElementById("password");
-
-    togglePassword.addEventListener("click", function () {
-        const icon = togglePassword.querySelector("i");
-        if (passwordInput.type === "password") {
-            passwordInput.type = "text";
-            icon.classList.remove("fa-eye");
-            icon.classList.add("fa-eye-slash");
-        } else {
-            passwordInput.type = "password";
-            icon.classList.remove("fa-eye-slash");
-            icon.classList.add("fa-eye");
-        }
-    });
-});
-
-document.getElementById("username").addEventListener("input", function () {
-    let npm = this.value;
-
-    if (npm) {
-        fetch(`/dashboard/admin/user/get-mahasiswa-by-npm?npm=${npm}`)
-            .then((response) => response.json())
-            .then((data) => {
-                document.getElementById("nama_mhs").value = data.nama_mhs;
-            })
-            .catch((error) => console.error("Error:", error));
-    }
-});
-
-document.getElementById("tglSurat").addEventListener("change", function () {
-    const tanggal = new Date(this.value);
-    const options = {
-        weekday: "long",
-    };
-    const hari = new Intl.DateTimeFormat("id-ID", options).format(tanggal);
-    document.getElementById("hari").value = hari;
-});
-
-document.getElementById("kelas_id").addEventListener("change", function () {
-    let kelasId = this.value;
-
-    if (kelasId) {
-        fetch(`/dashboard/admin/user/get-dosen-wali?kelas_id=${kelasId}`)
-            .then((response) => response.json())
-            .then((data) => {
-                document.getElementById("nama_dosen_wali").value =
-                    data.nama_dosen_wali;
-            })
-            .catch((error) => console.error("Error:", error));
-    }
-});
-
-document.getElementById("kelas_id").addEventListener("change", function () {
-    let kelasId = this.value;
-
-    if (kelasId) {
-        fetch(`/dashboard/dosen-wali/user/get-dosen-wali?kelas_id=${kelasId}`)
-            .then((response) => response.json())
-            .then((data) => {
-                document.getElementById("nama_dosen_wali").value =
-                    data.nama_dosen_wali;
-            })
-            .catch((error) => console.error("Error:", error));
-    }
-});
-
-document.getElementById("username").addEventListener("input", function () {
-    let npm = this.value;
-
-    if (npm) {
-        fetch(`/dashboard/dosen-wali/user/get-mahasiswa-by-npm?npm=${npm}`)
-            .then((response) => response.json())
-            .then((data) => {
-                document.getElementById("nama_mhs").value = data.nama_mhs;
-            })
-            .catch((error) => console.error("Error:", error));
-    }
-});
-
-document.getElementById("kelas_id").addEventListener("change", function () {
-    let kelasId = this.value;
-
-    if (kelasId) {
-        fetch(
-            `/dashboard/ketua-jurusan/user/get-dosen-wali?kelas_id=${kelasId}`
-        )
-            .then((response) => response.json())
-            .then((data) => {
-                document.getElementById("nama_dosen_wali").value =
-                    data.nama_dosen_wali;
-            })
-            .catch((error) => console.error("Error:", error));
-    }
-});
-
-document.getElementById("username").addEventListener("input", function () {
-    let npm = this.value;
-
-    if (npm) {
-        fetch(`/dashboard/ketua-jurusan/user/get-mahasiswa-by-npm?npm=${npm}`)
-            .then((response) => response.json())
-            .then((data) => {
-                document.getElementById("nama_mhs").value = data.nama_mhs;
-            })
-            .catch((error) => console.error("Error:", error));
-    }
-});
-
 $(document).ready(function () {
     let kelasTable,
         semuaKelasTable,
@@ -291,6 +148,162 @@ $(document).ready(function () {
     });
 });
 
+// Menghilangkan dropdown kelas jika role_id == "2"
+document.addEventListener("DOMContentLoaded", function () {
+    const roleSelect = document.getElementById("role_id");
+    const kelasWrapper = document.getElementById("kelas-wrapper");
+
+    function toggleKelas() {
+        if (roleSelect.value !== "2") {
+            kelasWrapper.style.display = "none";
+            const kelasSelect = document.getElementById("kelas_id");
+            kelasSelect.value = "";
+            kelasSelect.disabled = true;
+        } else {
+            kelasWrapper.style.display = "";
+            document.getElementById("kelas_id").disabled = false;
+        }
+    }
+
+    toggleKelas();
+    roleSelect.addEventListener("change", toggleKelas);
+});
+
+document.addEventListener("DOMContentLoaded", function () {
+    const loginErrorElement = document.getElementById("loginError");
+    if (loginErrorElement) {
+        const message = loginErrorElement.getAttribute("data-message");
+
+        Swal.fire({
+            icon: "error",
+            title: "Login Gagal",
+            text: message,
+            confirmButtonText: "Ok",
+        });
+    }
+
+    const togglePassword = document.getElementById("toggle-password");
+    const passwordInput = document.getElementById("password");
+
+    togglePassword.addEventListener("click", function () {
+        const icon = togglePassword.querySelector("i");
+        if (passwordInput.type === "password") {
+            passwordInput.type = "text";
+            icon.classList.remove("fa-eye");
+            icon.classList.add("fa-eye-slash");
+        } else {
+            passwordInput.type = "password";
+            icon.classList.remove("fa-eye-slash");
+            icon.classList.add("fa-eye");
+        }
+    });
+});
+
+document.getElementById("username").addEventListener("input", function () {
+    let npm = this.value;
+
+    if (npm) {
+        fetch(`/dashboard/admin/user/get-mahasiswa-by-npm?npm=${npm}`)
+            .then((response) => response.json())
+            .then((data) => {
+                document.getElementById("nama_mhs").value = data.nama_mhs;
+            })
+            .catch((error) => console.error("Error:", error));
+    }
+});
+
+document.getElementById("username").addEventListener("input", function () {
+    let npm = this.value;
+
+    if (npm) {
+        fetch(`/dashboard/mahasiswa/user/get-mahasiswa-by-npm?npm=${npm}`)
+            .then((response) => response.json())
+            .then((data) => {
+                document.getElementById("nama_mhs").value = data.nama_mhs;
+            })
+            .catch((error) => console.error("Error:", error));
+    }
+});
+
+document.getElementById("tglSurat").addEventListener("change", function () {
+    const tanggal = new Date(this.value);
+    const options = {
+        weekday: "long",
+    };
+    const hari = new Intl.DateTimeFormat("id-ID", options).format(tanggal);
+    document.getElementById("hari").value = hari;
+});
+
+document.getElementById("kelas_id").addEventListener("change", function () {
+    let kelasId = this.value;
+
+    if (kelasId) {
+        fetch(`/dashboard/admin/user/get-dosen-wali?kelas_id=${kelasId}`)
+            .then((response) => response.json())
+            .then((data) => {
+                document.getElementById("nama_dosen_wali").value =
+                    data.nama_dosen_wali;
+            })
+            .catch((error) => console.error("Error:", error));
+    }
+});
+
+document.getElementById("kelas_id").addEventListener("change", function () {
+    let kelasId = this.value;
+
+    if (kelasId) {
+        fetch(`/dashboard/dosen-wali/user/get-dosen-wali?kelas_id=${kelasId}`)
+            .then((response) => response.json())
+            .then((data) => {
+                document.getElementById("nama_dosen_wali").value =
+                    data.nama_dosen_wali;
+            })
+            .catch((error) => console.error("Error:", error));
+    }
+});
+
+document.getElementById("username").addEventListener("input", function () {
+    let npm = this.value;
+
+    if (npm) {
+        fetch(`/dashboard/dosen-wali/user/get-mahasiswa-by-npm?npm=${npm}`)
+            .then((response) => response.json())
+            .then((data) => {
+                document.getElementById("nama_mhs").value = data.nama_mhs;
+            })
+            .catch((error) => console.error("Error:", error));
+    }
+});
+
+document.getElementById("kelas_id").addEventListener("change", function () {
+    let kelasId = this.value;
+
+    if (kelasId) {
+        fetch(
+            `/dashboard/ketua-jurusan/user/get-dosen-wali?kelas_id=${kelasId}`
+        )
+            .then((response) => response.json())
+            .then((data) => {
+                document.getElementById("nama_dosen_wali").value =
+                    data.nama_dosen_wali;
+            })
+            .catch((error) => console.error("Error:", error));
+    }
+});
+
+document.getElementById("username").addEventListener("input", function () {
+    let npm = this.value;
+
+    if (npm) {
+        fetch(`/dashboard/ketua-jurusan/user/get-mahasiswa-by-npm?npm=${npm}`)
+            .then((response) => response.json())
+            .then((data) => {
+                document.getElementById("nama_mhs").value = data.nama_mhs;
+            })
+            .catch((error) => console.error("Error:", error));
+    }
+});
+
 async function confirmDelete(id) {
     const swalWithBootstrapButtons = Swal.mixin({
         customClass: {
@@ -370,89 +383,26 @@ async function checkusernameExists(username) {
     }
 }
 
-async function updatePernyataanMagang() {
-    let originalUsername = document
-        .getElementById("original_username")
-        .value.trim();
-    let originalNamaOrtu = document
-        .getElementById("original_nama_ortu")
-        .value.trim();
-    let originalAlamat = document
-        .getElementById("original_alamat")
-        .value.trim();
-    let originalNoTelp = document
-        .getElementById("original_no_telp")
-        .value.trim();
-    let originalNamaMhs = document
-        .getElementById("original_nama_mhs")
-        .value.trim();
-    let originalJurusan = document
-        .getElementById("original_jurusan")
-        .value.trim();
-    let originalPerguruanTinggi = document
-        .getElementById("original_perguruan_tinggi")
-        .value.trim();
-    let originalTglSurat = document
-        .getElementById("original_tglSurat")
-        .value.trim();
+async function updateAdminPernyataanMagang() {
+    const form = document.getElementById("update-form-magang");
+    const formData = new FormData(form);
 
-    let namaOrtu = document.getElementById("nama_ortu").value.trim();
-    let alamat = document.getElementById("alamat").value.trim();
-    let noTelp = document.getElementById("no_telp").value.trim();
-    let namaMhs = document.getElementById("nama_mhs").value.trim();
-    let username = document.getElementById("username").value.trim();
-    let jurusan = document.getElementById("jurusan").value.trim();
-    let perguruanTinggi = document
-        .getElementById("perguruan_tinggi")
-        .value.trim();
-    let tglSurat = document.getElementById("tglSurat").value.trim();
+    const requiredFields = [
+        "nama_ortu",
+        "alamat",
+        "no_telp",
+        "nama_mhs",
+        "username",
+        "jurusan",
+        "perguruan_tinggi",
+        "tglSurat",
+    ];
 
-    if (
-        !namaOrtu ||
-        !alamat ||
-        !noTelp ||
-        !namaMhs ||
-        !username ||
-        !jurusan ||
-        !perguruanTinggi ||
-        !tglSurat
-    ) {
-        Swal.fire({
-            title: "Gagal!",
-            text: "Harap isi semua data yang diperlukan.",
-            icon: "error",
-            timer: 3000,
-            showConfirmButton: false,
-        });
-        return;
-    }
-
-    if (
-        namaOrtu === originalNamaOrtu &&
-        alamat === originalAlamat &&
-        noTelp === originalNoTelp &&
-        namaMhs === originalNamaMhs &&
-        username === originalUsername &&
-        jurusan === originalJurusan &&
-        perguruanTinggi === originalPerguruanTinggi &&
-        tglSurat === originalTglSurat
-    ) {
-        Swal.fire({
-            title: "Informasi",
-            text: "Tidak ada perubahan data yang dilakukan.",
-            icon: "info",
-            showConfirmButton: false,
-            timer: 3000,
-        });
-        return;
-    }
-
-    if (username !== originalUsername) {
-        let usernameExists = await checkusernameExists(username);
-        if (usernameExists) {
+    for (let field of requiredFields) {
+        if (!formData.get(field).trim()) {
             Swal.fire({
                 title: "Gagal!",
-                text: "Harap cek kembali data yang dimasukkan.",
+                text: "Harap isi semua data yang diperlukan.",
                 icon: "error",
                 timer: 3000,
                 showConfirmButton: false,
@@ -461,68 +411,328 @@ async function updatePernyataanMagang() {
         }
     }
 
-    Swal.fire({
-        title: "Data berhasil diubah",
-        icon: "success",
-        showConfirmButton: false,
-        timer: 3000,
-    }).then(() => {
-        document.getElementById("update-form-magang").submit();
-    });
+    const originalFields = {
+        nama_ortu: document.getElementById("original_nama_ortu").value.trim(),
+        alamat: document.getElementById("original_alamat").value.trim(),
+        no_telp: document.getElementById("original_no_telp").value.trim(),
+        nama_mhs: document.getElementById("original_nama_mhs").value.trim(),
+        username: document.getElementById("original_username").value.trim(),
+        jurusan: document.getElementById("original_jurusan").value.trim(),
+        perguruan_tinggi: document
+            .getElementById("original_perguruan_tinggi")
+            .value.trim(),
+        tglSurat: document.getElementById("original_tglSurat").value.trim(),
+    };
+
+    let isChanged = false;
+    for (let field of requiredFields) {
+        const current = formData.get(field).trim();
+        const original = originalFields[field];
+        if (current !== original) {
+            isChanged = true;
+            break;
+        }
+    }
+
+    if (!isChanged) {
+        Swal.fire({
+            title: "Informasi",
+            text: "Tidak ada perubahan data yang dilakukan.",
+            icon: "info",
+            timer: 3000,
+            showConfirmButton: false,
+        });
+        return;
+    }
+
+    try {
+        const response = await fetch(form.action, {
+            method: "POST",
+            headers: {
+                "X-CSRF-TOKEN": document.querySelector(
+                    'meta[name="csrf-token"]'
+                ).content,
+            },
+            body: formData,
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            Swal.fire({
+                title: "Data berhasil diubah.",
+                icon: "success",
+                timer: 3000,
+                showConfirmButton: false,
+            }).then(() => {
+                window.location.href = "/dashboard/admin/pernyataan-magang";
+            });
+        } else {
+            Swal.fire({
+                title: "Gagal!",
+                text: data.message,
+                icon: "error",
+                timer: 3000,
+                showConfirmButton: false,
+            });
+        }
+    } catch (error) {
+        Swal.fire({
+            title: "Terjadi Kesalahan!",
+            text: "Silakan coba lagi.",
+            icon: "error",
+            timer: 3000,
+            showConfirmButton: false,
+        });
+        console.error(error);
+    }
 }
 
-async function savePernyataanMagang() {
-    let namaOrtu = document.getElementById("nama_ortu").value.trim();
-    let alamat = document.getElementById("alamat").value.trim();
-    let noTelp = document.getElementById("no_telp").value.trim();
-    let nama_mhs = document.getElementById("nama_mhs").value.trim();
-    let username = document.getElementById("username").value.trim();
-    let jurusan = document.getElementById("jurusan").value.trim();
-    let perguruan_tinggi = document
-        .getElementById("perguruan_tinggi")
-        .value.trim();
-    let tglSurat = document.getElementById("tglSurat").value.trim();
+async function updateMahasiswaPernyataanMagang() {
+    const form = document.getElementById("update-form-magang");
+    const formData = new FormData(form);
 
-    if (
-        !namaOrtu ||
-        !alamat ||
-        !noTelp ||
-        !nama_mhs ||
-        !username ||
-        !jurusan ||
-        !perguruan_tinggi ||
-        !tglSurat
-    ) {
+    const requiredFields = [
+        "nama_ortu",
+        "alamat",
+        "no_telp",
+        "nama_mhs",
+        "username",
+        "jurusan",
+        "perguruan_tinggi",
+        "tglSurat",
+    ];
+
+    for (let field of requiredFields) {
+        if (!formData.get(field).trim()) {
+            Swal.fire({
+                title: "Gagal!",
+                text: "Harap isi semua data yang diperlukan.",
+                icon: "error",
+                timer: 3000,
+                showConfirmButton: false,
+            });
+            return;
+        }
+    }
+
+    const originalFields = {
+        nama_ortu: document.getElementById("original_nama_ortu").value.trim(),
+        alamat: document.getElementById("original_alamat").value.trim(),
+        no_telp: document.getElementById("original_no_telp").value.trim(),
+        nama_mhs: document.getElementById("original_nama_mhs").value.trim(),
+        username: document.getElementById("original_username").value.trim(),
+        jurusan: document.getElementById("original_jurusan").value.trim(),
+        perguruan_tinggi: document
+            .getElementById("original_perguruan_tinggi")
+            .value.trim(),
+        tglSurat: document.getElementById("original_tglSurat").value.trim(),
+    };
+
+    let isChanged = false;
+    for (let field of requiredFields) {
+        const current = formData.get(field).trim();
+        const original = originalFields[field];
+        if (current !== original) {
+            isChanged = true;
+            break;
+        }
+    }
+
+    if (!isChanged) {
         Swal.fire({
-            title: "Gagal!",
-            text: "Harap isi semua data yang diperlukan.",
-            icon: "error",
+            title: "Informasi",
+            text: "Tidak ada perubahan data yang dilakukan.",
+            icon: "info",
             timer: 3000,
             showConfirmButton: false,
         });
         return;
     }
 
-    let usernameExists = await checkusernameExists(username);
-    if (usernameExists) {
+    try {
+        const response = await fetch(form.action, {
+            method: "POST",
+            headers: {
+                "X-CSRF-TOKEN": document.querySelector(
+                    'meta[name="csrf-token"]'
+                ).content,
+            },
+            body: formData,
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            Swal.fire({
+                title: "Data berhasil diubah.",
+                icon: "success",
+                timer: 3000,
+                showConfirmButton: false,
+            }).then(() => {
+                window.location.href = "/dashboard/mahasiswa/pernyataan-magang";
+            });
+        } else {
+            Swal.fire({
+                title: "Gagal!",
+                text: data.message,
+                icon: "error",
+                timer: 3000,
+                showConfirmButton: false,
+            });
+        }
+    } catch (error) {
         Swal.fire({
-            title: "Gagal!",
-            text: "Harap cek kembali data yang dimasukkan.",
+            title: "Terjadi Kesalahan!",
+            text: "Silakan coba lagi.",
             icon: "error",
             timer: 3000,
             showConfirmButton: false,
         });
-        return;
+        console.error(error);
+    }
+}
+
+async function saveAdminPernyataanMagang() {
+    const form = document.getElementById("create-form-magang");
+    const formData = new FormData(form);
+
+    const requiredFields = [
+        "nama_ortu",
+        "alamat",
+        "no_telp",
+        "nama_mhs",
+        "username",
+        "jurusan",
+        "perguruan_tinggi",
+        "tglSurat",
+    ];
+    for (let field of requiredFields) {
+        if (!formData.get(field).trim()) {
+            Swal.fire({
+                title: "Gagal!",
+                text: "Harap isi semua data yang diperlukan.",
+                icon: "error",
+                timer: 3000,
+                showConfirmButton: false,
+            });
+            return;
+        }
     }
 
-    Swal.fire({
-        title: "Data berhasil disimpan!",
-        icon: "success",
-        showConfirmButton: false,
-        timer: 3000,
-    }).then(() => {
-        document.getElementById("create-form-magang").submit();
-    });
+    try {
+        const response = await fetch(form.action, {
+            method: "POST",
+            headers: {
+                "X-CSRF-TOKEN": document.querySelector(
+                    'meta[name="csrf-token"]'
+                ).content,
+            },
+            body: formData,
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            Swal.fire({
+                title: "Berhasil!",
+                text: data.message,
+                icon: "success",
+                showConfirmButton: false,
+                timer: 3000,
+            }).then(() => {
+                window.location.href = "/dashboard/admin/pernyataan-magang";
+            });
+        } else {
+            Swal.fire({
+                title: "Gagal!",
+                text: data.message,
+                icon: "error",
+                timer: 3000,
+                showConfirmButton: false,
+            });
+        }
+    } catch (error) {
+        Swal.fire({
+            title: "Terjadi Kesalahan!",
+            text: "Silakan coba lagi.",
+            icon: "error",
+            timer: 3000,
+            showConfirmButton: false,
+        });
+        console.error(error);
+    }
+}
+
+async function saveMahasiswaPernyataanMagang() {
+    const form = document.getElementById("create-form-magang");
+    const formData = new FormData(form);
+
+    const requiredFields = [
+        "nama_ortu",
+        "alamat",
+        "no_telp",
+        "nama_mhs",
+        "username",
+        "jurusan",
+        "perguruan_tinggi",
+        "tglSurat",
+    ];
+    for (let field of requiredFields) {
+        if (!formData.get(field).trim()) {
+            Swal.fire({
+                title: "Gagal!",
+                text: "Harap isi semua data yang diperlukan.",
+                icon: "error",
+                timer: 3000,
+                showConfirmButton: false,
+            });
+            return;
+        }
+    }
+
+    try {
+        const response = await fetch(form.action, {
+            method: "POST",
+            headers: {
+                "X-CSRF-TOKEN": document.querySelector(
+                    'meta[name="csrf-token"]'
+                ).content,
+            },
+            body: formData,
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            Swal.fire({
+                title: "Berhasil!",
+                text: data.message,
+                icon: "success",
+                showConfirmButton: false,
+                timer: 3000,
+            }).then(() => {
+                window.location.href = "/dashboard/admin/pernyataan-magang";
+            });
+        } else {
+            Swal.fire({
+                title: "Gagal!",
+                text: data.message,
+                icon: "error",
+                timer: 3000,
+                showConfirmButton: false,
+            });
+        }
+    } catch (error) {
+        Swal.fire({
+            title: "Terjadi Kesalahan!",
+            text: "Silakan coba lagi.",
+            icon: "error",
+            timer: 3000,
+            showConfirmButton: false,
+        });
+        console.error(error);
+    }
 }
 
 // Function updateProfile
@@ -643,7 +853,7 @@ async function updateProfile() {
         if (response.ok) {
             const data = await response.json();
             Swal.fire({
-                title: "Data berhasil diubah",
+                title: "Data berhasil diubah.",
                 icon: "success",
                 showConfirmButton: false,
                 timer: 3000,
@@ -829,7 +1039,7 @@ async function updateUser() {
         if (response.ok) {
             const data = await response.json();
             Swal.fire({
-                title: "Data berhasil diubah",
+                title: "Data berhasil diubah.",
                 icon: "success",
                 showConfirmButton: false,
                 timer: 3000,
@@ -919,7 +1129,7 @@ async function saveUser() {
         if (response.ok) {
             const data = await response.json();
             Swal.fire({
-                title: "Data berhasil disimpan",
+                title: "Data berhasil disimpan.",
                 icon: "success",
                 showConfirmButton: false,
                 timer: 3000,
@@ -1028,7 +1238,7 @@ async function updateKelas() {
         if (response.ok) {
             const data = await response.json();
             Swal.fire({
-                title: "Data berhasil diubah",
+                title: "Data berhasil diubah.",
                 icon: "success",
                 showConfirmButton: false,
                 timer: 3000,
@@ -1119,7 +1329,7 @@ async function saveKelas() {
         if (response.ok) {
             const data = await response.json();
             Swal.fire({
-                title: "Data berhasil diubah",
+                title: "Data berhasil disimpan.",
                 icon: "success",
                 showConfirmButton: false,
                 timer: 3000,
@@ -1295,7 +1505,7 @@ async function updatePelanggaranAkademik(role_id, nama_pemilik) {
     }
 
     Swal.fire({
-        title: "Data berhasil diubah",
+        title: "Data berhasil diubah.",
         icon: "success",
         showConfirmButton: false,
         timer: 3000,
@@ -1361,7 +1571,7 @@ async function savePelanggaranAkademik(role_id) {
     }
 
     Swal.fire({
-        title: "Data berhasil disimpan!",
+        title: "Data berhasil disimpan.!",
         icon: "success",
         showConfirmButton: false,
         timer: 3000,
@@ -1427,7 +1637,7 @@ async function savePengunduranDiri(role_id) {
     }
 
     Swal.fire({
-        title: "Data berhasil disimpan!",
+        title: "Data berhasil disimpan.!",
         icon: "success",
         showConfirmButton: false,
         timer: 3000,
@@ -1571,7 +1781,7 @@ async function updatePengunduranDiri(role_id) {
     }
 
     Swal.fire({
-        title: "Data berhasil diubah",
+        title: "Data berhasil diubah.",
         icon: "success",
         showConfirmButton: false,
         timer: 3000,
@@ -1867,7 +2077,7 @@ async function rejectSurat(id) {
     }
 }
 
-function uploadSuratMagang() {
+async function uploadAdminSuratMagang() {
     const form = document.getElementById("upload-magang-form");
 
     if (!form) {
@@ -1904,6 +2114,59 @@ function uploadSuratMagang() {
                 text: data.message,
                 timer: 3000,
                 showConfirmButton: false,
+            }).then(() => {
+                window.location.href = "/dashboard/admin/pernyataan-magang";
+            });
+        })
+        .catch((error) => {
+            Swal.fire({
+                icon: "error",
+                title: "Terjadi Kesalahan",
+                text: "Gagal mengupload surat.",
+                timer: 3000,
+                showConfirmButton: false,
+            });
+        });
+}
+async function uploadMahasiswaSuratMagang() {
+    const form = document.getElementById("upload-magang-form");
+
+    if (!form) {
+        console.error("Form upload tidak ditemukan.");
+        return;
+    }
+
+    const formData = new FormData(form);
+    const action = form.getAttribute("action");
+
+    fetch(action, {
+        method: "POST",
+        headers: {
+            "X-CSRF-TOKEN": document.querySelector('input[name="_token"]')
+                .value,
+        },
+        body: formData,
+    })
+        .then((response) => response.json())
+        .then((data) => {
+            Swal.fire({
+                icon:
+                    data.status === "success"
+                        ? "success"
+                        : data.status === "info"
+                        ? "info"
+                        : "error",
+                title:
+                    data.status === "success"
+                        ? "Berhasil"
+                        : data.status === "info"
+                        ? "Info"
+                        : "Gagal",
+                text: data.message,
+                timer: 3000,
+                showConfirmButton: false,
+            }).then(() => {
+                window.location.href = "/dashboard/mahasiswa/pernyataan-magang";
             });
         })
         .catch((error) => {
