@@ -148,27 +148,6 @@ $(document).ready(function () {
     });
 });
 
-// Menghilangkan dropdown kelas jika role_id == "2"
-document.addEventListener("DOMContentLoaded", function () {
-    const roleSelect = document.getElementById("role_id");
-    const kelasWrapper = document.getElementById("kelas-wrapper");
-
-    function toggleKelas() {
-        if (roleSelect.value !== "2") {
-            kelasWrapper.style.display = "none";
-            const kelasSelect = document.getElementById("kelas_id");
-            kelasSelect.value = "";
-            kelasSelect.disabled = true;
-        } else {
-            kelasWrapper.style.display = "";
-            document.getElementById("kelas_id").disabled = false;
-        }
-    }
-
-    toggleKelas();
-    roleSelect.addEventListener("change", toggleKelas);
-});
-
 document.addEventListener("DOMContentLoaded", function () {
     const loginErrorElement = document.getElementById("loginError");
     if (loginErrorElement) {
@@ -197,6 +176,27 @@ document.addEventListener("DOMContentLoaded", function () {
             icon.classList.add("fa-eye");
         }
     });
+});
+
+// Menghilangkan dropdown kelas jika role_id == "2"
+document.addEventListener("DOMContentLoaded", function () {
+    const roleSelect = document.getElementById("role_id");
+    const kelasWrapper = document.getElementById("kelas-wrapper");
+
+    function toggleKelas() {
+        if (roleSelect.value !== "2") {
+            kelasWrapper.style.display = "none";
+            const kelasSelect = document.getElementById("kelas_id");
+            kelasSelect.value = "";
+            kelasSelect.disabled = true;
+        } else {
+            kelasWrapper.style.display = "";
+            document.getElementById("kelas_id").disabled = false;
+        }
+    }
+
+    toggleKelas();
+    roleSelect.addEventListener("change", toggleKelas);
 });
 
 document.getElementById("username").addEventListener("input", function () {
@@ -1001,6 +1001,7 @@ async function updateUser() {
                 return;
             }
             passwordChanged = true;
+            isDataChanged = true;
         } else {
             Swal.fire({
                 title: "Gagal!",
