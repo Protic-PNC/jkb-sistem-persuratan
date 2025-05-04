@@ -9,6 +9,7 @@
             <th style="text-align: center;">Berkas</th>
             <th style="text-align: center;">Status</th>
             <th style="text-align: center;">Action</th>
+            <th style="text-align: center;">Persetujuan</th>
         </tr>
     </thead>
     <tbody id="results-body">
@@ -35,9 +36,9 @@
                         <span class="badge bg-secondary">Belum Selesai</span>
                     @endif
                 </td>
-                <td>
-                    <div class="d-flex flex-column gap-1">
-                        <div class="d-flex flex-wrap gap-1">
+                <td style="max-width: 100%; overflow-x: auto;">
+                    <div class="d-flex flex-column gap-1" style="min-width: max-content;">
+                        <div class="d-flex flex-nowrap gap-1">
                             <a class="btn btn-sm btn-primary"
                                 href="/dashboard/admin/pernyataan-magang/{{ $pernyataan->noSurat }}">Detail</a>
                             <a class="btn btn-sm btn-warning"
@@ -54,15 +55,19 @@
                                 href="/dashboard/admin/pernyataan-magang/{{ $pernyataan->noSurat }}/upload">Upload
                                 PDF</a>
                         </div>
-                        <div class="d-flex flex-wrap gap-1">
-                            @if ($pernyataan->status !== 'approved')
-                                <button class="btn btn-sm btn-success"
-                                    onclick="approveSurat('{{ $pernyataan->noSurat }}')">Setujui</button>
-                                <button class="btn btn-sm btn-danger"
-                                    onclick="rejectSurat('{{ $pernyataan->noSurat }}')">Tolak</button>
-                            @endif
-                        </div>
                     </div>
+                </td>
+                <td style="text-align: center;">
+                    @if ($pernyataan->status !== 'approved')
+                        <div class="d-flex flex-nowrap justify-content-center gap-1" style="min-width: max-content;">
+                            <button class="btn btn-sm btn-success"
+                                onclick="approveSurat('{{ $pernyataan->noSurat }}')">Setujui</button>
+                            <button class="btn btn-sm btn-danger"
+                                onclick="rejectSurat('{{ $pernyataan->noSurat }}')">Tolak</button>
+                        </div>
+                    @else
+                        <span class="text-muted">—</span>
+                    @endif
                 </td>
             </tr>
         @endforeach
