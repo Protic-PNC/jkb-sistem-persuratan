@@ -17,6 +17,7 @@ use App\Http\Controllers\Bagian_Perpustakaan\DashboardController as BagianPerpus
 use App\Http\Controllers\Admin\PernyataanMagangController as AdminPernyataanMagangController;
 use App\Http\Controllers\Ketua_Jurusan\DashboardController as KetuaJurusanDashboardController;
 use App\Http\Controllers\Admin\PelanggaranAkademikController as AdminPelanggaranAkademikController;
+use App\Http\Controllers\Mahasiswa\UserController as MahasiswaUserController;
 use App\Http\Controllers\Mahasiswa\PernyataanMagangController as MahasiswaPernyataanMagangController;
 use App\Http\Controllers\Mahasiswa\PelanggaranAkademikController as MahasiswaPelanggaranAkademikController;
 use App\Http\Controllers\Dosen_Wali\PelanggaranAkademikController as DosenWaliPelanggaranAkademikController;
@@ -46,6 +47,7 @@ Route::controller(LoginController::class)->group(function () {
 });
 
 Route::get('/dashboard/admin', [AdminDashboardController::class, 'index'])->middleware('admin');
+
 Route::middleware('admin')->group(function () {
     Route::resource('/dashboard/admin/pernyataan-magang', AdminPernyataanMagangController::class);
 
@@ -88,9 +90,16 @@ Route::get('/dashboard/admin/kelas/{kelas}/edit', [AdminKelasController::class, 
 Route::put('/dashboard/admin/kelas/{kelas}', [AdminKelasController::class, 'update'])->middleware('admin');
 Route::delete('/dashboard/admin/kelas/{kelas}', [AdminKelasController::class, 'destroy'])->middleware('admin');
 
+Route::get('/dashboard/mahasiswa/user/get-mahasiswa-by-npm', [MahasiswaUserController::class, 'getMahasiswaByNPM'])->middleware('mahasiswa');
 Route::get('/dashboard/mahasiswa', [MahasiswaDashboardController::class, 'index'])->middleware('mahasiswa');
 Route::get('/dashboard/mahasiswa/pernyataan-magang/{pernyataanMagang}/cetak', [MahasiswaPernyataanMagangController::class, 'cetak'])->middleware('mahasiswa');
-Route::resource('/dashboard/mahasiswa/pernyataan-magang', MahasiswaPernyataanMagangController::class)->middleware('mahasiswa');
+Route::middleware('mahasiswa')->prefix('dashboard/mahasiswa')->group(function () {
+    Route::resource('pernyataan-magang', MahasiswaPernyataanMagangController::class);
+    Route::get('pernyataan-magang/{pernyataanMagang}/upload', [MahasiswaPernyataanMagangController::class, 'uploadForm'])
+        ->name('pernyataan.upload.form');
+    Route::post('pernyataan-magang/{pernyataanMagang}/upload', [MahasiswaPernyataanMagangController::class, 'upload'])
+        ->name('pernyataan.upload');
+});
 
 Route::get('/dashboard/mahasiswa/pelanggaran-akademik', [MahasiswaPelanggaranAkademikController::class, 'index'])->middleware('mahasiswa');
 Route::get('/dashboard/mahasiswa/pelanggaran-akademik/{pelanggaranAkademik}/cetak', [MahasiswaPelanggaranAkademikController::class, 'cetak'])->middleware('mahasiswa');
