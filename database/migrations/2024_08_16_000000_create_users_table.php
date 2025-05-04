@@ -18,9 +18,13 @@ return new class extends Migration
             $table->string('email');
             $table->string('password');
             $table->unsignedBigInteger('role_id');
-            $table->unsignedBigInteger('kelas_id')->nullable();
+            $table->unsignedBigInteger('kelas_id')->nullable(); 
+
             $table->foreign('role_id')->references('id_role')->on('roles');
-            $table->foreign('kelas_id')->references('id_kelas')->on('kelas');
+            $table->foreign('kelas_id')
+                  ->references('id_kelas')->on('kelas')
+                  ->onDelete('set null');
+
             $table->string('jurusan')->nullable();
             $table->string('perguruan_tinggi');
             $table->string('profile_picture')->nullable();
