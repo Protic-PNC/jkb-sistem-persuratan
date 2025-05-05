@@ -74,7 +74,19 @@
 
         @if ($status == 'rejected')
             <p><strong>Alasan Penolakan:</strong></p>
-            <blockquote>{{ $pernyataan->alasan }}</blockquote>
+            @php
+                $alasanList = explode("\n", $pernyataan->alasan);
+            @endphp
+            <blockquote>
+                <ul style="padding-left: 1.2em; margin: 0;">
+                    @foreach ($alasanList as $alasan)
+                        @if (trim($alasan) !== '')
+                            <li>{{ trim($alasan) }}</li>
+                        @endif
+                    @endforeach
+                </ul>
+            </blockquote>
+
         @endif
 
         <p>Silakan login ke sistem persuratan mahasiswa untuk melihat detailnya melalui tautan di bawah ini:</p>
