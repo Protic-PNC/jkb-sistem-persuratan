@@ -19,10 +19,20 @@ class PernyataanMagangController extends Controller
     $user = Auth::user();
     $pernyataans = PernyataanMagang::where('username', $user->username)->latest()->get();
     $totalPernyataanMagang = $pernyataans->count();
-    $totalBelumSelesai = PernyataanMagang::where('username', $user->username)
+    $totalDiproses = PernyataanMagang::where('username', $user->username)
     ->where(function ($query) {
         $query->whereNull('status')
-              ->orWhere('status', 'belum selesai');
+              ->orWhere('status', 'diproses');
+    })
+    ->count();
+$totalDisetujui = PernyataanMagang::where('username', $user->username)
+    ->where(function ($query) {
+        $query->where('status', 'approved');
+    })
+    ->count();
+$totalDitolak = PernyataanMagang::where('username', $user->username)
+    ->where(function ($query) {
+        $query->where('status', 'rejected');
     })
     ->count();
 
@@ -35,7 +45,9 @@ class PernyataanMagangController extends Controller
         'title' => 'Pernyataan Magang',
         'pernyataans' => $pernyataans,
         'totalPernyataanMagang' => $totalPernyataanMagang,
-        'totalBelumSelesai' => $totalBelumSelesai,
+        'totalDiproses' => $totalDiproses,
+        'totalDisetujui' => $totalDisetujui,
+        'totalDitolak' => $totalDitolak,
     ]);
     }
 
@@ -193,7 +205,7 @@ public function upload(Request $request, $id)
     $path = $file->store('surat-magang', 'public');
     $pernyataans->file_pdf = $path;
     if ($pernyataans->status === 'rejected') {
-        $pernyataans->status = 'belum selesai';
+        $pernyataans->status = 'diproses';
         $pernyataans->alasan = null;
     }
     $pernyataans->save();
