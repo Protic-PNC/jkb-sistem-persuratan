@@ -18,7 +18,9 @@ class PernyataanMagangController extends Controller
 {
     $pernyataans = PernyataanMagang::all();
     $totalPernyataanMagang = PernyataanMagang::count();
-    $totalBelumSelesai = PernyataanMagang::whereNull('status')->orWhere('status', 'belum selesai')->count();
+    $totalDiproses = PernyataanMagang::whereNull('status')->orWhere('status', 'diproses')->count();
+    $totalDisetujui = PernyataanMagang::where('status', 'approved')->count();
+    $totalDitolak = PernyataanMagang::where('status', 'rejected')->count();
 
     if ($request->ajax()) {
         return view('dashboard.admin.pernyataan_magangs.table', compact('pernyataans'))->render();
@@ -28,7 +30,9 @@ class PernyataanMagangController extends Controller
         'title' => 'Pernyataan Magang',
         'pernyataans' => $pernyataans,
         'totalPernyataanMagang' => $totalPernyataanMagang,
-        'totalBelumSelesai' => $totalBelumSelesai,
+        'totalDiproses' => $totalDiproses,
+        'totalDisetujui' => $totalDisetujui,
+        'totalDitolak' => $totalDitolak,
     ]);
 }
 
@@ -194,7 +198,7 @@ public function upload(Request $request, $id)
     $path = $file->store('surat-magang', 'public');
     $pernyataans->file_pdf = $path;
     if ($pernyataans->status === 'rejected') {
-        $pernyataans->status = 'belum selesai';
+        $pernyataans->status = 'diproses';
         $pernyataans->alasan = null;
     }
 
