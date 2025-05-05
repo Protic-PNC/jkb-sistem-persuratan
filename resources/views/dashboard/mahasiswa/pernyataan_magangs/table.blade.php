@@ -9,6 +9,7 @@
             <th scope="col" style="white-space: nowrap; text-align: center;">Berkas</th>
             <th scope="col" style="white-space: nowrap; text-align: center;">Status</th>
             <th scope="col" style="white-space: nowrap; text-align: center;">Action</th>
+            <th scope="col" style="white-space: nowrap; text-align: center;">Alasan</th>
         </tr>
     </thead>
     <tbody id="results-body">
@@ -34,7 +35,7 @@
                     @elseif ($pernyataan->status === 'rejected')
                         <span class="badge bg-danger">Ditolak</span>
                     @else
-                        <span class="badge bg-secondary">Belum Selesai</span>
+                        <span class="badge bg-warning">Diproses</span>
                     @endif
                 </td>
                 <td style="max-width: 250px; overflow-x: auto;">
@@ -54,6 +55,17 @@
                             href="/dashboard/mahasiswa/pernyataan-magang/{{ $pernyataan->noSurat }}/upload">Upload
                             PDF</a>
                     </div>
+                </td>
+                <td style="text-align: center;">
+                    @if ($pernyataan->status === 'rejected' && $pernyataan->alasan)
+                        <button class="btn btn-sm btn-outline-danger"
+                            onclick="showAlasanMagang(`{!! addslashes($pernyataan->alasan) !!}`)"
+                            style="white-space: nowrap; padding: 5px 15px;">
+                            Lihat Alasan
+                        </button>
+                    @else
+                        <span class="text-muted">—</span>
+                    @endif
                 </td>
             </tr>
         @endforeach
