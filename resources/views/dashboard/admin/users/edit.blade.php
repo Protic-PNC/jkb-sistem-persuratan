@@ -10,7 +10,7 @@
                         @method('put')
                         @csrf
                         <!-- Hidden inputs -->
-                        <input type="hidden" name="original_nama_pemilik" value="{{ $users->nama_pemilik }}">
+                        <input type="hidden" id="original_nama_pemilik" value="{{ $users->nama_pemilik }}">
                         <input type="hidden" id="original_username" value="{{ $users->username }}">
                         <input type="hidden" id="original_email" value="{{ $users->email }}">
                         <input type="hidden" id="original_password" value="{{ $users->password }}">
