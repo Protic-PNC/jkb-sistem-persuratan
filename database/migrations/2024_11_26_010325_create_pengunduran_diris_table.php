@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('pengunduran_diris', function (Blueprint $table) {
             $table->id('noSurat');
+            $table->string('nama_pelapor');
             $table->string('nama_mhs');
             $table->string('nama_dosen_wali');
             $table->string('nama_ketua_jurusan');
