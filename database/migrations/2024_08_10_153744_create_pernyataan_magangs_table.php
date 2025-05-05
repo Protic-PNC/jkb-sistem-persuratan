@@ -20,6 +20,9 @@ return new class extends Migration
             $table->string('username')->unique();
             $table->string('jurusan');
             $table->string('perguruan_tinggi');
+            $table->string('status')->nullable(); 
+            $table->text('alasan')->nullable();
+            $table->string('file_pdf')->nullable();
             $table->date('tglSurat');
             $table->timestamps();
         });
