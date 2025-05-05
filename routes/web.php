@@ -41,7 +41,7 @@ Route::put('/profile/{user}', [ProfileController::class, 'update'])->middleware(
 Route::get('logs', [LogViewerController::class, 'index'])->middleware('admin');
 
 Route::controller(LoginController::class)->group(function () {
-    Route::get('/login', 'index')->name('login')->middleware('guest', 'auth');
+    Route::get('/login', 'index')->name('login')->middleware('guest');
     Route::post('/login', 'authenticate')->middleware('guest');
     Route::post('/logout', 'logout');
 });
@@ -90,11 +90,12 @@ Route::get('/dashboard/admin/kelas/{kelas}/edit', [AdminKelasController::class, 
 Route::put('/dashboard/admin/kelas/{kelas}', [AdminKelasController::class, 'update'])->middleware('admin');
 Route::delete('/dashboard/admin/kelas/{kelas}', [AdminKelasController::class, 'destroy'])->middleware('admin');
 
+Route::get('/dashboard/mahasiswa', [MahasiswaDashboardController::class, 'index']);
 Route::get('/dashboard/mahasiswa/user/get-mahasiswa-by-npm', [MahasiswaUserController::class, 'getMahasiswaByNPM'])->middleware('mahasiswa');
-Route::get('/dashboard/mahasiswa', [MahasiswaDashboardController::class, 'index'])->middleware('mahasiswa');
-Route::get('/dashboard/mahasiswa/pernyataan-magang/{pernyataanMagang}/cetak', [MahasiswaPernyataanMagangController::class, 'cetak'])->middleware('mahasiswa');
 Route::middleware('mahasiswa')->prefix('dashboard/mahasiswa')->group(function () {
     Route::resource('pernyataan-magang', MahasiswaPernyataanMagangController::class);
+    Route::get('/dashboard/mahasiswa/pernyataan-magang/{pernyataanMagang}/cetak', [MahasiswaPernyataanMagangController::class, 'cetak']);
+    Route::get('/dashboard/mahasiswa/user/get-mahasiswa-by-npm', [MahasiswaUserController::class, 'getMahasiswaByNPM']);
     Route::get('pernyataan-magang/{pernyataanMagang}/upload', [MahasiswaPernyataanMagangController::class, 'uploadForm'])
         ->name('pernyataan.upload.form');
     Route::post('pernyataan-magang/{pernyataanMagang}/upload', [MahasiswaPernyataanMagangController::class, 'upload'])
