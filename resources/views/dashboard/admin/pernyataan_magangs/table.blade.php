@@ -10,6 +10,7 @@
             <th style="text-align: center;">Status</th>
             <th style="text-align: center;">Action</th>
             <th style="text-align: center;">Persetujuan</th>
+            <th style="text-align: center;">Alasan</th>
         </tr>
     </thead>
     <tbody id="results-body">
@@ -33,7 +34,7 @@
                     @elseif ($pernyataan->status === 'rejected')
                         <span class="badge bg-danger">Ditolak</span>
                     @else
-                        <span class="badge bg-secondary">Belum Selesai</span>
+                        <span class="badge bg-warning">Diproses</span>
                     @endif
                 </td>
                 <td style="max-width: 100%; overflow-x: auto;">
@@ -61,10 +62,21 @@
                     @if ($pernyataan->status !== 'approved')
                         <div class="d-flex flex-nowrap justify-content-center gap-1" style="min-width: max-content;">
                             <button class="btn btn-sm btn-success"
-                                onclick="approveSurat('{{ $pernyataan->noSurat }}')">Setujui</button>
+                                onclick="approveAdminSuratMagang('{{ $pernyataan->noSurat }}')">Setujui</button>
                             <button class="btn btn-sm btn-danger"
-                                onclick="rejectSurat('{{ $pernyataan->noSurat }}')">Tolak</button>
+                                onclick="rejectAdminSuratMagang('{{ $pernyataan->noSurat }}')">Tolak</button>
                         </div>
+                    @else
+                        <span class="text-muted">—</span>
+                    @endif
+                </td>
+                <td style="text-align: center;">
+                    @if ($pernyataan->status === 'rejected' && $pernyataan->alasan)
+                        <button class="btn btn-sm btn-outline-danger"
+                            onclick="showAlasanMagang(`{!! addslashes($pernyataan->alasan) !!}`)"
+                            style="white-space: nowrap; padding: 5px 15px;">
+                            Lihat Alasan
+                        </button>
                     @else
                         <span class="text-muted">—</span>
                     @endif
