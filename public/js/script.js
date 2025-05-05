@@ -1987,7 +1987,7 @@ async function importKelasCSV() {
     }
 }
 
-async function approveSurat(id) {
+async function approveAdminSuratMagang(id) {
     try {
         const response = await fetch(
             `/dashboard/admin/pernyataan-magang/${id}/setujui`,
@@ -2022,19 +2022,23 @@ async function approveSurat(id) {
     }
 }
 
-async function rejectSurat(id) {
+async function rejectAdminSuratMagang(id) {
     const { value: alasan } = await Swal.fire({
         title: "Tolak Surat",
-        input: "text",
-        inputLabel: "Alasan Penolakan",
-        inputPlaceholder: "Masukkan alasan penolakan",
+        html: `
+            <textarea id="alasan-penolakan" class="swal2-textarea" rows="6" placeholder="Masukkan alasan penolakan, pisahkan dengan baris baru untuk setiap poin"></textarea>
+        `,
+        focusConfirm: false,
         showCancelButton: true,
         confirmButtonText: "Tolak",
         cancelButtonText: "Batal",
-        inputValidator: (value) => {
-            if (!value) {
-                return "Alasan wajib diisi!";
+        preConfirm: () => {
+            const textarea = document.getElementById("alasan-penolakan");
+            if (!textarea.value.trim()) {
+                Swal.showValidationMessage("Alasan wajib diisi!");
+                return false;
             }
+            return textarea.value.trim();
         },
     });
 
@@ -2060,8 +2064,8 @@ async function rejectSurat(id) {
             Swal.fire({
                 icon: "success",
                 title: "Ditolak!",
-                timer: 3000,
                 text: data.message,
+                timer: 3000,
                 showConfirmButton: false,
             }).then(() => {
                 location.reload();
@@ -2070,12 +2074,36 @@ async function rejectSurat(id) {
             Swal.fire({
                 icon: "error",
                 title: "Gagal!",
-                timer: 3000,
                 text: "Terjadi kesalahan saat menolak surat.",
+                timer: 3000,
                 showConfirmButton: false,
             });
         }
     }
+}
+
+async function showAlasanMagang(alasan) {
+    const poinList = alasan
+        .split(/\r?\n/)
+        .map((kalimat) => kalimat.trim())
+        .filter((kalimat) => kalimat.length > 0);
+
+    const htmlContent = `
+        <ul style="text-align: left; padding-left: 1.2em;">
+            ${poinList.map((item) => `<li>${item}</li>`).join("")}
+        </ul>
+    `;
+
+    Swal.fire({
+        title: "Alasan Penolakan",
+        html: htmlContent,
+        width: 600,
+        showCloseButton: true,
+        confirmButtonText: "Tutup",
+        customClass: {
+            popup: "text-start",
+        },
+    });
 }
 
 async function uploadAdminSuratMagang() {
