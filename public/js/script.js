@@ -199,32 +199,6 @@ document.addEventListener("DOMContentLoaded", function () {
     roleSelect.addEventListener("change", toggleKelas);
 });
 
-document.getElementById("username").addEventListener("input", function () {
-    let npm = this.value;
-
-    if (npm) {
-        fetch(`/dashboard/admin/user/get-mahasiswa-by-npm?npm=${npm}`)
-            .then((response) => response.json())
-            .then((data) => {
-                document.getElementById("nama_mhs").value = data.nama_mhs;
-            })
-            .catch((error) => console.error("Error:", error));
-    }
-});
-
-document.getElementById("username").addEventListener("input", function () {
-    let npm = this.value;
-
-    if (npm) {
-        fetch(`/dashboard/mahasiswa/user/get-mahasiswa-by-npm?npm=${npm}`)
-            .then((response) => response.json())
-            .then((data) => {
-                document.getElementById("nama_mhs").value = data.nama_mhs;
-            })
-            .catch((error) => console.error("Error:", error));
-    }
-});
-
 document.getElementById("tglSurat").addEventListener("change", function () {
     const tanggal = new Date(this.value);
     const options = {
@@ -262,19 +236,6 @@ document.getElementById("kelas_id").addEventListener("change", function () {
     }
 });
 
-document.getElementById("username").addEventListener("input", function () {
-    let npm = this.value;
-
-    if (npm) {
-        fetch(`/dashboard/dosen-wali/user/get-mahasiswa-by-npm?npm=${npm}`)
-            .then((response) => response.json())
-            .then((data) => {
-                document.getElementById("nama_mhs").value = data.nama_mhs;
-            })
-            .catch((error) => console.error("Error:", error));
-    }
-});
-
 document.getElementById("kelas_id").addEventListener("change", function () {
     let kelasId = this.value;
 
@@ -293,9 +254,32 @@ document.getElementById("kelas_id").addEventListener("change", function () {
 
 document.getElementById("username").addEventListener("input", function () {
     let npm = this.value;
+    let userRole = document
+        .querySelector('meta[name="user-role"]')
+        .getAttribute("content");
 
     if (npm) {
-        fetch(`/dashboard/ketua-jurusan/user/get-mahasiswa-by-npm?npm=${npm}`)
+        let endpoint;
+
+        switch (userRole) {
+            case "2":
+                endpoint = `/dashboard/mahasiswa/user/get-mahasiswa-by-npm?npm=${npm}`;
+                break;
+            case "1":
+                endpoint = `/dashboard/admin/user/get-mahasiswa-by-npm?npm=${npm}`;
+                break;
+            case "4":
+                endpoint = `/dashboard/dosen-wali/user/get-mahasiswa-by-npm?npm=${npm}`;
+                break;
+            case "3":
+                endpoint = `/dashboard/ketua-jurusan/user/get-mahasiswa-by-npm?npm=${npm}`;
+                break;
+            default:
+                console.warn("Role tidak dikenal. Gunakan endpoint default.");
+                endpoint = `/dashboard/user/get-mahasiswa-by-npm?npm=${npm}`;
+        }
+
+        fetch(endpoint)
             .then((response) => response.json())
             .then((data) => {
                 document.getElementById("nama_mhs").value = data.nama_mhs;
@@ -1791,52 +1775,98 @@ async function updatePengunduranDiri(role_id) {
     });
 }
 
-async function confirmTolak(noSurat) {
-    const swalWithBootstrapButtons = Swal.mixin({
-        customClass: {
-            confirmButton: "btn btn-success",
-            cancelButton: "btn btn-danger",
-        },
-        buttonsStyling: false,
-    });
-    swalWithBootstrapButtons
-        .fire({
-            title: "Apakah surat ini ingin ditolak?",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonText: "Ya, tolak surat!",
-            cancelButtonText: "Tidak!",
-            reverseButtons: true,
-        })
-        .then((result) => {
-            if (result.isConfirmed) {
-                swalWithBootstrapButtons
-                    .fire({
-                        title: "Ditolak!",
-                        text: "Surat telah ditolak.",
-                        icon: "success",
-                        timer: 3000,
-                        showConfirmButton: false,
-                    })
-                    .then(() => {
-                        document
-                            .getElementById("tolak-form-" + noSurat)
-                            .submit();
-                    });
-            } else if (result.dismiss === Swal.DismissReason.cancel) {
-                swalWithBootstrapButtons.fire({
-                    title: "Dibatalkan",
-                    text: "Tidak ada perubahan yang dilakukan.",
-                    icon: "error",
-                    timer: 3000,
-                    showConfirmButton: false,
-                });
+async function approveAdminSuratPelanggaran(id) {
+    try {
+        const response = await fetch(
+            `/dashboard/admin/pelanggaran-akademik/${id}/setujui`,
+            {
+                method: "POST",
+                headers: {
+                    "X-CSRF-TOKEN": document.querySelector(
+                        'meta[name="csrf-token"]'
+                    ).content,
+                    Accept: "application/json",
+                },
             }
-        });
+        );
 
-    const cancelButton = document.querySelector(".swal2-cancel");
-    if (cancelButton) {
-        cancelButton.style.marginRight = "10px";
+        const data = await response.json();
+
+        Swal.fire({
+            icon: "success",
+            title: "Berhasil!",
+            timer: 3000,
+            text: data.message,
+            showConfirmButton: false,
+        }).then(() => {
+            location.reload();
+        });
+    } catch (error) {
+        Swal.fire({
+            icon: "error",
+            title: "Gagal!",
+            text: "Terjadi kesalahan saat menyetujui surat.",
+        });
+    }
+}
+
+async function rejectAdminSuratPelanggaran(id) {
+    const { value: alasan } = await Swal.fire({
+        title: "Tolak Surat",
+        html: `
+            <textarea id="alasan-penolakan" class="swal2-textarea" rows="6" placeholder="Masukkan alasan penolakan, pisahkan dengan baris baru untuk setiap poin"></textarea>
+        `,
+        focusConfirm: false,
+        showCancelButton: true,
+        confirmButtonText: "Tolak",
+        cancelButtonText: "Batal",
+        preConfirm: () => {
+            const textarea = document.getElementById("alasan-penolakan");
+            if (!textarea.value.trim()) {
+                Swal.showValidationMessage("Alasan wajib diisi!");
+                return false;
+            }
+            return textarea.value.trim();
+        },
+    });
+
+    if (alasan) {
+        try {
+            const response = await fetch(
+                `/dashboard/admin/pelanggaran-akademik/${id}/tolak`,
+                {
+                    method: "POST",
+                    headers: {
+                        "X-CSRF-TOKEN": document.querySelector(
+                            'meta[name="csrf-token"]'
+                        ).content,
+                        "Content-Type": "application/json",
+                        Accept: "application/json",
+                    },
+                    body: JSON.stringify({ alasan }),
+                }
+            );
+
+            const data = await response.json();
+
+            Swal.fire({
+                icon: "success",
+                title: "Ditolak!",
+                text: data.message,
+                timer: 3000,
+                showConfirmButton: false,
+            }).then(() => {
+                location.reload();
+            });
+        } catch (error) {
+            Swal.fire({
+                icon: "error",
+                title: "Gagal!",
+                text: "Terjadi kesalahan saat menolak surat.",
+                timer: 3000,
+                showConfirmButton: false,
+            });
+        }
     }
 }
 
@@ -2106,6 +2136,30 @@ async function showAlasanMagang(alasan) {
     });
 }
 
+async function showAlasanPelanggaran(alasan) {
+    const poinList = alasan
+        .split(/\r?\n/)
+        .map((kalimat) => kalimat.trim())
+        .filter((kalimat) => kalimat.length > 0);
+
+    const htmlContent = `
+        <ul style="text-align: left; padding-left: 1.2em;">
+            ${poinList.map((item) => `<li>${item}</li>`).join("")}
+        </ul>
+    `;
+
+    Swal.fire({
+        title: "Alasan Penolakan",
+        html: htmlContent,
+        width: 600,
+        showCloseButton: true,
+        confirmButtonText: "Tutup",
+        customClass: {
+            popup: "text-start",
+        },
+    });
+}
+
 async function uploadAdminSuratMagang() {
     const form = document.getElementById("upload-magang-form");
 
@@ -2221,5 +2275,53 @@ async function togglePassword(fieldId, btn) {
         input.type = "password";
         icon.classList.remove("bi-eye-slash");
         icon.classList.add("bi-eye");
+    }
+}
+
+async function sendPelanggaranReminder(noSurat) {
+    const result = await Swal.fire({
+        title: "Kirim Pengingat?",
+        text: "Apakah Anda yakin ingin mengirimkan pengingat tanda tangan?",
+        icon: "question",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Ya, kirimkan!",
+    });
+
+    if (result.isConfirmed) {
+        try {
+            const response = await fetch(
+                `/dashboard/admin/pelanggaran-akademik/${noSurat}/reminder-tanda-tangan`,
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRF-TOKEN": document
+                            .querySelector('meta[name="csrf-token"]')
+                            .getAttribute("content"),
+                    },
+                }
+            );
+
+            const data = await response.json();
+
+            if (response.ok) {
+                Swal.fire("Berhasil!", data.message, "success");
+            } else {
+                Swal.fire(
+                    "Gagal",
+                    data.message ||
+                        "Terjadi kesalahan saat mengirim pengingat.",
+                    "error"
+                );
+            }
+        } catch (error) {
+            Swal.fire(
+                "Kesalahan",
+                "Terjadi kesalahan. Coba lagi nanti.",
+                "error"
+            );
+        }
     }
 }
