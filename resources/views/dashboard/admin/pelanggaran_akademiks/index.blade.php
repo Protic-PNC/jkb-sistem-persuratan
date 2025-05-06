@@ -1,39 +1,71 @@
 @extends('dashboard.admin.layouts.main')
 
 @section('container')
-<!-- Sale & Revenue Start -->
-<div class="container-fluid pt-4 px-4">
-    <div class="row g-4">
-        <div class="col-sm-6 col-xl-5">
-            <div class="bg-light rounded d-flex align-items-center justify-content-between p-4">
-                <i class="fa fa-chart-line fa-3x text-primary me-3"></i>
-                <div class="ms-3">
-                    <p class="mb-2">Total Surat Pelanggaran Akademik</p>
-                    <h6 class="mb-0">{{ $totalPelanggaranAkademik }}</h6>
+    <div class="container-fluid pt-4 px-4">
+        <div class="row g-4">
+            <!-- Total Surat Pernyataan Magang -->
+            <div class="col-6 col-md-3 col-xl-3">
+                <div class="bg-light rounded d-flex align-items-center justify-content-start gap-3 p-4">
+                    <i class="fa fa-file-alt fa-3x text-primary"></i>
+                    <div class="ms-3">
+                        <p class="mb-2">Total Surat</p>
+                        <h6 class="mb-0">{{ $totalPelanggaran }}</h6>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Surat Belum Selesai -->
+            <div class="col-6 col-md-3 col-xl-3">
+                <div class="bg-light rounded d-flex align-items-center justify-content-start gap-3 p-4">
+                    <i class="fa fa-clock fa-3x text-warning"></i>
+                    <div class="ms-3">
+                        <p class="mb-2">Diproses</p>
+                        <h6 class="mb-0">{{ $totalDiproses }}</h6>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Surat Disetujui -->
+            <div class="col-6 col-md-3 col-xl-3">
+                <div class="bg-light rounded d-flex align-items-center justify-content-start gap-3 p-4">
+                    <i class="fa fa-check-circle fa-3x text-success"></i>
+                    <div class="ms-3">
+                        <p class="mb-2">Disetujui</p>
+                        <h6 class="mb-0">{{ $totalDisetujui }}</h6>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Surat Ditolak -->
+            <div class="col-6 col-md-3 col-xl-3">
+                <div class="bg-light rounded d-flex align-items-center justify-content-start gap-3 p-4">
+                    <i class="fa fa-times-circle fa-3x text-danger"></i>
+                    <div class="ms-3">
+                        <p class="mb-2">Ditolak</p>
+                        <h6 class="mb-0">{{ $totalDitolak }}</h6>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
-<!-- Sale & Revenue End -->
 
-<!-- Recent Sales Start -->
-<div class="container-fluid mb-4 pt-4 px-3">
-    <div class="bg-light text-center rounded p-4">
-        @if(session()->has('success'))
-            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                <i class="fa fa-check-circle me-2"></i>{{ session('success') }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    <!-- Recent Sales Start -->
+    <div class="container-fluid mb-4 pt-4 px-3">
+        <div class="bg-light text-center rounded p-4">
+            @if (session()->has('success'))
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="fa fa-check-circle me-2"></i>{{ session('success') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            @endif
+            <div class="d-flex align-items-center justify-content-between mb-4">
+                <h6 class="mb-0">Daftar Surat Pelanggaran Akademik</h6>
+                <a href="/dashboard/admin/pelanggaran-akademik/create" class="btn btn-primary">Tambah Surat</a>
             </div>
-        @endif
-        <div class="d-flex align-items-center justify-content-between mb-4">
-            <h6 class="mb-0">Daftar Surat Pelanggaran Akademik</h6>
-            <a href="/dashboard/admin/pelanggaran-akademik/create" class="btn btn-primary">Tambah Surat</a>
-        </div>
 
-        <div class="table-responsive">
-            @include('dashboard.admin.pelanggaran_akademiks.table')
+            <div class="table-responsive">
+                @include('dashboard.admin.pelanggaran_akademiks.table')
+            </div>
         </div>
     </div>
-</div>
 @endsection
