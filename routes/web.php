@@ -60,10 +60,16 @@ Route::middleware('admin')->group(function () {
     Route::post('/dashboard/admin/pernyataan-magang/{pernyataanMagang}/tolak', [AdminPernyataanMagangController::class, 'tolak'])->name('pernyataan.tolak');
 });
 
-Route::get('/dashboard/admin/pelanggaran-akademik/{pelanggaranAkademik}/cetak', [AdminPelanggaranAkademikController::class, 'cetak'])->middleware('admin');
-Route::resource('/dashboard/admin/pelanggaran-akademik', AdminPelanggaranAkademikController::class)->middleware('admin');
-Route::post('/dashboard/admin/pelanggaran-akademik/{pelanggaranAkademik}/tolak', [AdminPelanggaranAkademikController::class, 'tolak'])->middleware('admin');
-
+Route::middleware('admin')->prefix('dashboard/admin')->group(function () {
+    Route::resource('pelanggaran-akademik', AdminPelanggaranAkademikController::class);
+    Route::get('pelanggaran-akademik/{pelanggaranAkademik}/cetak', [AdminPelanggaranAkademikController::class, 'cetak']);
+    Route::post('pelanggaran-akademik/{pelanggaranAkademik}/setujui', [AdminPelanggaranAkademikController::class, 'setujui'])
+        ->name('pelanggaran-akademik.setujui');
+    Route::post('pelanggaran-akademik/{pelanggaranAkademik}/tolak', [AdminPelanggaranAkademikController::class, 'tolak'])
+        ->name('pelanggaran-akademik.tolak');
+    Route::post('pelanggaran-akademik/{noSurat}/reminder-tanda-tangan', [AdminPelanggaranAkademikController::class, 'reminderTandaTangan']);
+});
+    
 Route::get('/dashboard/admin/pengunduran-diri/{pengunduranDiri}/cetak', [AdminPengunduranDiriController::class, 'cetak'])->middleware('admin');
 Route::resource('/dashboard/admin/pengunduran-diri', AdminPengunduranDiriController::class)->middleware('admin');
 Route::post('/dashboard/admin/pengunduran-diri/{pengunduranDiri}/tolak', [AdminPengunduranDiriController::class, 'tolak'])->middleware('admin');
@@ -90,8 +96,7 @@ Route::get('/dashboard/admin/kelas/{kelas}/edit', [AdminKelasController::class, 
 Route::put('/dashboard/admin/kelas/{kelas}', [AdminKelasController::class, 'update'])->middleware('admin');
 Route::delete('/dashboard/admin/kelas/{kelas}', [AdminKelasController::class, 'destroy'])->middleware('admin');
 
-Route::get('/dashboard/mahasiswa', [MahasiswaDashboardController::class, 'index']);
-Route::get('/dashboard/mahasiswa/user/get-mahasiswa-by-npm', [MahasiswaUserController::class, 'getMahasiswaByNPM'])->middleware('mahasiswa');
+Route::get('/dashboard/mahasiswa', [MahasiswaDashboardController::class, 'index'])->middleware('mahasiswa');
 Route::middleware('mahasiswa')->prefix('dashboard/mahasiswa')->group(function () {
     Route::resource('pernyataan-magang', MahasiswaPernyataanMagangController::class);
     Route::get('/dashboard/mahasiswa/pernyataan-magang/{pernyataanMagang}/cetak', [MahasiswaPernyataanMagangController::class, 'cetak']);
