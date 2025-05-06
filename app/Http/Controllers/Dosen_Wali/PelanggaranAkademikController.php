@@ -90,82 +90,11 @@ class PelanggaranAkademikController extends Controller
         $validatedData['ttd_pelapor'] = str_replace('public/', 'storage/', $path);
     }
 
-    $existingRecord = PelanggaranAkademik::where('nama_mhs', $request->nama_mhs)->first();
-    
-    if ($existingRecord) {
-        $validatedData['jumlah_peringatan'] = $existingRecord->jumlah_peringatan + 1;
-    } else {
-        $validatedData['jumlah_peringatan'] = 1;
-    }
+    $existingRecord = $pelanggaranAkademik->where('nama_mhs', $request->nama_mhs)->first();
+    $validatedData['jumlah_peringatan'] = $existingRecord ? $existingRecord->jumlah_peringatan + 1 : 1;
+    $validatedData['status_surat'] = 'belum selesai';
 
-    $validatedData['status_surat'] =
-    ($pelanggaranAkademik->ttd_mahasiswa) && 
-    ($pelanggaranAkademik->ttd_pelapor || $request->hasFile('ttd_pelapor')) && 
-    ($pelanggaranAkademik->ttd_dosen_wali || $request->hasFile('ttd_dosen_wali')) && 
-    ($pelanggaranAkademik->ttd_ketua_jurusan) ? 'selesai' : 'belum selesai';
-
-    $pelanggaranAkademik = PelanggaranAkademik::create($validatedData);
-    $user = User::where('username', $request->username)->first();
-
-    if ($pelanggaranAkademik->status_surat == 'belum selesai' && $user) {
-        $message = "Halo {$pelanggaranAkademik->nama_mhs}, terdapat Surat Peringatan karena Pelanggaran Akademik No. Surat: {$pelanggaranAkademik->noSurat} untuk Anda. Harap segera untuk diproses pada website berikut http://127.0.0.1:8000";
-        $no_telp = $user->no_telp;
-
-        $response = Http::withHeaders([
-            'Authorization' => 'GExfSpLCzErZt59W5DCZ',
-        ])->post('https://api.fonnte.com/send', [
-            'target' => $no_telp,
-            'message' => $message,
-            'countryCode' => '62',
-        ]);
-
-        if ($response->successful()) {
-            Log::info('WhatsApp notification sent successfully upon creation.', [
-                'no_telp' => $no_telp,
-                'response' => $response->body(),
-            ]);
-        } else {
-            Log::error('Failed to send WhatsApp notification upon creation.', [
-                'no_telp' => $no_telp,
-                'response' => $response->body(),
-            ]);
-        }
-
-        Mail::to($user->email)->send(new PeringatanPelanggaranAkademikMail($pelanggaranAkademik));
-        Log::info('Email notification sent successfully upon creation.', [
-            'email' => $user->email
-        ]);
-    }
-    
-    else if ($pelanggaranAkademik->status_surat == 'selesai' && $user) {
-        
-        $message = "Halo {$pelanggaranAkademik->nama_mhs}, Surat Peringatan karena Pelanggaran Peraturan Akademik dengan No. Surat: {$pelanggaranAkademik->noSurat} telah selesai.";
-        $no_telp = $user->no_telp;
-        
-        $response = Http::withHeaders([
-            'Authorization' => 'GExfSpLCzErZt59W5DCZ',
-        ])->post('https://api.fonnte.com/send', [
-            'target' => $no_telp,
-            'message' => $message,
-            'countryCode' => '62',
-        ]);
-
-        if ($response->successful()) {
-            Log::info('WhatsApp message sent successfully.', [
-                'no_telp' => $no_telp,
-                'response' => $response->body(),
-            ]);
-            Mail::to($user->email)->send(new PeringatanPelanggaranAkademikMail($pelanggaranAkademik));
-            Log::info('Email sent successfully.', [
-                'email' => $user->email
-            ]);
-        } else {
-            Log::error('Failed to send WhatsApp message.', [
-                'no_telp' => $no_telp,
-                'response' => $response->body(),
-            ]);
-        }
-    }
+    PelanggaranAkademik::create($validatedData);
 
     return redirect('/dashboard/dosen-wali/pelanggaran-akademik');
 }
@@ -209,53 +138,12 @@ public function update(Request $request, PelanggaranAkademik $pelanggaranAkademi
         $validatedData['ttd_dosen_wali'] = $file->storeAs('ttd_dosen_wali', $filename);
     }
 
-    if ($request->nama_mhs == $pelanggaranAkademik->nama_mhs) {
-        $validatedData['jumlah_peringatan'] = $pelanggaranAkademik->jumlah_peringatan;
-    } else {
-        $validatedData['jumlah_peringatan'] = $pelanggaranAkademik->jumlah_peringatan + 1;
-    }
+    $validatedData['jumlah_peringatan'] = $request->nama_mhs === $pelanggaranAkademik->nama_mhs 
+        ? $pelanggaranAkademik->jumlah_peringatan 
+        : $pelanggaranAkademik->jumlah_peringatan + 1;
 
-$statusSebelumnya = $pelanggaranAkademik->status_surat;
+    $pelanggaranAkademik->update($validatedData);
 
-$validatedData['status_surat'] = (
-    ($pelanggaranAkademik->ttd_mahasiswa) && 
-    ($pelanggaranAkademik->ttd_pelapor || $request->hasFile('ttd_pelapor')) && 
-    ($pelanggaranAkademik->ttd_dosen_wali || $request->hasFile('ttd_dosen_wali')) && 
-    ($pelanggaranAkademik->ttd_ketua_jurusan)
-) ? 'selesai' : $statusSebelumnya;
-
-$pelanggaranAkademik->update($validatedData);
-$user = User::where('username', $request->username)->first();
-
-if ($pelanggaranAkademik->status_surat == 'selesai' && $statusSebelumnya != 'selesai' && $user) {
-    
-    $message = "Halo {$pelanggaranAkademik->nama_mhs}, Surat Peringatan karena Pelanggaran Peraturan Akademik dengan No. Surat: {$pelanggaranAkademik->noSurat} telah selesai.";
-    $no_telp = $user->no_telp;
-    
-    $response = Http::withHeaders([
-        'Authorization' => 'GExfSpLCzErZt59W5DCZ',
-    ])->post('https://api.fonnte.com/send', [
-        'target' => $no_telp,
-        'message' => $message,
-        'countryCode' => '62',
-    ]);
-
-    if ($response->successful()) {
-        Log::info('WhatsApp message sent successfully.', [
-            'no_telp' => $no_telp,
-            'response' => $response->body(),
-        ]);
-        Mail::to($user->email)->send(new PeringatanPelanggaranAkademikMail($pelanggaranAkademik));
-        Log::info('Email sent successfully.', [
-            'email' => $user->email
-        ]);
-    } else {
-        Log::error('Failed to send WhatsApp message.', [
-            'no_telp' => $no_telp,
-            'response' => $response->body(),
-        ]);
-        }
-    }
     return redirect('/dashboard/dosen-wali/pelanggaran-akademik');
 }
 
