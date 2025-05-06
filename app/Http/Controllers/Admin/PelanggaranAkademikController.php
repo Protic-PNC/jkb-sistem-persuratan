@@ -7,27 +7,33 @@ use App\Models\Kelas;
 use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\PelanggaranAkademik;
-use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\Storage;
-use App\Mail\PeringatanPelanggaranAkademikMail;
-
+use App\Mail\StatusPelanggaranAkademikChangedMail;
 
 class PelanggaranAkademikController extends Controller
 {
     public function index(Request $request)
     {
-    $pelanggarans = PelanggaranAkademik::all();
+        $pelanggarans = PelanggaranAkademik::all();
+        $totalPelanggaran = PelanggaranAkademik::count();
+        $totalDiproses = PelanggaranAkademik::whereNull('status_surat')->orWhere('status_surat', 'diproses')->count();
+        $totalDisetujui = PelanggaranAkademik::where('status_surat', 'approved')->count();
+        $totalDitolak = PelanggaranAkademik::where('status_surat', 'rejected')->count();
 
-    $totalPelanggaranAkademik = $pelanggarans->count();
-    return view('dashboard.admin.pelanggaran_akademiks.index', [
-        'title' => 'Pelanggaran Akademik',
-        'pelanggarans' => $pelanggarans,
-        'totalPelanggaranAkademik' => $totalPelanggaranAkademik,
-    ]);
+        if ($request->ajax()) {
+            return view('dashboard.admin.pelanggaran_akademiks.table', compact('pelanggarans'))->render();
+        }
+
+        return view('dashboard.admin.pelanggaran_akademiks.index', [
+            'title' => 'Pelanggaran Akademik',
+            'pelanggarans' => $pelanggarans,
+            'totalPelanggaran' => $totalPelanggaran,
+            'totalDiproses' => $totalDiproses,
+            'totalDisetujui' => $totalDisetujui,
+            'totalDitolak' => $totalDitolak,
+        ]);
     }
 
     public function create()
@@ -39,26 +45,8 @@ class PelanggaranAkademikController extends Controller
         ]);
     }
 
-    public function show(PelanggaranAkademik $pelanggaranAkademik)
-    {
-        return view('dashboard.admin.pelanggaran_akademiks.show', [
-            'title' => 'Pelanggaran Akademik',
-            'pelanggarans' => $pelanggaranAkademik,
-        ]);
-    }
-
-    public function edit(PelanggaranAkademik $pelanggaranAkademik)
-    {
-        $kelas = Kelas::all();
-        $user = Auth::user();
-        return view('dashboard.admin.pelanggaran_akademiks.edit', compact('kelas', 'user'), [
-            'title' => 'Edit',
-            'pelanggarans' => $pelanggaranAkademik,
-        ]);
-    }
-
     public function store(Request $request)
-{   
+{
     $validatedData = $request->validate([
         'nama_mhs' => 'required|string|max:255',
         'nama_pelapor' => 'required|string|max:255',
@@ -78,116 +66,47 @@ class PelanggaranAkademikController extends Controller
         'ttd_ketua_jurusan' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048'
     ]);
 
-    if ($request->hasFile('ttd_mahasiswa')) {
-        $file = $request->file('ttd_mahasiswa');
-        $filename = 'ttd_mahasiswa_' . time() . '.' . $file->getClientOriginalExtension();
-        $path = $file->storeAs('ttd_mahasiswa', $filename);
-        $validatedData['ttd_mahasiswa'] = str_replace('public/', 'storage/', $path);
+    $ttdFields = ['ttd_mahasiswa', 'ttd_pelapor', 'ttd_dosen_wali', 'ttd_ketua_jurusan'];
+    foreach ($ttdFields as $field) {
+        if ($request->hasFile($field)) {
+            $file = $request->file($field);
+            $filename = $field . '_' . time() . '.' . $file->getClientOriginalExtension();
+            $path = $file->storeAs($field, $filename, 'public');
+            $validatedData[$field] = $path;
+        }
     }
 
-    if ($request->hasFile('ttd_pelapor')) {
-        $file = $request->file('ttd_pelapor');
-        $filename = 'ttd_pelapor_' . time() . '.' . $file->getClientOriginalExtension();
-        $path = $file->storeAs('ttd_pelapor', $filename);
-        $validatedData['ttd_pelapor'] = str_replace('public/', 'storage/', $path);
-    }
-
-    if ($request->hasFile('ttd_dosen_wali')) {
-        $file = $request->file('ttd_dosen_wali');
-        $filename = 'ttd_dosen_wali_' . time() . '.' . $file->getClientOriginalExtension();
-        $path = $file->storeAs('ttd_dosen_wali', $filename);
-        $validatedData['ttd_dosen_wali'] = str_replace('public/', 'storage/', $path);
-    }
-
-    if ($request->hasFile('ttd_ketua_jurusan')) {
-        $file = $request->file('ttd_ketua_jurusan');
-        $filename = 'ttd_ketua_jurusan_' . time() . '.' . $file->getClientOriginalExtension();
-        $path = $file->storeAs('ttd_ketua_jurusan', $filename);
-        $validatedData['ttd_ketua_jurusan'] = str_replace('public/', 'storage/', $path);
-    }
-
+    $validatedData['status_surat'] = 'diproses';
     $existingRecord = PelanggaranAkademik::where('nama_mhs', $request->nama_mhs)->first();
-    
-    if ($existingRecord) {
-        $validatedData['jumlah_peringatan'] = $existingRecord->jumlah_peringatan + 1;
-    } else {
-        $validatedData['jumlah_peringatan'] = 1;
-    }
+    $validatedData['jumlah_peringatan'] = $existingRecord ? $existingRecord->jumlah_peringatan + 1 : 1;
 
-    $validatedData['status_surat'] = ($request->hasFile('ttd_mahasiswa') && 
-    $request->hasFile('ttd_pelapor') && 
-    $request->hasFile('ttd_dosen_wali') && 
-    $request->hasFile('ttd_ketua_jurusan')) ? 'selesai' : 'belum selesai';
-
-    $pelanggaranAkademik = PelanggaranAkademik::create($validatedData);
-    $user = User::where('username', $request->username)->first();
-
-    if ($pelanggaranAkademik->status_surat == 'belum selesai' && $user) {
-        $message = "Halo {$pelanggaranAkademik->nama_mhs}, terdapat Surat Peringatan karena Pelanggaran Akademik No. Surat: {$pelanggaranAkademik->noSurat} untuk Anda. Harap segera untuk diproses pada website berikut http://127.0.0.1:8000";
-        $no_telp = $user->no_telp;
-
-        $response = Http::withHeaders([
-            'Authorization' => 'hYMRNdtcPe83pM1cTb5p',
-        ])->post('https://api.fonnte.com/send', [
-            'target' => $no_telp,
-            'message' => $message,
-            'countryCode' => '62',
-        ]);
-
-        if ($response->successful()) {
-            Log::info('WhatsApp notification sent successfully upon creation.', [
-                'no_telp' => $no_telp,
-                'response' => $response->body(),
-            ]);
-        } else {
-            Log::error('Failed to send WhatsApp notification upon creation.', [
-                'no_telp' => $no_telp,
-                'response' => $response->body(),
-            ]);
-        }
-
-        Mail::to($user->email)->send(new PeringatanPelanggaranAkademikMail($pelanggaranAkademik));
-        Log::info('Email notification sent successfully upon creation.', [
-            'email' => $user->email
-        ]);
-    }
-    
-    else if ($pelanggaranAkademik->status_surat == 'selesai' && $user) {
-        
-        $message = "Halo {$pelanggaranAkademik->nama_mhs}, Surat Peringatan karena Pelanggaran Peraturan Akademik dengan No. Surat: {$pelanggaranAkademik->noSurat} telah selesai.";
-        $no_telp = $user->no_telp;
-        
-        $response = Http::withHeaders([
-            'Authorization' => 'GExfSpLCzErZt59W5DCZ',
-        ])->post('https://api.fonnte.com/send', [
-            'target' => $no_telp,
-            'message' => $message,
-            'countryCode' => '62',
-        ]);
-
-        if ($response->successful()) {
-            Log::info('WhatsApp message sent successfully.', [
-                'no_telp' => $no_telp,
-                'response' => $response->body(),
-            ]);
-            Mail::to($user->email)->send(new PeringatanPelanggaranAkademikMail($pelanggaranAkademik));
-            Log::info('Email sent successfully.', [
-                'email' => $user->email
-            ]);
-        } else {
-            Log::error('Failed to send WhatsApp message.', [
-                'no_telp' => $no_telp,
-                'response' => $response->body(),
-            ]);
-        }
-    }
+    PelanggaranAkademik::create($validatedData);
 
     return redirect('/dashboard/admin/pelanggaran-akademik');
 }
 
-public function update(Request $request, PelanggaranAkademik $pelanggaranAkademik)
+
+    public function show(PelanggaranAkademik $pelanggaranAkademik)
+    {
+        return view('dashboard.admin.pelanggaran_akademiks.show', [
+            'title' => 'Detail Pelanggaran',
+            'pelanggarans' => $pelanggaranAkademik,
+        ]);
+    }
+
+    public function edit(PelanggaranAkademik $pelanggaranAkademik)
+    {
+        $kelas = Kelas::all();
+        $user = Auth::user();
+        return view('dashboard.admin.pelanggaran_akademiks.edit', compact('kelas', 'user'), [
+            'title' => 'Edit',
+            'pelanggarans' => $pelanggaranAkademik,
+        ]);
+    }
+
+    public function update(Request $request, PelanggaranAkademik $pelanggaranAkademik)
 {
-    $rules = [
+    $validatedData = $request->validate([
         'nama_mhs' => 'required|string|max:255',
         'nama_pelapor' => 'required|string|max:255',
         'nama_dosen_wali' => 'required|string|max:255',
@@ -204,94 +123,25 @@ public function update(Request $request, PelanggaranAkademik $pelanggaranAkademi
         'ttd_pelapor' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         'ttd_dosen_wali' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         'ttd_ketua_jurusan' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048'
-    ];
-
-    $validatedData = $request->validate($rules);
-    if ($request->hasFile('ttd_mahasiswa')) {
-        if ($pelanggaranAkademik->ttd_mahasiswa) {
-            Storage::disk('public')->delete($pelanggaranAkademik->ttd_mahasiswa);
-        }
-        $file = $request->file('ttd_mahasiswa');
-        $filename = 'ttd_mahasiswa_' . time() . '.' . $file->getClientOriginalExtension();
-        $validatedData['ttd_mahasiswa'] = $file->storeAs('ttd_mahasiswa', $filename);
-    }
-
-    if ($request->hasFile('ttd_pelapor')) {
-        if ($pelanggaranAkademik->ttd_pelapor) {
-            Storage::disk('public')->delete($pelanggaranAkademik->ttd_pelapor);
-        }
-        $file = $request->file('ttd_pelapor');
-        $filename = 'ttd_pelapor_' . time() . '.' . $file->getClientOriginalExtension();
-        $validatedData['ttd_pelapor'] = $file->storeAs('ttd_pelapor', $filename);
-    }
-
-    if ($request->hasFile('ttd_dosen_wali')) {
-        if ($pelanggaranAkademik->ttd_dosen_wali) {
-            Storage::disk('public')->delete($pelanggaranAkademik->ttd_dosen_wali);
-        }
-        $file = $request->file('ttd_dosen_wali');
-        $filename = 'ttd_dosen_wali_' . time() . '.' . $file->getClientOriginalExtension();
-        $validatedData['ttd_dosen_wali'] = $file->storeAs('ttd_dosen_wali', $filename);
-    }
-
-    if ($request->hasFile('ttd_ketua_jurusan')) {
-        if ($pelanggaranAkademik->ttd_ketua_jurusan) {
-            Storage::disk('public')->delete($pelanggaranAkademik->ttd_ketua_jurusan);
-        }
-        $file = $request->file('ttd_ketua_jurusan');
-        $filename = 'ttd_ketua_jurusan_' . time() . '.' . $file->getClientOriginalExtension();
-        $validatedData['ttd_ketua_jurusan'] = $file->storeAs('ttd_ketua_jurusan', $filename);
-    }
-
-    if ($request->nama_mhs == $pelanggaranAkademik->nama_mhs) {
-        $validatedData['jumlah_peringatan'] = $pelanggaranAkademik->jumlah_peringatan;
-    } else {
-        $validatedData['jumlah_peringatan'] = $pelanggaranAkademik->jumlah_peringatan + 1;
-    }
-
-$statusSebelumnya = $pelanggaranAkademik->status_surat;
-
-$validatedData['status_surat'] = (
-    ($pelanggaranAkademik->ttd_mahasiswa || $request->hasFile('ttd_mahasiswa')) && 
-    ($pelanggaranAkademik->ttd_pelapor || $request->hasFile('ttd_pelapor')) && 
-    ($pelanggaranAkademik->ttd_dosen_wali || $request->hasFile('ttd_dosen_wali')) && 
-    ($pelanggaranAkademik->ttd_ketua_jurusan || $request->hasFile('ttd_ketua_jurusan'))
-) ? 'selesai' : $statusSebelumnya;
-
-$pelanggaranAkademik->update($validatedData);
-$user = User::where('username', $request->username)->first();
-
-if ($pelanggaranAkademik->status_surat == 'selesai' && $statusSebelumnya != 'selesai' && $user) {
-    
-    $message = "Halo {$pelanggaranAkademik->nama_mhs}, Surat Peringatan karena Pelanggaran Peraturan Akademik dengan No. Surat: {$pelanggaranAkademik->noSurat} telah selesai.";
-    $no_telp = $user->no_telp;
-    
-    $response = Http::withHeaders([
-        'Authorization' => 'GExfSpLCzErZt59W5DCZ',
-    ])->post('https://api.fonnte.com/send', [
-        'target' => $no_telp,
-        'message' => $message,
-        'countryCode' => '62',
     ]);
 
-    if ($response->successful()) {
-        Log::info('WhatsApp message sent successfully.', [
-            'no_telp' => $no_telp,
-            'response' => $response->body(),
-        ]);
-        Mail::to($user->email)->send(new PeringatanPelanggaranAkademikMail($pelanggaranAkademik));
-        Log::info('Email sent successfully.', [
-            'email' => $user->email
-        ]);
-    } else {
-        Log::error('Failed to send WhatsApp message.', [
-            'no_telp' => $no_telp,
-            'response' => $response->body(),
-        ]);
+    $ttdFields = ['ttd_mahasiswa', 'ttd_pelapor', 'ttd_dosen_wali', 'ttd_ketua_jurusan'];
+    foreach ($ttdFields as $field) {
+        if ($request->hasFile($field)) {
+            $file = $request->file($field);
+            $filename = $field . '_' . time() . '.' . $file->getClientOriginalExtension();
+            $path = $file->storeAs($field, $filename, 'public');
+            $validatedData[$field] = $path;
+        } else {
+            $validatedData[$field] = $pelanggaranAkademik->$field;
         }
     }
+
+    $pelanggaranAkademik->update($validatedData);
+
     return redirect('/dashboard/admin/pelanggaran-akademik');
 }
+
 
     public function destroy(PelanggaranAkademik $pelanggaranAkademik)
     {
@@ -310,40 +160,80 @@ if ($pelanggaranAkademik->status_surat == 'selesai' && $statusSebelumnya != 'sel
         return $pdf->stream('Surat Peringatan karena Pelanggaran Peraturan Akademik_' . $pelanggaranAkademik->nama_mhs .'_'. $pelanggaranAkademik->username .'_' . '.pdf');
     }
 
-    public function tolak(PelanggaranAkademik $pelanggaranAkademik)
-{
-    $pelanggaranAkademik->status_surat = 'ditolak';
-    $pelanggaranAkademik->save();
-    $message = "Halo {$pelanggaranAkademik->nama_mhs}, Surat Peringatan karena Pelanggaran Peraturan Akademik dengan No. Surat: {$pelanggaranAkademik->noSurat} telah ditolak.";
-    $user = User::where('username', $pelanggaranAkademik->username)->first();
-    
-    if ($user) {
-        $no_telp = $user->no_telp;
-        $response = Http::withHeaders([
-            'Authorization' => 'YOUR_API_KEY',
-        ])->post('https://api.fonnte.com/send', [
-            'target' => $no_telp,
-            'message' => $message,
-            'countryCode' => '62',
-        ]);
-        
-        if ($response->successful()) {
-            Log::info('WhatsApp notification sent successfully.', [
-                'no_telp' => $no_telp,
-                'response' => $response->body(),
-            ]);
-        } else {
-            Log::error('Failed to send WhatsApp notification.', [
-                'no_telp' => $no_telp,
-                'response' => $response->body(),
-            ]);
-        }
-        Mail::to($user->email)->send(new PeringatanPelanggaranAkademikMail($pelanggaranAkademik));
-        Log::info('Email notification sent successfully.', [
-            'email' => $user->email
-        ]);
+    public function setujui($id)
+    {
+        $pelanggaran = PelanggaranAkademik::findOrFail($id);
+        $pelanggaran->status_surat = 'approved';
+        $pelanggaran->alasan = null;
+        $pelanggaran->save();
+
+        $user = User::where('username', $pelanggaran->username)->first();
+        Mail::to($user->email)->send(new StatusPelanggaranAkademikChangedMail($pelanggaran, 'approved'));
+
+        return response()->json(['message' => 'Pelanggaran disetujui.']);
     }
 
-    return redirect('/dashboard/admin/pelanggaran-akademik')->with('status', 'Surat ditolak');
+    public function tolak(Request $request, $id)
+    {
+        $request->validate(['alasan' => 'required|string']);
+        $pelanggaran = PelanggaranAkademik::findOrFail($id);
+        $pelanggaran->status_surat = 'rejected';
+        $pelanggaran->alasan = $request->alasan;
+        $pelanggaran->save();
+
+        $user = User::where('username', $pelanggaran->username)->first();
+        Mail::to($user->email)->send(new StatusPelanggaranAkademikChangedMail($pelanggaran, 'rejected'));
+
+        return response()->json(['message' => 'Pelanggaran ditolak.']);
+    }
+
+    public function reminderTandaTangan($noSurat)
+{
+    $pelanggaran = PelanggaranAkademik::where('noSurat', $noSurat)->firstOrFail();
+
+    if ($pelanggaran->status_surat !== 'diproses') {
+        return response()->json(['message' => 'Surat tidak dalam status diproses.']);
+    }
+
+    $emails = [];
+
+    if (is_null($pelanggaran->ttd_dosen_wali)) {
+        $emailDosenWali = User::where('role_id', 4)
+            ->where('nama_pemilik', $pelanggaran->nama_dosen_wali)
+            ->first()?->email;
+
+        if ($emailDosenWali) {
+            $emails[] = $emailDosenWali;
+        }
+    }
+
+    if (is_null($pelanggaran->ttd_ketua_jurusan)) {
+        $emailKetuaJurusan = User::where('role_id', 3)
+            ->where('nama_pemilik', $pelanggaran->nama_ketua_jurusan)
+            ->first()?->email;
+
+        if ($emailKetuaJurusan) {
+            $emails[] = $emailKetuaJurusan;
+        }
+    }
+
+    if (!empty($emails)) {
+        Mail::to($emails)->send(new StatusPelanggaranAkademikChangedMail($pelanggaran, 'reminder_ttd_pelanggaran'));
+
+        $pesan = 'Reminder tanda tangan telah dikirim ke ';
+        if (count($emails) == 2) {
+            $pesan .= 'dosen wali dan ketua jurusan.';
+        } elseif (isset($emailDosenWali)) {
+            $pesan .= 'dosen wali.';
+        } else {
+            $pesan .= 'ketua jurusan.';
+        }
+
+        return response()->json(['message' => $pesan]);
+    }
+
+    return response()->json(['message' => 'Tidak ada penerima yang valid untuk pengingat tanda tangan.']);
 }
+
+
 }
