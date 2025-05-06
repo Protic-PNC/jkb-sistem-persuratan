@@ -8,6 +8,7 @@
     <meta content="" name="keywords">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta content="" name="description">
+    <meta name="user-role" content="{{ auth()->user()->role_id }}">
 
     <!-- Favicon -->
     <link href="{{ asset('img/iconWeb.png') }}" rel="icon">
