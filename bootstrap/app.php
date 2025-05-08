@@ -10,6 +10,8 @@ use App\Http\Middleware\BagianKeuanganMiddleware;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use App\Http\Middleware\BagianPerpustakaanMiddleware;
+use Illuminate\Console\Scheduling\Schedule;
+use App\Console\Commands\UpdateKelasCommand;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -27,6 +29,9 @@ return Application::configure(basePath: dirname(__DIR__))
             'bagian-perpustakaan' => BagianPerpustakaanMiddleware::class,
             'auth' => RedirectIfAuthenticated::class
         ]);
+    })
+    ->withSchedule(function (Schedule $schedule) {
+        $schedule->command(UpdateKelasCommand::class)->cron('0 0 15 7 *');
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
