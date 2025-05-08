@@ -69,7 +69,7 @@ Route::middleware('admin')->prefix('dashboard/admin')->group(function () {
         ->name('pelanggaran-akademik.tolak');
     Route::post('pelanggaran-akademik/{noSurat}/reminder-tanda-tangan', [AdminPelanggaranAkademikController::class, 'reminderTandaTangan']);
 });
-    
+
 Route::get('/dashboard/admin/pengunduran-diri/{pengunduranDiri}/cetak', [AdminPengunduranDiriController::class, 'cetak'])->middleware('admin');
 Route::resource('/dashboard/admin/pengunduran-diri', AdminPengunduranDiriController::class)->middleware('admin');
 Route::post('/dashboard/admin/pengunduran-diri/{pengunduranDiri}/tolak', [AdminPengunduranDiriController::class, 'tolak'])->middleware('admin');
@@ -87,6 +87,7 @@ Route::post('/dashboard/admin/user', [AdminUserController::class, 'store'])->mid
 Route::get('/dashboard/admin/user/{user}/edit', [AdminUserController::class, 'edit'])->middleware('admin');
 Route::put('/dashboard/admin/user/{user}', [AdminUserController::class, 'update'])->middleware('admin');
 Route::delete('/dashboard/admin/user/{user}', [AdminUserController::class, 'destroy'])->middleware('admin');
+Route::get('/dashboard/admin/user/template', [AdminUserController::class, 'downloadTemplate'])->name('akun.download-template')->middleware('admin');
 
 // Route::resource('/dashboard/admin/kelas', AdminKelasController::class)->except(['show'])->middleware('admin');
 Route::get('/dashboard/admin/kelas', [AdminKelasController::class, 'index'])->middleware('admin');
@@ -95,6 +96,7 @@ Route::post('/dashboard/admin/kelas', [AdminKelasController::class, 'store'])->m
 Route::get('/dashboard/admin/kelas/{kelas}/edit', [AdminKelasController::class, 'edit'])->middleware('admin');
 Route::put('/dashboard/admin/kelas/{kelas}', [AdminKelasController::class, 'update'])->middleware('admin');
 Route::delete('/dashboard/admin/kelas/{kelas}', [AdminKelasController::class, 'destroy'])->middleware('admin');
+Route::get('/dashboard/admin/kelas/template', [AdminKelasController::class, 'downloadTemplate'])->name('kelas.download-template')->middleware('admin');
 
 Route::get('/dashboard/mahasiswa', [MahasiswaDashboardController::class, 'index'])->middleware('mahasiswa');
 Route::middleware('mahasiswa')->prefix('dashboard/mahasiswa')->group(function () {
