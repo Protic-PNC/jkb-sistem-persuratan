@@ -10,6 +10,12 @@
                         enctype="multipart/form-data">
                         @csrf
                         <div class="mb-3">
+                            <a href="{{ route('kelas.download-template') }}" class="btn btn-outline-secondary btn-sm"
+                                download>
+                                <i class="bi bi-file-earmark-arrow-down"></i> Unduh Template CSV
+                            </a>
+                        </div>
+                        <div class="mb-3">
                             <label for="csv_file" class="form-label">Pilih File CSV</label>
                             <input type="file" class="form-control @error('csv_file') is-invalid @enderror"
                                 id="csv_file" name="csv_file">
