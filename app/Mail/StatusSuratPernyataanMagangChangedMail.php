@@ -23,12 +23,20 @@ class StatusSuratPernyataanMagangChangedMail extends Mailable
 
     public function build()
     {
+        $subject = '';
+        if ($this->status == 'approved') {
+            $subject = 'Surat Pernyataan Magang Anda Telah Disetujui';
+        } elseif ($this->status == 'rejected') {
+            $subject = 'Surat Pernyataan Magang Anda Ditolak';
+        } elseif ($this->status == 'reminder') {
+            $subject = 'Pengingat: Surat Pernyataan Magang Anda Memerlukan Perhatian';
+        }
 
-        return $this->subject('Status Surat Pernyataan Magang Anda')
+        return $this->subject($subject)
                     ->view('emails.status_pernyataan')
                     ->with([
-                        'noSurat' => $this->pernyataan->noSurat,
-                        'nama_mhs' => $this->pernyataan->nama_mhs
+                        'pernyataan' => $this->pernyataan,
+                        'status' => $this->status
                     ]);
     }
 }
