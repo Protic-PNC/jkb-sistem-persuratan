@@ -2,8 +2,8 @@
 
 @section('container')
     <div class="container-fluid mb-4 pt-4 px-4">
-        <div class="row g-4">
-            <div class="col-sm-12 col-xl-6">
+        <div class="row g-4 justify-content-center">
+            <div class="col-sm-12 col-xl-8">
                 <div class="bg-light rounded h-100 p-4">
                     <h6 class="mb-4">Edit Surat Peringatan karena Pelanggaran Peraturan Akademik</h6>
                     <form id="update-form-pelanggaran" method="post" enctype="multipart/form-data"
@@ -175,7 +175,6 @@
                                     <input type="hidden" name="original_ttd_pelapor"
                                         value="{{ $pelanggarans->ttd_pelapor }}">
                                 @endif
-
                                 <input type="file" class="form-control @error('ttd_pelapor') is-invalid @enderror"
                                     id="ttd_pelapor" name="ttd_pelapor">
                                 @error('ttd_pelapor')
@@ -184,28 +183,7 @@
                                     </div>
                                 @enderror
                             </div>
-                            <!-- Upload TTD Dosen Wali -->
-                        @elseif ($pelanggarans->nama_pelapor !== $user->nama_pemilik)
-                            <div class="mb-3">
-                                <label for="ttd_dosen_wali" class="form-label">Upload Tanda Tangan Dosen Wali</label>
-                                @if ($pelanggarans->ttd_dosen_wali)
-                                    <div class="mb-3">
-                                        <img src="{{ asset('storage/' . $pelanggarans->ttd_dosen_wali) }}"
-                                            alt="Tanda Tangan Dosen Wali" class="img-preview" width="100px">
-                                    </div>
-                                    <input type="hidden" name="original_ttd_dosen_wali"
-                                        value="{{ $pelanggarans->ttd_dosen_wali }}">
-                                @endif
-                                <input type="file" class="form-control @error('ttd_dosen_wali') is-invalid @enderror"
-                                    id="ttd_dosen_wali" name="ttd_dosen_wali">
-                                @error('ttd_dosen_wali')
-                                    <div class="invalid-feedback">
-                                        {{ $message }}
-                                    </div>
-                                @enderror
-                            </div>
-                        @endif
-                        @if ($user->nama_dosen_wali == $user->nama_pelapor)
+                        @else
                             <div class="mb-3">
                                 <label for="ttd_dosen_wali" class="form-label">Upload Tanda Tangan Dosen Wali</label>
                                 @if ($pelanggarans->ttd_dosen_wali)
