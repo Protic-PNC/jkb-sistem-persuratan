@@ -166,10 +166,29 @@ class UserController extends Controller
         $mahasiswa = User::where('username', $request->npm)->first();
 
         if ($mahasiswa) {
-            return response()->json(['nama_mhs' => $mahasiswa->nama_pemilik]);
+            $kelas = $mahasiswa->kelas;
+            $nama_kelas = $kelas ? $kelas->nama_kelas : '';
+            $nama_dosen_wali = '';
+            if ($kelas) {
+                $dosenWali = User::where('username', $kelas->username_dosen_wali)->first();
+                $nama_dosen_wali = $dosenWali ? $dosenWali->nama_pemilik : '';
+            }
+            return response()->json([
+                'nama_mhs' => $mahasiswa->nama_pemilik,
+                'semester' => $mahasiswa->semester ?? '',
+                'kelas_id' => $mahasiswa->kelas_id ?? '',
+                'nama_kelas' => $nama_kelas,
+                'nama_dosen_wali' => $nama_dosen_wali
+            ]);
         }
 
-        return response()->json(['nama_mhs' => '']);
+        return response()->json([
+            'nama_mhs' => '',
+            'semester' => '',
+            'kelas_id' => '',
+            'nama_kelas' => '',
+            'nama_dosen_wali' => ''
+        ]);
     }
 
     public function showImportForm()
@@ -216,5 +235,28 @@ class UserController extends Controller
             'Content-Type' => 'text/csv',
         ]);
     }
-    
+
+    public function resetAll()
+    {
+        try {
+            if (User::where('role_id', '!=', 1)->count() === 0) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Data akun sudah kosong'
+                ], 200);
+            }
+
+            User::where('role_id', '!=', 1)->delete();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Semua akun berhasil direset'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan saat mereset akun: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 }
