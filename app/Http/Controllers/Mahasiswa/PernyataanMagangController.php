@@ -10,6 +10,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\NewPernyataanMagangMail;
 
 class PernyataanMagangController extends Controller
 {
@@ -60,43 +62,72 @@ $totalDitolak = PernyataanMagang::where('username', $user->username)
     }
 
     public function store(Request $request)
-{
-    try {
-        $validatedData = $request->validate([
-            'nama_ortu' => 'required|string|max:255',
-            'alamat' => 'required|string',
-            'no_telp' => 'required|string|max:255',
-            'nama_mhs' => 'required|string|max:255',
-            'username' => [
-                'required',
-                'string',
-                'max:255',
-                'unique:pernyataan_magangs,username',
-                function ($attribute, $value, $fail) {
-                    $user = User::where('username', $value)->first();
-                    if (!$user) {
-                        $fail("Username {$value} tidak ditemukan.");
-                    } elseif ($user->role_id !== 2) {
-                        $fail("Username {$value} bukan mahasiswa.");
+    {
+        try {
+            $validatedData = $request->validate([
+                'nama_ortu' => 'required|string|max:255',
+                'alamat' => 'required|string',
+                'no_telp' => 'required|string|max:255',
+                'nama_mhs' => 'required|string|max:255',
+                'username' => [
+                    'required',
+                    'string',
+                    'max:255',
+                    'unique:pernyataan_magangs,username',
+                    function ($attribute, $value, $fail) {
+                        $user = User::where('username', $value)->first();
+                        if (!$user) {
+                            $fail("Username {$value} tidak ditemukan.");
+                        } elseif ($user->role_id !== 2) {
+                            $fail("Username {$value} bukan mahasiswa.");
+                        }
                     }
+                ],
+                'jurusan' => 'required|string|max:255',
+                'perguruan_tinggi' => 'required|string|max:255',
+                'tglSurat' => 'required|date',],
+                [
+                    'username.unique' => 'Username tersebut sudah digunakan dalam surat pernyataan magang lain.',
+                ]);
+
+            $pernyataan = PernyataanMagang::create($validatedData);
+
+            // Get all admin users
+            $admins = User::where('role_id', 1)->get();
+            
+            if ($admins->isEmpty()) {
+                return response()->json([
+                    'message' => 'Tidak ada admin yang ditemukan. Silakan tambahkan admin terlebih dahulu.'
+                ], 422);
+            }
+
+            $failedEmails = [];
+            // Send email notification to all admins
+            foreach ($admins as $admin) {
+                if (!$admin->email) {
+                    $failedEmails[] = $admin->name ?? $admin->username;
+                    continue;
                 }
-            ],
-            'jurusan' => 'required|string|max:255',
-            'perguruan_tinggi' => 'required|string|max:255',
-            'tglSurat' => 'required|date',],
-            [
-                'username.unique' => 'Username tersebut sudah digunakan dalam surat pernyataan magang lain.',
-            ]);
+                try {
+                    Mail::to($admin->email)->send(new NewPernyataanMagangMail($pernyataan));
+                } catch (\Exception $e) {
+                    $failedEmails[] = $admin->name ?? $admin->username;
+                }
+            }
 
-        PernyataanMagang::create($validatedData);
+            if (!empty($failedEmails)) {
+                return response()->json([
+                    'message' => 'Data berhasil disimpan, tetapi gagal mengirim email ke beberapa admin: ' . implode(', ', $failedEmails)
+                ], 207);
+            }
 
-        return response()->json(['message' => 'Data berhasil disimpan']);
-    } catch (ValidationException $e) {
-        return response()->json([
-            'message' => collect($e->errors())->flatten()->first()
-        ], 422);
+            return response()->json(['message' => 'Data berhasil disimpan']);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'message' => collect($e->errors())->flatten()->first()
+            ], 422);
+        }
     }
-}
 
     public function show(PernyataanMagang $pernyataanMagang)
     {
