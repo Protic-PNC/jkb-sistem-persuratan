@@ -2,8 +2,8 @@
 
 @section('container')
     <div class="container-fluid mb-4 pt-4 px-4">
-        <div class="row g-4">
-            <div class="col-sm-12 col-xl-6">
+        <div class="row g-4 justify-content-center">
+            <div class="col-sm-12 col-xl-8">
                 <div class="bg-light rounded h-100 p-4">
                     <h6 class="mb-4">Edit Surat Peringatan karena Pelanggaran Peraturan Akademik</h6>
                     <form id="update-form-pelanggaran" method="post" enctype="multipart/form-data"
@@ -192,7 +192,7 @@
                         <a href="/dashboard/mahasiswa/pelanggaran-akademik" class="btn btn-success"><i
                                 class="bi bi-arrow-left-square"></i> Kembali</a>
                         <button type="button" class="btn btn-primary"
-                            onclick="updatePelanggaranAkademik({{ $user->role_id }})">Edit
+                            onclick="updatePelanggaranAkademik({{ $user->role_id }})">Ubah
                             Surat</button>
                     </form>
                 </div>
