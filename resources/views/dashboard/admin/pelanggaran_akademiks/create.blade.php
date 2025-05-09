@@ -2,8 +2,8 @@
 
 @section('container')
     <div class="container-fluid mb-4 pt-4 px-4">
-        <div class="row g-4">
-            <div class="col-sm-12 col-xl-6">
+        <div class="row g-4 justify-content-center">
+            <div class="col-sm-12 col-xl-8">
                 <div class="bg-light rounded h-100 p-4">
                     <h6 class="mb-4">Buat Surat Peringatan karena Pelanggaran Peraturan Akademik</h6>
                     <form id="create-form-pelanggaran" method="post" action="/dashboard/admin/pelanggaran-akademik" enctype="multipart/form-data">
