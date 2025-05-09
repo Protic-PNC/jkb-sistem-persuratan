@@ -42,10 +42,10 @@
                     <div class="d-flex justify-content-start" style="min-width: max-content; gap: 0.5rem;">
                         <a class="btn btn-sm btn-primary"
                             href="/dashboard/mahasiswa/pernyataan-magang/{{ $pernyataan->noSurat }}">Detail</a>
-                        <a class="btn btn-sm btn-warning"
+                        <a class="btn btn-sm btn-warning text-white"
                             href="/dashboard/mahasiswa/pernyataan-magang/{{ $pernyataan->noSurat }}/edit">Ubah</a>
                         <form action="/dashboard/mahasiswa/pernyataan-magang/{{ $pernyataan->noSurat }}" method="post"
-                            class="d-inline">
+                            class="d-inline" id="delete-form-{{ $pernyataan->noSurat }}">
                             @method('delete')
                             @csrf
                             <button type="button" class="btn btn-sm btn-danger border-0"
