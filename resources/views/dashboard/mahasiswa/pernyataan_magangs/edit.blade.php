@@ -69,7 +69,8 @@
                         <div class="mb-3">
                             <label for="username" class="form-label">NPM</label>
                             <input type="text" class="form-control @error('username') is-invalid @enderror"
-                                id="username" name="username" value="{{ old('username', $pernyataans->username) }}">
+                                id="username" name="username" value="{{ old('username', $pernyataans->username) }}"
+                                oninput="autofillMahasiswaNamaMahasiswaMagang()" onchange="autofillMahasiswaNamaMahasiswaMagang()">
                             @error('username')
                                 <div class="invalid-feedback">
                                     {{ $message }}
