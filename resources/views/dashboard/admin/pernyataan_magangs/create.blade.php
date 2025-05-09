@@ -51,7 +51,8 @@
                         <div class="mb-3">
                             <label for="username" class="form-label">NPM</label>
                             <input type="text" class="form-control @error('username') is-invalid @enderror"
-                                id="username" name="username" value="{{ old('username') }}">
+                                id="username" name="username" value="{{ old('username') }}"
+                                oninput="autofillAdminNamaMahasiswaMagang()" onchange="autofillAdminNamaMahasiswaMagang()">
                             @error('username')
                                 <div class="invalid-feedback">
                                     {{ $message }}
@@ -99,3 +100,25 @@
         </div>
     </div>
 @endsection
+
+<script>
+function autofillNamaMahasiswa() {
+    var npmInput = document.getElementById('username');
+    var namaMhsInput = document.getElementById('nama_mhs');
+    if (npmInput && namaMhsInput) {
+        var npm = npmInput.value;
+        if (npm) {
+            fetch(`/dashboard/admin/user/get-mahasiswa-by-npm?npm=${npm}`)
+                .then(response => response.json())
+                .then(data => {
+                    namaMhsInput.value = data.nama_mhs || '';
+                })
+                .catch(() => {
+                    namaMhsInput.value = '';
+                });
+        } else {
+            namaMhsInput.value = '';
+        }
+    }
+}
+</script>
