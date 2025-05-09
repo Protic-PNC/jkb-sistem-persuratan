@@ -81,7 +81,7 @@
 
         <p>Silakan login ke sistem persuratan mahasiswa untuk melihat detailnya melalui tautan di bawah ini:</p>
 
-        <a href="{{ url('/login') }}" class="btn">Login ke Sistem</a>
+        <a href="{{ url('http://127.0.0.1:8000') }}" class="btn">Login ke Sistem</a>
     </div>
 </body>
 
