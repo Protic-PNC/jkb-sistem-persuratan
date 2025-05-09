@@ -66,7 +66,10 @@
 
             <div class="d-flex align-items-center justify-content-between mb-4">
                 <h6 class="mb-0">Daftar Surat Pernyataan Magang</h6>
-                <a href="/dashboard/admin/pernyataan-magang/create" class="btn btn-primary">Tambah Surat</a>
+                <div class="d-flex gap-2">
+                    <a href="/dashboard/admin/pernyataan-magang/create" class="btn btn-primary">Tambah Surat</a>
+                    <button type="button" class="btn btn-danger" onclick="confirmResetPernyataanMagang()"><i class="bi bi-trash"></i> Reset Data</button>
+                </div>
             </div>
 
             <div class="table-responsive">
