@@ -42,7 +42,7 @@
                         <div class="d-flex flex-nowrap gap-1">
                             <a class="btn btn-sm btn-primary"
                                 href="/dashboard/admin/pernyataan-magang/{{ $pernyataan->noSurat }}">Detail</a>
-                            <a class="btn btn-sm btn-warning"
+                            <a class="btn btn-sm btn-warning text-white"
                                 href="/dashboard/admin/pernyataan-magang/{{ $pernyataan->noSurat }}/edit">Ubah</a>
                             <form id="delete-form-{{ $pernyataan->noSurat }}"
                                 action="/dashboard/admin/pernyataan-magang/{{ $pernyataan->noSurat }}" method="post"
@@ -53,13 +53,19 @@
                                     onclick="confirmDelete('{{ $pernyataan->noSurat }}')">Hapus</button>
                             </form>
                             <a class="btn btn-sm btn-info text-white"
-                                href="/dashboard/admin/pernyataan-magang/{{ $pernyataan->noSurat }}/upload">Upload
-                                PDF</a>
+                                href="/dashboard/admin/pernyataan-magang/{{ $pernyataan->noSurat }}/upload">Upload PDF</a>
+                            @if ($pernyataan->status !== 'approved' && ($pernyataan->status === 'rejected' || !$pernyataan->file_pdf))
+                                <button class="btn btn-sm"
+                                    style="background-color: #ff9800; color: #fff; border: none;"
+                                    onclick="sendMagangReminder('{{ $pernyataan->noSurat }}')">
+                                    Pengingat
+                                </button>
+                            @endif
                         </div>
                     </div>
                 </td>
                 <td style="text-align: center;">
-                    @if ($pernyataan->status !== 'approved')
+                    @if ($pernyataan->status !== 'approved' && $pernyataan->status !== 'rejected')
                         <div class="d-flex flex-nowrap justify-content-center gap-1" style="min-width: max-content;">
                             <button class="btn btn-sm btn-success"
                                 onclick="approveAdminSuratMagang('{{ $pernyataan->noSurat }}')">Setujui</button>
