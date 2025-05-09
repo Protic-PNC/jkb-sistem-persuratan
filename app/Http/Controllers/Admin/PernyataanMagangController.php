@@ -10,6 +10,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use App\Mail\StatusSuratPernyataanMagangChangedMail;
+use App\Mail\NewPernyataanMagangMail;
 use Illuminate\Validation\ValidationException;
 
 class PernyataanMagangController extends Controller
@@ -246,5 +247,34 @@ class PernyataanMagangController extends Controller
         Mail::to($user->email)->send(new StatusSuratPernyataanMagangChangedMail($pernyataans, 'rejected'));
 
         return response()->json(['message' => 'Surat ditolak.']);
+    }
+
+    public function sendReminder($noSurat)
+    {
+        $pernyataan = PernyataanMagang::where('noSurat', $noSurat)->firstOrFail();
+        $user = User::where('username', $pernyataan->username)->first();
+
+        if (!$user) {
+            return response()->json([
+                'message' => 'User tidak ditemukan.'
+            ], 404);
+        }
+
+        Mail::to($user->email)->send(new StatusSuratPernyataanMagangChangedMail($pernyataan, 'reminder'));
+
+        return response()->json([
+            'message' => 'Pengingat berhasil dikirim ke email mahasiswa.'
+        ]);
+    }
+
+    public function resetAll()
+    {
+        $count = PernyataanMagang::count();
+        PernyataanMagang::truncate();
+        if ($count > 0) {
+            return response()->json(['success' => true, 'message' => 'Semua data surat pernyataan magang berhasil dihapus']);
+        } else {
+            return response()->json(['success' => false, 'message' => 'Data surat sudah kosong']);
+        }
     }
 }
