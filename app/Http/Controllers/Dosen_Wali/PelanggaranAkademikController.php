@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use App\Mail\PeringatanPelanggaranAkademikMail;
+use App\Mail\StatusPelanggaranAkademikChangedMail;
 
 
 class PelanggaranAkademikController extends Controller
@@ -21,20 +22,36 @@ class PelanggaranAkademikController extends Controller
     public function index(Request $request)
     {
         $user = Auth::user();
-        $kelasIds = Kelas::where('username_dosen_wali', $user->username)->pluck('id_kelas');
-        $pelanggaranDosens = PelanggaranAkademik::where('nama_pelapor', $user->nama_pemilik)->latest()->get();
-        $pelanggaranKelas = PelanggaranAkademik::whereIn('kelas_id', $kelasIds)->get();
-        $totalPelanggaranAkademikKelas = PelanggaranAkademik::whereIn('kelas_id', $kelasIds)->count();
+        // Data kelas perwalian
+        $pelanggaranSemuaKelasDosen = PelanggaranAkademik::where('nama_dosen_wali', $user->nama_pemilik)->latest()->get();
+        // Data pelanggaran yang dilaporkan dosen sendiri
+        $pelanggaranDosens = PelanggaranAkademik::where('nama_pelapor', $user->username)->latest()->get();
+
+        // Total untuk masing-masing
+        $totalPelanggaranAkademikKelas = $pelanggaranSemuaKelasDosen->count();
         $totalPelanggaranAkademikDosen = $pelanggaranDosens->count();
+
+        // Gabungan untuk rekap
+        $rekap = $pelanggaranSemuaKelasDosen->merge($pelanggaranDosens);
+        $totalPelanggaranAkademik = $rekap->count();
+        $totalDisetujui = $rekap->where('status_surat', 'approved')->count();
+        $totalDitolak = $rekap->where('status_surat', 'rejected')->count();
+        $totalDiproses = $rekap->whereNotIn('status_surat', ['approved', 'rejected'])->count();
+
+        $kelasIds = Kelas::where('username_dosen_wali', $user->username)->pluck('id_kelas');
         $kelas = Kelas::find($kelasIds->first());
 
         return view('dashboard.dosen_wali.pelanggaran_akademiks.index', [
             'title' => 'Pelanggaran Akademik',
+            'pelanggaranSemuaKelasDosen' => $pelanggaranSemuaKelasDosen,
             'pelanggaranDosens' => $pelanggaranDosens,
-            'pelanggaranSemuaKelasDosen' => $pelanggaranKelas,
             'totalPelanggaranAkademikKelas' => $totalPelanggaranAkademikKelas,
             'totalPelanggaranAkademikDosen' => $totalPelanggaranAkademikDosen,
-            'kelas' =>$kelas
+            'totalPelanggaranAkademik' => $totalPelanggaranAkademik,
+            'totalDisetujui' => $totalDisetujui,
+            'totalDitolak' => $totalDitolak,
+            'totalDiproses' => $totalDiproses,
+            'kelas' => $kelas,
         ]);
     }
 
@@ -162,5 +179,34 @@ public function update(Request $request, PelanggaranAkademik $pelanggaranAkademi
         ])->setPaper('a4', 'portrait');
 
         return $pdf->stream('Surat Peringatan karena Pelanggaran Peraturan Akademik_' . $pelanggaranAkademik->nama_mhs .'_'. $pelanggaranAkademik->username .'_' . '.pdf');
+    }
+
+    public function tolak(Request $request, $id)
+    {
+        $request->validate(['alasan' => 'required|string']);
+        $pelanggaran = PelanggaranAkademik::findOrFail($id);
+        $user = Auth::user();
+        $role = $user->role->nama_role ?? 'User';
+        $alasanBaru = $request->alasan;
+
+        if ($pelanggaran->status_surat !== 'rejected') {
+            $pelanggaran->status_surat = 'rejected';
+            $pelanggaran->alasan = $alasanBaru;
+            $pelanggaran->save();
+            $targetUser = User::where('username', $pelanggaran->username)->first();
+            if ($targetUser) {
+                Mail::to($targetUser->email)->send(new StatusPelanggaranAkademikChangedMail($pelanggaran, 'rejected'));
+            }
+        } else {
+            $alasanLama = $pelanggaran->alasan ? $pelanggaran->alasan."\n" : '';
+            $alasanUpdate = $alasanLama.'Tambahan alasan dari '.$role.': '.$alasanBaru;
+            $pelanggaran->alasan = $alasanUpdate;
+            $pelanggaran->save();
+            $targetUser = User::where('username', $pelanggaran->username)->first();
+            if ($targetUser) {
+                Mail::to($targetUser->email)->send(new StatusPelanggaranAkademikChangedMail($pelanggaran, 'rejected_update'));
+            }
+        }
+        return response()->json(['message' => 'Pelanggaran ditolak/alasan diperbarui.']);
     }
 }
