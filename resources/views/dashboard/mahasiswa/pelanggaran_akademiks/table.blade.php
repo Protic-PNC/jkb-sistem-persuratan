@@ -8,6 +8,7 @@
             <th scope="col" style="white-space: nowrap; text-align: center;">Tanggal Surat</th>
             <th scope="col" style="white-space: nowrap; text-align: center;">Status</th>
             <th scope="col" style="white-space: nowrap; text-align: center;">Action</th>
+            <th scope="col" style="white-space: nowrap; text-align: center;">Alasan</th>
         </tr>
     </thead>
     <tbody id="results-body">
@@ -21,27 +22,33 @@
                 <td style="white-space: nowrap; text-align: center;">
                     {{ date('d M Y', strtotime($pelanggaran->tglSurat)) }}</td>
                 <td style="white-space: nowrap; text-align: center;">
-                    @if (
-                        $pelanggaran->ttd_mahasiswa &&
-                            $pelanggaran->ttd_pelapor &&
-                            $pelanggaran->ttd_dosen_wali &&
-                            $pelanggaran->ttd_ketua_jurusan)
-                        <span class="badge bg-success">Selesai</span>
+                    @if ($pelanggaran->status_surat == 'approved')
+                        <span class="badge bg-success">Disetujui</span>
+                    @elseif ($pelanggaran->status_surat == 'rejected')
+                        <span class="badge bg-danger">Ditolak</span>
                     @else
-                        <span class="badge bg-warning">Belum Selesai</span>
+                        <span class="badge bg-warning">Diproses</span>
                     @endif
                 </td>
                 <td>
                     <div class="d-flex justify-content-start">
                         <a class="btn btn-sm btn-primary me-2"
                             href="/dashboard/mahasiswa/pelanggaran-akademik/{{ $pelanggaran->noSurat }}">Detail</a>
-                        <a class="btn btn-sm btn-warning me-2"
-                            href="/dashboard/mahasiswa/pelanggaran-akademik/{{ $pelanggaran->noSurat }}/edit">Edit</a>
-                        <a class="btn btn-sm btn-success"
-                            href="/dashboard/mahasiswa/pelanggaran-akademik/{{ $pelanggaran->noSurat }}/cetak">Cetak</a>
+                        <a class="btn btn-sm btn-warning text-white me-2"
+                            href="/dashboard/mahasiswa/pelanggaran-akademik/{{ $pelanggaran->noSurat }}/edit">Ubah</a>
                     </div>
                 </td>
-
+                <td style="text-align: center;">
+                    @if ($pelanggaran->status_surat == 'rejected' && $pelanggaran->alasan)
+                        <button class="btn btn-sm btn-outline-danger"
+                            onclick="showAlasanPelanggaran(`{!! addslashes($pelanggaran->alasan) !!}`)"
+                            style="white-space: nowrap; padding: 5px 15px;">
+                            Lihat Alasan
+                        </button>
+                    @else
+                        <span class="text-muted">—</span>
+                    @endif
+                </td>
             </tr>
         @endforeach
     </tbody>
