@@ -415,3 +415,25 @@ h6,
         transform: translateY(-3px);
     }
 }
+
+/* SweetAlert2 custom button colors for reset user and kelas */
+.swal2-confirm-user {
+    background-color: #d33 !important; /* Merah */
+    color: #fff !important;
+    border: none !important;
+}
+.swal2-cancel-user {
+    background-color: #6c757d !important; /* Abu-abu kebiruan */
+    color: #fff !important;
+    border: none !important;
+}
+.swal2-confirm-kelas {
+    background-color: #0d6efd !important; /* Biru */
+    color: #fff !important;
+    border: none !important;
+}
+.swal2-cancel-kelas {
+    background-color: #6c757d !important; /* Abu-abu kebiruan */
+    color: #fff !important;
+    border: none !important;
+}
