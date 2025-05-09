@@ -84,7 +84,7 @@
 
         <p>Silakan segera menandatangani untuk menyelesaikan proses.</p>
 
-        <a href="{{ url('/dashboard/admin/pelanggaran-akademik/' . $pelanggaran->noSurat . '/reminder-tanda-tangan') }}"
+        <a href="{{ url('http://127.0.0.1:8000') }}"
             class="btn">Login ke Sistem</a>
 
         <p class="footer">Terima kasih, Tim Admin</p>
