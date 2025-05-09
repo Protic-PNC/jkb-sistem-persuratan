@@ -171,4 +171,30 @@ class KelasController extends Controller
             'Content-Type' => 'text/csv',
         ]);
     }
+
+    public function resetAll()
+    {
+        try {
+            // Check if Kelas table is already empty
+            if (Kelas::count() === 0) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Data kelas sudah kosong'
+                ], 200);
+            }
+
+            User::query()->update(['kelas_id' => null]);
+            Kelas::query()->delete();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Semua kelas berhasil direset'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan saat mereset kelas: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 }
