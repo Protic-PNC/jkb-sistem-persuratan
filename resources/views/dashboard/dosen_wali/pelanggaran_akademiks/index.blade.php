@@ -1,39 +1,48 @@
 @extends('dashboard.dosen_wali.layouts.main')
 
 @section('container')
-    <div class="container-fluid mb-4 pt-4 px-4">
+    <!-- Rekap Status Start -->
+    <div class="container-fluid pt-4 px-4">
         <div class="row g-4">
-            <div class="col-sm-6 col-xl-6">
-                <div class="bg-light rounded d-flex align-items-center justify-content-between p-4">
-                    <i class="fa fa-chart-line fa-3x text-primary me-3"></i>
+            <div class="col-6 col-md-3 col-xl-3">
+                <div class="bg-light rounded d-flex align-items-center justify-content-start gap-3 p-4">
+                    <i class="fa fa-file-alt fa-3x text-primary"></i>
                     <div class="ms-3">
-                        <p class="mb-2">Total Surat Peringatan karena Pelanggaran Akademik Kelas
-                            {{ $kelas->nama_kelas ?? '...' }}</p>
+                        <p class="mb-2">Total Surat Kelas</p>
                         <h6 class="mb-0">{{ $totalPelanggaranAkademikKelas }}</h6>
                     </div>
                 </div>
             </div>
-            <div class="col-sm-6 col-xl-6">
-                <div class="bg-light rounded d-flex align-items-center justify-content-between p-4">
-                    <i class="fa fa-chart-line fa-3x text-primary me-3"></i>
+            <div class="col-6 col-md-3 col-xl-3">
+                <div class="bg-light rounded d-flex align-items-center justify-content-start gap-3 p-4">
+                    <i class="fa fa-file-alt fa-3x text-primary"></i>
                     <div class="ms-3">
-                        <p class="mb-2">Total Surat Peringatan karena Pelanggaran Akademik Dosen Wali</p>
+                        <p class="mb-2">Total Surat Dosen Wali</p>
                         <h6 class="mb-0">{{ $totalPelanggaranAkademikDosen }}</h6>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3 col-xl-3">
+                <div class="bg-light rounded d-flex align-items-center justify-content-start gap-3 p-4">
+                    <i class="fa fa-check-circle fa-3x text-success"></i>
+                    <div class="ms-3">
+                        <p class="mb-2">Disetujui</p>
+                        <h6 class="mb-0">{{ $totalDisetujui }}</h6>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3 col-xl-3">
+                <div class="bg-light rounded d-flex align-items-center justify-content-start gap-3 p-4">
+                    <i class="fa fa-times-circle fa-3x text-danger"></i>
+                    <div class="ms-3">
+                        <p class="mb-2">Ditolak</p>
+                        <h6 class="mb-0">{{ $totalDitolak }}</h6>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    <div class="container-fluid pt-4 px-3">
-        <div class="d-flex justify-content-between align-items-center">
-            <select id="filter-type" class="form-select" style="width: 200px;">
-                <option value="kelas">Tabel Kelas</option>
-                <option value="dosen">Tabel Dosen Wali</option>
-            </select>
-        </div>
-    </div>
-
-    <!-- Sale & Revenue End -->
+    <!-- Rekap Status End -->
 
     <!-- Recent Sales Start -->
     <div class="container-fluid pt-4 px-3">
@@ -44,15 +53,32 @@
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
             @endif
-            <div class="d-flex align-items-center justify-content-between mb-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
                 <h6 id="table-title" class="mb-0" data-kelas="{{ $kelas->nama_kelas ?? '' }}">Daftar Surat Peringatan
                     karena Pelanggaran Akademik Kelas {{ $kelas->nama_kelas ?? '...' }}</h6>
-                <a href="/dashboard/dosen-wali/pelanggaran-akademik/create" class="btn btn-primary">Tambah Surat</a>
+                <div class="d-flex gap-2">
+                    <select id="filter-type" class="form-select" style="width: 200px;">
+                        <option value="kelas">Tabel Kelas</option>
+                        <option value="dosen">Tabel Dosen Wali</option>
+                    </select>
+                    <a href="/dashboard/dosen-wali/pelanggaran-akademik/create" class="btn btn-primary" id="btn-tambah-surat" style="display:none;">Tambah Surat</a>
+                </div>
             </div>
-
             <div class="table-responsive">
                 @include('dashboard.dosen_wali.pelanggaran_akademiks.table')
             </div>
         </div>
     </div>
+    <script>
+        // Tampilkan tombol tambah surat hanya jika filter dosen
+        document.addEventListener('DOMContentLoaded', function() {
+            const filter = document.getElementById('filter-type');
+            const btnTambah = document.getElementById('btn-tambah-surat');
+            function toggleBtn() {
+                btnTambah.style.display = filter.value === 'dosen' ? '' : 'none';
+            }
+            filter.addEventListener('change', toggleBtn);
+            toggleBtn();
+        });
+    </script>
 @endsection
