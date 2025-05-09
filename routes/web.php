@@ -58,6 +58,8 @@ Route::middleware('admin')->group(function () {
     Route::post('/dashboard/admin/pernyataan-magang/{pernyataanMagang}/upload', [AdminPernyataanMagangController::class, 'upload'])->name('pernyataan.upload');
     Route::post('/dashboard/admin/pernyataan-magang/{pernyataanMagang}/setujui', [AdminPernyataanMagangController::class, 'setujui'])->name('pernyataan.setujui');
     Route::post('/dashboard/admin/pernyataan-magang/{pernyataanMagang}/tolak', [AdminPernyataanMagangController::class, 'tolak'])->name('pernyataan.tolak');
+    Route::post('/dashboard/admin/pernyataan-magang/{noSurat}/reminder', [AdminPernyataanMagangController::class, 'sendReminder'])->name('pernyataan.reminder');
+    Route::post('/dashboard/admin/pernyataan-magang/reset', [AdminPernyataanMagangController::class, 'resetAll'])->name('pernyataan.reset');
 });
 
 Route::middleware('admin')->prefix('dashboard/admin')->group(function () {
@@ -88,6 +90,7 @@ Route::get('/dashboard/admin/user/{user}/edit', [AdminUserController::class, 'ed
 Route::put('/dashboard/admin/user/{user}', [AdminUserController::class, 'update'])->middleware('admin');
 Route::delete('/dashboard/admin/user/{user}', [AdminUserController::class, 'destroy'])->middleware('admin');
 Route::get('/dashboard/admin/user/template', [AdminUserController::class, 'downloadTemplate'])->name('akun.download-template')->middleware('admin');
+Route::post('/dashboard/admin/user/reset', [AdminUserController::class, 'resetAll'])->middleware('admin');
 
 // Route::resource('/dashboard/admin/kelas', AdminKelasController::class)->except(['show'])->middleware('admin');
 Route::get('/dashboard/admin/kelas', [AdminKelasController::class, 'index'])->middleware('admin');
@@ -97,12 +100,13 @@ Route::get('/dashboard/admin/kelas/{kelas}/edit', [AdminKelasController::class, 
 Route::put('/dashboard/admin/kelas/{kelas}', [AdminKelasController::class, 'update'])->middleware('admin');
 Route::delete('/dashboard/admin/kelas/{kelas}', [AdminKelasController::class, 'destroy'])->middleware('admin');
 Route::get('/dashboard/admin/kelas/template', [AdminKelasController::class, 'downloadTemplate'])->name('kelas.download-template')->middleware('admin');
+Route::post('/dashboard/admin/kelas/reset', [AdminKelasController::class, 'resetAll'])->middleware('admin');
 
 Route::get('/dashboard/mahasiswa', [MahasiswaDashboardController::class, 'index'])->middleware('mahasiswa');
+Route::get('/dashboard/mahasiswa/user/get-mahasiswa-by-npm', [MahasiswaUserController::class, 'getMahasiswaByNPM'])->middleware('mahasiswa');
 Route::middleware('mahasiswa')->prefix('dashboard/mahasiswa')->group(function () {
     Route::resource('pernyataan-magang', MahasiswaPernyataanMagangController::class);
     Route::get('/dashboard/mahasiswa/pernyataan-magang/{pernyataanMagang}/cetak', [MahasiswaPernyataanMagangController::class, 'cetak']);
-    Route::get('/dashboard/mahasiswa/user/get-mahasiswa-by-npm', [MahasiswaUserController::class, 'getMahasiswaByNPM']);
     Route::get('pernyataan-magang/{pernyataanMagang}/upload', [MahasiswaPernyataanMagangController::class, 'uploadForm'])
         ->name('pernyataan.upload.form');
     Route::post('pernyataan-magang/{pernyataanMagang}/upload', [MahasiswaPernyataanMagangController::class, 'upload'])
@@ -124,6 +128,8 @@ Route::get('/dashboard/dosen-wali/user/get-mahasiswa-by-npm', [DosenWaliUserCont
 Route::get('/dashboard/dosen-wali/user/get-dosen-wali', [DosenWaliUserController::class, 'getDosenWali'])->middleware('dosen-wali');
 Route::get('/dashboard/dosen-wali/pelanggaran-akademik/{pelanggaranAkademik}/cetak', [DosenWaliPelanggaranAkademikController::class, 'cetak'])->middleware('dosen-wali');
 Route::resource('/dashboard/dosen-wali/pelanggaran-akademik', DosenWaliPelanggaranAkademikController::class)->middleware('dosen-wali');
+Route::post('/dashboard/dosen-wali/pelanggaran-akademik/{pelanggaranAkademik}/tolak', [DosenWaliPengunduranDiriController::class, 'tolak'])->middleware('dosen-wali');
+Route::post('/dashboard/dosen-wali/pelanggaran-akademik/{pelanggaranAkademik}/setujui', [DosenWaliPengunduranDiriController::class, 'setujui'])->middleware('dosen-wali');
 
 Route::get('/dashboard/dosen-wali/pengunduran-diri/{pengunduranDiri}/cetak', [DosenWaliPengunduranDiriController::class, 'cetak'])->middleware('dosen-wali');
 Route::resource('/dashboard/dosen-wali/pengunduran-diri', DosenWaliPengunduranDiriController::class)->middleware('dosen-wali');
