@@ -11,6 +11,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\StatusPelanggaranAkademikChangedMail;
+use App\Mail\PeringatanPelanggaranAkademikMail;
 
 class PelanggaranAkademikController extends Controller
 {
@@ -80,7 +81,31 @@ class PelanggaranAkademikController extends Controller
         $existingRecord = PelanggaranAkademik::where('nama_mhs', $request->nama_mhs)->first();
         $validatedData['jumlah_peringatan'] = $existingRecord ? $existingRecord->jumlah_peringatan + 1 : 1;
 
-        PelanggaranAkademik::create($validatedData);
+        $pelanggaranAkademik = PelanggaranAkademik::create($validatedData);
+
+        // Get all required users
+        $student = User::where('username', $request->username)->first();
+        $academicAdvisor = User::where('role_id', 4)
+            ->where('nama_pemilik', $request->nama_dosen_wali)
+            ->first();
+        $departmentHead = User::where('role_id', 3)
+            ->where('nama_pemilik', $request->nama_ketua_jurusan)
+            ->first();
+
+        // Send email to student
+        if ($student) {
+            Mail::to($student->email)->send((new PeringatanPelanggaranAkademikMail($pelanggaranAkademik))->with(["recipientName" => $student->nama_pemilik ?? $student->nama_mhs ?? $student->name]));
+        }
+
+        // Send email to academic advisor
+        if ($academicAdvisor) {
+            Mail::to($academicAdvisor->email)->send((new PeringatanPelanggaranAkademikMail($pelanggaranAkademik))->with(["recipientName" => $academicAdvisor->nama_pemilik ?? $academicAdvisor->name]));
+        }
+
+        // Send email to department head
+        if ($departmentHead) {
+            Mail::to($departmentHead->email)->send((new PeringatanPelanggaranAkademikMail($pelanggaranAkademik))->with(["recipientName" => $departmentHead->nama_pemilik ?? $departmentHead->name]));
+        }
 
         return redirect('/dashboard/admin/pelanggaran-akademik');
     }
@@ -177,14 +202,31 @@ class PelanggaranAkademikController extends Controller
     {
         $request->validate(['alasan' => 'required|string']);
         $pelanggaran = PelanggaranAkademik::findOrFail($id);
-        $pelanggaran->status_surat = 'rejected';
-        $pelanggaran->alasan = $request->alasan;
-        $pelanggaran->save();
+        $user = Auth::user();
+        $role = $user->role->nama_role ?? 'User';
+        $alasanBaru = $request->alasan;
 
-        $user = User::where('username', $pelanggaran->username)->first();
-        Mail::to($user->email)->send(new StatusPelanggaranAkademikChangedMail($pelanggaran, 'rejected'));
-
-        return response()->json(['message' => 'Pelanggaran ditolak.']);
+        if ($pelanggaran->status_surat !== 'rejected') {
+            $pelanggaran->status_surat = 'rejected';
+            $pelanggaran->alasan = $alasanBaru;
+            $pelanggaran->save();
+            // Kirim email penolakan
+            $targetUser = User::where('username', $pelanggaran->username)->first();
+            if ($targetUser) {
+                Mail::to($targetUser->email)->send(new StatusPelanggaranAkademikChangedMail($pelanggaran, 'rejected'));
+            }
+        } else {
+            $alasanLama = $pelanggaran->alasan ? $pelanggaran->alasan."\n" : '';
+            $alasanUpdate = $alasanLama.'Tambahan alasan dari '.$role.': '.$alasanBaru;
+            $pelanggaran->alasan = $alasanUpdate;
+            $pelanggaran->save();
+            // Kirim email update alasan
+            $targetUser = User::where('username', $pelanggaran->username)->first();
+            if ($targetUser) {
+                Mail::to($targetUser->email)->send(new StatusPelanggaranAkademikChangedMail($pelanggaran, 'rejected_update'));
+            }
+        }
+        return response()->json(['message' => 'Pelanggaran ditolak/alasan diperbarui.']);
     }
 
     public function reminderTandaTangan($noSurat)
