@@ -15,7 +15,7 @@
                 <td style="white-space: nowrap; text-align: center;">{{ $kls->username_dosen_wali }}</td>
                 <td>
                     <div class="d-flex justify-content-start">
-                        <a class="btn btn-sm btn-warning me-2"
+                        <a class="btn btn-sm btn-warning me-2 text-white"
                             href="/dashboard/admin/kelas/{{ $kls->id_kelas }}/edit">Ubah</a>
                         <form action="/dashboard/admin/kelas/{{ $kls->id_kelas }}" method="post"
                             class="d-inline" id="delete-form-{{ $kls->id_kelas }}">
