@@ -25,7 +25,7 @@
                 <td style="white-space: nowrap; text-align: center;">{{ $user->perguruan_tinggi }}</td>
                 <td>
                     <div class="d-flex justify-content-start">
-                        <a class="btn btn-sm btn-warning me-2"
+                        <a class="btn btn-sm btn-warning me-2 text-white"
                             href="/dashboard/admin/user/{{ $user->id }}/edit">Ubah</a>
                         <form action="/dashboard/admin/user/{{ $user->id }}" method="post" class="d-inline"
                             id="delete-form-{{ $user->id }}">
