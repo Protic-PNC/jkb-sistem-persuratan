@@ -275,3 +275,23 @@
     background: var(--dark);
     border-color: var(--primary);
 }
+
+/* Jarak antar tombol SweetAlert */
+.swal2-actions button {
+    margin-right: 16px !important;
+}
+.swal2-actions button:last-child {
+    margin-right: 0 !important;
+}
+
+/* trix-toolbar file-tools hidden (dari semua layout) */
+trix-toolbar [data-trix-button-group="file-tools"] {
+    display: none;
+}
+
+/* SweetAlert2: tombol batal selalu merah */
+.swal2-cancel {
+    background-color: #d33 !important;
+    color: #fff !important;
+    border: none !important;
+}
