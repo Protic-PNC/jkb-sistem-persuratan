@@ -19,15 +19,21 @@ class PelanggaranAkademikController extends Controller
 {
     public function index(Request $request)
     {
-    $user = Auth::user();
-    $pelanggarans = PelanggaranAkademik::where('username', $user->username)->latest()->get();
-    $totalPelanggaranAkademik = $pelanggarans->count();
+        $user = Auth::user();
+        $pelanggarans = PelanggaranAkademik::where('username', $user->username)->latest()->get();
+        $totalPelanggaranAkademik = $pelanggarans->count();
+        $totalDisetujui = $pelanggarans->where('status_surat', 'approved')->count();
+        $totalDitolak = $pelanggarans->where('status_surat', 'rejected')->count();
+        $totalDiproses = $pelanggarans->whereNotIn('status_surat', ['approved', 'rejected'])->count();
 
-    return view('dashboard.mahasiswa.pelanggaran_akademiks.index', [
-        'title' => 'Pelanggaran Akademik',
-        'pelanggarans' => $pelanggarans,
-        'totalPelanggaranAkademik' => $totalPelanggaranAkademik,
-    ]);
+        return view('dashboard.mahasiswa.pelanggaran_akademiks.index', [
+            'title' => 'Pelanggaran Akademik',
+            'pelanggarans' => $pelanggarans,
+            'totalPelanggaranAkademik' => $totalPelanggaranAkademik,
+            'totalDiproses' => $totalDiproses,
+            'totalDisetujui' => $totalDisetujui,
+            'totalDitolak' => $totalDitolak,
+        ]);
     }
 
     public function show(PelanggaranAkademik $pelanggaranAkademik)
