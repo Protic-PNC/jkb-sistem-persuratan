@@ -34,7 +34,7 @@
                         <a class="btn btn-sm btn-primary me-3"
                             href="/dashboard/admin/pengunduran-diri/{{ $pengunduran->noSurat }}">Detail</a>
                         @if ($pengunduran->status_surat != 'ditolak')
-                            <a class="btn btn-sm btn-warning me-3"
+                            <a class="btn btn-sm btn-warning me-3 text-white"
                                 href="/dashboard/admin/pengunduran-diri/{{ $pengunduran->noSurat }}/edit">Edit</a>
                         @endif
                         <form action="/dashboard/admin/pengunduran-diri/{{ $pengunduran->noSurat }}" method="post"
