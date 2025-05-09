@@ -6,7 +6,6 @@
             <th scope="col" style="white-space: nowrap; text-align: center;">NPM</th>
             <th scope="col" style="white-space: nowrap; text-align: center;">Semester/Kelas</th>
             <th scope="col" style="white-space: nowrap; text-align: center;">Tanggal Surat</th>
-            <th scope="col" style="white-space: nowrap; text-align: center;">Berkas</th>
             <th scope="col" style="white-space: nowrap; text-align: center;">Status</th>
             <th scope="col" style="white-space: nowrap; text-align: center;">Action</th>
             <th scope="col" style="white-space: nowrap; text-align: center;">Alasan</th>
@@ -22,13 +21,6 @@
                     {{ optional($pelanggaran->kelas)->nama_kelas }}</td>
                 <td style="white-space: nowrap; text-align: center;">
                     {{ date('d M Y', strtotime($pelanggaran->tglSurat)) }}</td>
-                <td style="text-align: center;">
-                    @if ($pelanggaran->file_pdf)
-                        <a href="{{ asset('storage/' . $pelanggaran->file_pdf) }}" target="_blank">Lihat</a>
-                    @else
-                        Belum Upload
-                    @endif
-                </td>
                 <td style="white-space: nowrap; text-align: center;">
                     @if ($pelanggaran->status_surat == 'aprroved')
                         <span class="badge bg-success">Disetujui</span>
@@ -43,7 +35,7 @@
                         <a class="btn btn-sm btn-primary"
                             href="/dashboard/admin/pelanggaran-akademik/{{ $pelanggaran->noSurat }}">Detail</a>
                         @if ($pelanggaran->status_surat != 'ditolak')
-                            <a class="btn btn-sm btn-warning"
+                            <a class="btn btn-sm btn-warning text-white"
                                 href="/dashboard/admin/pelanggaran-akademik/{{ $pelanggaran->noSurat }}/edit">Ubah</a>
                         @endif
                         <form action="/dashboard/admin/pelanggaran-akademik/{{ $pelanggaran->noSurat }}" method="post"
@@ -69,7 +61,7 @@
                                     onclick="rejectAdminSuratPelanggaran('{{ $pelanggaran->noSurat }}')">Tolak</button>
                             </form>
                         @endif
-                        <button class="btn btn-sm btn-info me-3 text-white"
+                        <button class="btn btn-sm" style="background-color: #ff9800; color: #fff; border: none;"
                             onclick="sendPelanggaranReminder('{{ $pelanggaran->noSurat }}')">Pengingat</button>
 
 
