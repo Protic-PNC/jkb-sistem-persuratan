@@ -70,7 +70,14 @@
 
 <body>
     <div class="container">
-        <h2>Yth. {{ $pelanggaran->nama_dosen_wali ?? $pelanggaran->nama_ketua_jurusan }},</h2>
+        <h2>
+            Yth.
+            @if (!empty($opsi['isMahasiswa']))
+                {{ $opsi['nama'] }},
+            @else
+                {{ $opsi['nama'] ?? 'Bapak/Ibu' }},
+            @endif
+        </h2>
 
         <p>Ini adalah pengingat bahwa Anda perlu menandatangani Surat Peringatan karena Pelanggaran Peraturan Akademik
             mahasiswa berikut:</p>
@@ -84,8 +91,7 @@
 
         <p>Silakan segera menandatangani untuk menyelesaikan proses.</p>
 
-        <a href="{{ url('http://127.0.0.1:8000') }}"
-            class="btn">Login ke Sistem</a>
+        <a href="{{ url('http://127.0.0.1:8000') }}" class="btn">Login ke Sistem</a>
 
         <p class="footer">Terima kasih, Tim Admin</p>
     </div>
