@@ -60,7 +60,11 @@
             @endif
             <div class="d-flex align-items-center justify-content-between mb-4">
                 <h6 class="mb-0">Daftar Surat Pelanggaran Akademik</h6>
-                <a href="/dashboard/admin/pelanggaran-akademik/create" class="btn btn-primary">Tambah Surat</a>
+                <div class="d-flex gap-2">
+                    <a href="/dashboard/admin/pelanggaran-akademik/create" class="btn btn-primary">Tambah Surat</a>
+                    <button type="button" class="btn btn-danger" onclick="confirmResetPelanggaranAkademik()"><i
+                            class="bi bi-trash"></i> Reset Data</button>
+                </div>
             </div>
 
             <div class="table-responsive">
