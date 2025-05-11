@@ -8,7 +8,7 @@
                 <div class="bg-light rounded d-flex align-items-center justify-content-start gap-3 p-4">
                     <i class="fa fa-file-alt fa-3x text-primary"></i>
                     <div class="ms-3">
-                        <p class="mb-2">Total Surat Kelas</p>
+                        <p class="mb-2">Total Surat Kelas {{ $kelas->nama_kelas ?? '...' }}</p>
                         <h6 class="mb-0">{{ $totalPelanggaranAkademikKelas }}</h6>
                     </div>
                 </div>
@@ -19,6 +19,16 @@
                     <div class="ms-3">
                         <p class="mb-2">Total Surat Dosen Wali</p>
                         <h6 class="mb-0">{{ $totalPelanggaranAkademikDosen }}</h6>
+                    </div>
+                </div>
+            </div>
+            <!-- Surat Belum Selesai -->
+            <div class="col-6 col-md-3 col-xl-3">
+                <div class="bg-light rounded d-flex align-items-center justify-content-start gap-3 p-4">
+                    <i class="fa fa-clock fa-3x text-warning"></i>
+                    <div class="ms-3">
+                        <p class="mb-2">Diproses</p>
+                        <h6 class="mb-0">{{ $totalDiproses }}</h6>
                     </div>
                 </div>
             </div>
@@ -61,7 +71,8 @@
                         <option value="kelas">Tabel Kelas</option>
                         <option value="dosen">Tabel Dosen Wali</option>
                     </select>
-                    <a href="/dashboard/dosen-wali/pelanggaran-akademik/create" class="btn btn-primary" id="btn-tambah-surat" style="display:none;">Tambah Surat</a>
+                    <a href="/dashboard/dosen-wali/pelanggaran-akademik/create" class="btn btn-primary"
+                        id="btn-tambah-surat" style="display:none;">Tambah Surat</a>
                 </div>
             </div>
             <div class="table-responsive">
@@ -74,6 +85,7 @@
         document.addEventListener('DOMContentLoaded', function() {
             const filter = document.getElementById('filter-type');
             const btnTambah = document.getElementById('btn-tambah-surat');
+
             function toggleBtn() {
                 btnTambah.style.display = filter.value === 'dosen' ? '' : 'none';
             }
