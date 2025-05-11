@@ -8,6 +8,21 @@
                     <h6 class="mb-4">Buat Surat Peringatan karena Pelanggaran Peraturan Akademik</h6>
                     <form id="create-form-pelanggaran" method="post" action="/dashboard/admin/pelanggaran-akademik" enctype="multipart/form-data">
                         @csrf
+                        
+                        <div class="mb-3">
+                            <label for="username_pelapor" class="form-label">Username Pelapor</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control @error('username_pelapor') is-invalid @enderror" id="username_pelapor" name="username_pelapor" value="{{ old('username_pelapor') }}">
+                                <button class="btn btn-outline-secondary" type="button" id="check-username">Cek</button>
+                            </div>
+                            <small class="form-text text-muted">Masukkan username pelapor untuk otomatis mengisi nama pelapor</small>
+                            @error('username_pelapor')
+                                <div class="invalid-feedback">
+                                    {{ $message }}
+                                </div>
+                            @enderror
+                        </div>
+                        
                         <div class="mb-3">
                             <label for="nama_pelapor" class="form-label">Nama Pelapor</label>
                             <input type="text" class="form-control @error('nama_pelapor') is-invalid @enderror" id="nama_pelapor" name="nama_pelapor" value="{{ old('nama_pelapor') }}">
@@ -179,4 +194,66 @@
             </div>
         </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const checkUsernameBtn = document.getElementById('check-username');
+            const usernameInput = document.getElementById('username_pelapor');
+            const namaPelaporInput = document.getElementById('nama_pelapor');
+            
+            checkUsernameBtn.addEventListener('click', function() {
+                const username = usernameInput.value.trim();
+                if (!username) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Silakan masukkan username pelapor terlebih dahulu',
+                    });
+                    return;
+                }
+                
+                // Show loading indicator
+                checkUsernameBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Mencari...';
+                checkUsernameBtn.disabled = true;
+                
+                fetch(`/api/user-by-username?username=${username}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        checkUsernameBtn.innerHTML = 'Cek';
+                        checkUsernameBtn.disabled = false;
+                        
+                        if (data.error) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'User Tidak Ditemukan',
+                                text: 'Username yang Anda masukkan tidak ditemukan dalam sistem.',
+                            });
+                            return;
+                        }
+                        
+                        // Populate the nama_pelapor field with the user's nama_pemilik
+                        namaPelaporInput.value = data.user.nama_pemilik;
+                        
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Berhasil',
+                            text: 'Data pelapor berhasil ditemukan dan nama pelapor telah diisi otomatis.',
+                            timer: 2000,
+                            showConfirmButton: false
+                        });
+                    })
+                    .catch(error => {
+                        checkUsernameBtn.innerHTML = 'Cek';
+                        checkUsernameBtn.disabled = false;
+                        
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Terjadi kesalahan saat mencari data user. Silakan coba lagi.',
+                        });
+                        console.error('Error:', error);
+                    });
+            });
+        });
+    </script>
 @endsection
