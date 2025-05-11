@@ -259,4 +259,35 @@ class UserController extends Controller
             ], 500);
         }
     }
+
+    /**
+     * Get user details by username.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function getUserByUsername(Request $request)
+    {
+        $username = $request->input('username');
+        
+        if (!$username) {
+            return response()->json(['error' => 'Username is required'], 400);
+        }
+        
+        $user = User::where('username', $username)->first();
+        
+        if (!$user) {
+            return response()->json(['error' => 'User not found'], 404);
+        }
+        
+        return response()->json([
+            'user' => [
+                'id' => $user->id,
+                'username' => $user->username,
+                'nama_pemilik' => $user->nama_pemilik,
+                'email' => $user->email,
+                'role_id' => $user->role_id
+            ]
+        ]);
+    }
 }
