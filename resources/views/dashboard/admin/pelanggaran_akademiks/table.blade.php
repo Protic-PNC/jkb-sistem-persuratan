@@ -7,7 +7,10 @@
             <th scope="col" style="white-space: nowrap; text-align: center;">Semester/Kelas</th>
             <th scope="col" style="white-space: nowrap; text-align: center;">Tanggal Surat</th>
             <th scope="col" style="white-space: nowrap; text-align: center;">Status</th>
+            <th scope="col" style="white-space: nowrap; text-align: center;">Disetujui Oleh</th>
+            <th scope="col" style="white-space: nowrap; text-align: center;">Ditolak Oleh</th>
             <th scope="col" style="white-space: nowrap; text-align: center;">Action</th>
+            <th scope="col" style="white-space: nowrap; text-align: center;">Persetujuan</th>
             <th scope="col" style="white-space: nowrap; text-align: center;">Alasan</th>
         </tr>
     </thead>
@@ -22,14 +25,65 @@
                 <td style="white-space: nowrap; text-align: center;">
                     {{ date('d M Y', strtotime($pelanggaran->tglSurat)) }}</td>
                 <td style="white-space: nowrap; text-align: center;">
-                    @if ($pelanggaran->status_surat == 'aprroved')
-                        <span class="badge bg-success">Disetujui</span>
-                    @elseif ($pelanggaran->status_surat == 'rejected')
+                    @php
+                        $approved =
+                            $pelanggaran->approved_by_admin &&
+                            $pelanggaran->approved_by_dosen_wali &&
+                            $pelanggaran->approved_by_ketua_jurusan;
+                        $rejects =
+                            $pelanggaran->rejected_by_admin &&
+                            $pelanggaran->rejected_by_dosen_wali &&
+                            $pelanggaran->rejected_by_ketua_jurusan;
+                    @endphp
+
+                    @if ($rejects)
                         <span class="badge bg-danger">Ditolak</span>
+                    @elseif ($approved)
+                        <span class="badge bg-success">Disetujui</span>
                     @else
                         <span class="badge bg-warning">Diproses</span>
                     @endif
                 </td>
+                @php
+                    $approvals = [];
+                    if ($pelanggaran->approved_by_admin) {
+                        $approvals[] = 'Admin';
+                    }
+                    if ($pelanggaran->approved_by_dosen_wali) {
+                        $approvals[] = 'Dosen Wali';
+                    }
+                    if ($pelanggaran->approved_by_ketua_jurusan) {
+                        $approvals[] = 'Ketua Jurusan';
+                    }
+                @endphp
+                <td style="white-space: nowrap; text-align: center;">
+                    @if (count($approvals))
+                        <span class="badge bg-info text-dark text-white">{{ implode(', ', $approvals) }}</span>
+                    @else
+                        <span class="text-muted">Belum Ada</span>
+                    @endif
+                </td>
+                @php
+                    $rejects = [];
+                    if ($pelanggaran->rejected_by_admin && !$pelanggaran->approved_by_admin) {
+                        $rejects[] = 'Admin';
+                    }
+                    if ($pelanggaran->rejected_by_dosen_wali && !$pelanggaran->approved_by_dosen_wali) {
+                        $rejects[] = 'Dosen Wali';
+                    }
+                    if ($pelanggaran->rejected_by_ketua_jurusan && !$pelanggaran->approved_by_ketua_jurusan) {
+                        $rejects[] = 'Ketua Jurusan';
+                    }
+                @endphp
+
+                <td style="white-space: nowrap; text-align: center;">
+                    @if (count($rejects))
+                        <span class="badge bg-info text-dark text-white">{{ implode(', ', $rejects) }}</span>
+                    @else
+                        <span class="text-muted">Belum Ada</span>
+                    @endif
+                </td>
+
                 <td>
                     <div class="d-flex justify-content-start align-items-center gap-2">
                         <a class="btn btn-sm btn-primary"
@@ -45,41 +99,177 @@
                             <button type="button" class="btn btn-sm btn-danger border-0"
                                 onclick="confirmDelete('{{ $pelanggaran->noSurat }}')">Hapus</button>
                         </form>
-                        @if ($pelanggaran->status_surat != 'disetujui')
-                            <form action="/dashboard/admin/pelanggaran-akademik/{{ $pelanggaran->noSurat }}/setujui"
-                                method="post" class="d-inline">
-                                @csrf
-                                <button type="button" class="btn btn-sm btn-success"
-                                    onclick="approveAdminSuratPelanggaran('{{ $pelanggaran->noSurat }}')">Setujui</button>
-                            </form>
-                        @endif
-                        @if ($pelanggaran->status_surat != 'ditolak')
-                            <form action="/dashboard/admin/pelanggaran-akademik/{{ $pelanggaran->noSurat }}/tolak"
-                                method="post" class="d-inline" id="tolak-form-{{ $pelanggaran->noSurat }}">
-                                @csrf
-                                <button type="button" class="btn btn-sm btn-danger"
-                                    onclick="rejectAdminSuratPelanggaran('{{ $pelanggaran->noSurat }}')">Tolak</button>
-                            </form>
-                        @endif
                         <button class="btn btn-sm" style="background-color: #ff9800; color: #fff; border: none;"
                             onclick="sendPelanggaranReminder('{{ $pelanggaran->noSurat }}')">Pengingat</button>
 
 
                     </div>
                 </td>
-
+                <td style="white-space: nowrap; text-align: center;">
+                    @if (!$pelanggaran->approved_by_admin)
+                    <form action="/dashboard/admin/pelanggaran-akademik/{{ $pelanggaran->noSurat }}/setujui"
+                        method="post" class="d-inline">
+                        @csrf
+                        <button type="button" class="btn btn-sm btn-success"
+                            onclick="approveAdminSuratPelanggaran('{{ $pelanggaran->noSurat }}')">Setujui</button>
+                    </form>
+                    @endif
+                    
+                    @if (!$pelanggaran->rejected_by_admin)
+                    <form action="/dashboard/admin/pelanggaran-akademik/{{ $pelanggaran->noSurat }}/tolak"
+                        method="post" class="d-inline" id="tolak-form-{{ $pelanggaran->noSurat }}">
+                        @csrf
+                        <button type="button" class="btn btn-sm btn-danger"
+                            onclick="rejectAdminSuratPelanggaran('{{ $pelanggaran->noSurat }}')">Tolak</button>
+                    </form>
+                    @endif
+                    
+                    @if ($pelanggaran->rejected_by_admin && !$pelanggaran->approved_by_admin)
+                    <button type="button" class="btn btn-sm btn-warning text-white"
+                        onclick="editAlasan('{{ $pelanggaran->noSurat }}', `{!! addslashes($pelanggaran->alasan ?? '') !!}`)">
+                        Ubah Alasan
+                    </button>
+                    @endif
+                </td>
                 <td style="text-align: center;">
-                    @if ($pelanggaran->status_surat == 'rejected' && $pelanggaran->alasan)
+                    @if ($pelanggaran->status_surat == 'diproses' && $pelanggaran->alasan)
                         <button class="btn btn-sm btn-outline-danger"
                             onclick="showAlasanPelanggaran(`{!! addslashes($pelanggaran->alasan) !!}`)"
                             style="white-space: nowrap; padding: 5px 15px;">
                             Lihat Alasan
                         </button>
                     @else
-                        <span class="text-muted">—</span>
+                        <span class="text-muted">Belum Ada</span>
                     @endif
                 </td>
             </tr>
         @endforeach
     </tbody>
 </table>
+
+<div class="modal fade" id="editAlasanModal" tabindex="-1" aria-labelledby="editAlasanLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <form method="post" action="" id="editAlasanForm">
+            @csrf
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editAlasanLabel">Ubah Alasan Penolakan</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="alasanInput" class="form-label">Alasan</label>
+                        <textarea class="form-control" id="alasanInput" name="alasan" rows="3"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+<script>
+    let originalAlasan = "";
+
+    function editAlasan(noSurat, alasan) {
+        const form = document.getElementById("editAlasanForm");
+        if (!form) return;
+
+        form.setAttribute("action", `/dashboard/admin/pelanggaran-akademik/${noSurat}/edit-alasan`);
+        document.getElementById("alasanInput").value = alasan;
+        originalAlasan = alasan;
+        const modal = new bootstrap.Modal(document.getElementById("editAlasanModal"));
+        modal.show();
+    }
+
+    document.addEventListener("DOMContentLoaded", function() {
+        const editAlasanForm = document.getElementById("editAlasanForm");
+        if (editAlasanForm) {
+            editAlasanForm.addEventListener("submit", async function(e) {
+                e.preventDefault();
+
+                const form = e.target;
+                const url = form.getAttribute("action");
+                const formData = new FormData(form);
+                let currentAlasan = formData.get("alasan").trim();
+                const prefix = "Admin:";
+
+                // If alasan is not empty, add prefix to each line if needed
+                if (currentAlasan) {
+                    currentAlasan = currentAlasan
+                        .split("\n")
+                        .map(line => {
+                            line = line.trim();
+                            return line.toLowerCase().startsWith(prefix.toLowerCase()) ? line :
+                                prefix + " " + line;
+                        })
+                        .join("\n");
+                }
+
+                // Cek apakah alasan diubah
+                if (currentAlasan === originalAlasan.trim()) {
+                    Swal.fire({
+                        icon: "info",
+                        title: "Tidak Ada Perubahan",
+                        text: "Alasan tidak diubah.",
+                        timer: 2000,
+                        showConfirmButton: false,
+                    });
+                    return;
+                }
+
+                try {
+                    const submitButton = form.querySelector('button[type="submit"]');
+                    if (submitButton) submitButton.disabled = true;
+
+                    formData.set("alasan", currentAlasan);
+
+                    const response = await fetch(url, {
+                        method: "POST",
+                        headers: {
+                            "X-CSRF-TOKEN": document.querySelector(
+                                'meta[name="csrf-token"]').getAttribute("content"),
+                            Accept: "application/json",
+                        },
+                        body: formData,
+                    });
+
+                    const result = await response.json();
+
+                    if (submitButton) submitButton.disabled = false;
+
+                    if (response.ok) {
+                        const modal = bootstrap.Modal.getInstance(document.getElementById(
+                            "editAlasanModal"));
+                        modal.hide();
+
+                        Swal.fire({
+                            icon: "success",
+                            title: "Berhasil!",
+                            text: result.message || "Alasan berhasil diperbarui.",
+                            timer: 2000,
+                            showConfirmButton: false,
+                        }).then(() => {
+                            location.reload();
+                        });
+                    } else {
+                        throw new Error(result.message || "Gagal memperbarui alasan.");
+                    }
+                } catch (error) {
+                    const submitButton = form.querySelector('button[type="submit"]');
+                    if (submitButton) submitButton.disabled = false;
+
+                    Swal.fire({
+                        icon: "error",
+                        title: "Terjadi Kesalahan",
+                        text: error.message,
+                    });
+                }
+            });
+        }
+    });
+</script>
