@@ -26,7 +26,7 @@
                     @elseif ($pengunduran->status_surat == 'ditolak')
                         <span class="badge bg-danger">Ditolak</span>
                     @else
-                        <span class="badge bg-warning">Belum Selesai</span>
+                        <span class="badge bg-warning">Diproses</span>
                     @endif
                 </td>
                 <td>
