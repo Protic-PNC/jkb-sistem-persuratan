@@ -47,6 +47,7 @@ Route::controller(LoginController::class)->group(function () {
 });
 
 Route::get('/dashboard/admin', [AdminDashboardController::class, 'index'])->middleware('admin');
+Route::get('/api/user-by-username', [AdminUserController::class, 'getUserByUsername'])->name('api.user-by-username')->middleware('admin');
 
 Route::middleware('admin')->group(function () {
     Route::resource('/dashboard/admin/pernyataan-magang', AdminPernyataanMagangController::class);
@@ -70,7 +71,11 @@ Route::middleware('admin')->prefix('dashboard/admin')->group(function () {
     Route::post('pelanggaran-akademik/{pelanggaranAkademik}/tolak', [AdminPelanggaranAkademikController::class, 'tolak'])
         ->name('pelanggaran-akademik.tolak');
     Route::post('pelanggaran-akademik/{noSurat}/reminder-tanda-tangan', [AdminPelanggaranAkademikController::class, 'reminderTandaTangan']);
+    Route::post('pelanggaran-akademik/reset', [AdminPelanggaranAkademikController::class, 'resetAll'])->name('pelanggaran.reset');
+    Route::post('pelanggaran-akademik/{noSurat}/edit-alasan', [AdminPelanggaranAkademikController::class, 'updateAlasan']);
 });
+
+
 
 Route::get('/dashboard/admin/pengunduran-diri/{pengunduranDiri}/cetak', [AdminPengunduranDiriController::class, 'cetak'])->middleware('admin');
 Route::resource('/dashboard/admin/pengunduran-diri', AdminPengunduranDiriController::class)->middleware('admin');
@@ -130,6 +135,7 @@ Route::get('/dashboard/dosen-wali/pelanggaran-akademik/{pelanggaranAkademik}/cet
 Route::resource('/dashboard/dosen-wali/pelanggaran-akademik', DosenWaliPelanggaranAkademikController::class)->middleware('dosen-wali');
 Route::post('/dashboard/dosen-wali/pelanggaran-akademik/{pelanggaranAkademik}/tolak', [DosenWaliPengunduranDiriController::class, 'tolak'])->middleware('dosen-wali');
 Route::post('/dashboard/dosen-wali/pelanggaran-akademik/{pelanggaranAkademik}/setujui', [DosenWaliPengunduranDiriController::class, 'setujui'])->middleware('dosen-wali');
+Route::post('/dashboard/dosen-wali/pelanggaran-akademik/{noSurat}/edit-alasan', [DosenWaliPelanggaranAkademikController::class, 'updateAlasan'])->middleware('dosen-wali');
 
 Route::get('/dashboard/dosen-wali/pengunduran-diri/{pengunduranDiri}/cetak', [DosenWaliPengunduranDiriController::class, 'cetak'])->middleware('dosen-wali');
 Route::resource('/dashboard/dosen-wali/pengunduran-diri', DosenWaliPengunduranDiriController::class)->middleware('dosen-wali');
