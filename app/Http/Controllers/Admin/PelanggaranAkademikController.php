@@ -21,7 +21,12 @@ class PelanggaranAkademikController extends Controller
         $totalPelanggaran = PelanggaranAkademik::count();
         $totalDiproses = PelanggaranAkademik::whereNull('status_surat')->orWhere('status_surat', 'diproses')->count();
         $totalDisetujui = PelanggaranAkademik::where('status_surat', 'approved')->count();
-        $totalDitolak = PelanggaranAkademik::where('status_surat', 'rejected')->count();
+        
+        // Count documents that have been rejected by at least one user (admin, dosen wali, or ketua jurusan)
+        $totalDitolak = PelanggaranAkademik::where('rejected_by_admin', true)
+            ->orWhere('rejected_by_dosen_wali', true)
+            ->orWhere('rejected_by_ketua_jurusan', true)
+            ->count();
 
         if ($request->ajax()) {
             return view('dashboard.admin.pelanggaran_akademiks.table', compact('pelanggarans'))->render();
@@ -85,16 +90,23 @@ class PelanggaranAkademikController extends Controller
 
         // Get all required users
         $student = User::where('username', $request->username)->first();
+        $reporter = User::where('nama_pemilik', $request->nama_pelapor)->first();
         $academicAdvisor = User::where('role_id', 4)
             ->where('nama_pemilik', $request->nama_dosen_wali)
             ->first();
         $departmentHead = User::where('role_id', 3)
             ->where('nama_pemilik', $request->nama_ketua_jurusan)
             ->first();
+        $admins = User::where('role_id', 1)->get();
 
         // Send email to student
         if ($student) {
             Mail::to($student->email)->send((new PeringatanPelanggaranAkademikMail($pelanggaranAkademik))->with(["recipientName" => $student->nama_pemilik ?? $student->nama_mhs ?? $student->name]));
+        }
+        
+        // Send email to reporter
+        if ($reporter) {
+            Mail::to($reporter->email)->send((new PeringatanPelanggaranAkademikMail($pelanggaranAkademik))->with(["recipientName" => $reporter->nama_pemilik ?? $reporter->name]));
         }
 
         // Send email to academic advisor
@@ -105,6 +117,11 @@ class PelanggaranAkademikController extends Controller
         // Send email to department head
         if ($departmentHead) {
             Mail::to($departmentHead->email)->send((new PeringatanPelanggaranAkademikMail($pelanggaranAkademik))->with(["recipientName" => $departmentHead->nama_pemilik ?? $departmentHead->name]));
+        }
+        
+        // Send email to all admins
+        foreach ($admins as $admin) {
+            Mail::to($admin->email)->send((new PeringatanPelanggaranAkademikMail($pelanggaranAkademik))->with(["recipientName" => $admin->nama_pemilik ?? $admin->name]));
         }
 
         return redirect('/dashboard/admin/pelanggaran-akademik');
@@ -162,7 +179,89 @@ class PelanggaranAkademikController extends Controller
             }
         }
 
+        // Store the original status
+        $originalStatus = $pelanggaranAkademik->status_surat;
+        
+        // Reset all user-specific approval/rejection statuses
+        $validatedData['approved_by_admin'] = false;
+        $validatedData['approved_by_dosen_wali'] = false;
+        $validatedData['approved_by_ketua_jurusan'] = false;
+        $validatedData['rejected_by_admin'] = false;
+        $validatedData['rejected_by_dosen_wali'] = false;
+        $validatedData['rejected_by_ketua_jurusan'] = false;
+        
+        // Preserve the final status ('diproses', 'approved', 'rejected')
+        // If status was 'approved' or 'rejected', set it back to 'diproses' since changes were made
+        if ($originalStatus === 'approved' || $originalStatus === 'rejected') {
+            $validatedData['status_surat'] = 'diproses';
+        } else {
+            $validatedData['status_surat'] = $originalStatus;
+        }
+
+        // Update the record
         $pelanggaranAkademik->update($validatedData);
+        
+        // Get all users to notify about the changes
+        $student = User::where('username', $pelanggaranAkademik->username)->first();
+        $reporter = User::where('nama_pemilik', $pelanggaranAkademik->nama_pelapor)->first();
+        $academicAdvisor = User::where('role_id', 4)
+            ->where('nama_pemilik', $pelanggaranAkademik->nama_dosen_wali)
+            ->first();
+        $departmentHead = User::where('role_id', 3)
+            ->where('nama_pemilik', $pelanggaranAkademik->nama_ketua_jurusan)
+            ->first();
+        $admins = User::where('role_id', 1)->get();
+        
+        // Send notification emails about the changes
+        $changeMessage = "Perubahan telah dibuat pada dokumen pelanggaran akademik. Status persetujuan/penolakan telah direset.";
+        if ($originalStatus === 'approved' || $originalStatus === 'rejected') {
+            $changeMessage .= " Status dokumen telah dikembalikan ke 'diproses'.";
+        }
+        
+        // Send to student
+        if ($student) {
+            Mail::to($student->email)->send(new StatusPelanggaranAkademikChangedMail($pelanggaranAkademik, 'data_changed', [
+                'recipientName' => $student->nama_pemilik ?? $student->nama_mhs ?? $student->name,
+                'recipientRole' => 'mahasiswa',
+                'changeMessage' => $changeMessage
+            ]));
+        }
+        
+        // Send to reporter
+        if ($reporter) {
+            Mail::to($reporter->email)->send(new StatusPelanggaranAkademikChangedMail($pelanggaranAkademik, 'data_changed', [
+                'recipientName' => $reporter->nama_pemilik ?? $reporter->name,
+                'recipientRole' => 'pelapor',
+                'changeMessage' => $changeMessage
+            ]));
+        }
+        
+        // Send to academic advisor
+        if ($academicAdvisor) {
+            Mail::to($academicAdvisor->email)->send(new StatusPelanggaranAkademikChangedMail($pelanggaranAkademik, 'data_changed', [
+                'recipientName' => $academicAdvisor->nama_pemilik ?? $academicAdvisor->name,
+                'recipientRole' => 'dosen wali',
+                'changeMessage' => $changeMessage
+            ]));
+        }
+        
+        // Send to department head
+        if ($departmentHead) {
+            Mail::to($departmentHead->email)->send(new StatusPelanggaranAkademikChangedMail($pelanggaranAkademik, 'data_changed', [
+                'recipientName' => $departmentHead->nama_pemilik ?? $departmentHead->name,
+                'recipientRole' => 'ketua jurusan',
+                'changeMessage' => $changeMessage
+            ]));
+        }
+        
+        // Send to all admins
+        foreach ($admins as $admin) {
+            Mail::to($admin->email)->send(new StatusPelanggaranAkademikChangedMail($pelanggaranAkademik, 'data_changed', [
+                'recipientName' => $admin->nama_pemilik ?? $admin->name,
+                'recipientRole' => 'admin',
+                'changeMessage' => $changeMessage
+            ]));
+        }
 
         return redirect('/dashboard/admin/pelanggaran-akademik');
     }
@@ -188,45 +287,301 @@ class PelanggaranAkademikController extends Controller
     public function setujui($id)
     {
         $pelanggaran = PelanggaranAkademik::findOrFail($id);
-        $pelanggaran->status_surat = 'approved';
-        $pelanggaran->alasan = null;
+        $user = Auth::user();
+        $role = $user->role->nama_role ?? null;
+
+        if (!$role) {
+            return response()->json(['message' => 'Role tidak valid.'], 403);
+        }
+
+        switch (strtolower($role)) {
+            case 'admin':
+                $pelanggaran->approved_by_admin = true;
+                $pelanggaran->rejected_by_admin = false;
+                
+                // Remove admin's rejection reasons when approved
+                if ($pelanggaran->alasan) {
+                    $roleLabel = 'Admin';
+                    $alasanLines = explode("\n", $pelanggaran->alasan);
+                    $filteredAlasanLines = [];
+                    
+                    // Keep only reasons from other roles
+                    foreach ($alasanLines as $line) {
+                        $line = trim($line);
+                        if (empty($line)) continue;
+                        
+                        // Skip lines that start with Admin: (case insensitive)
+                        if (!preg_match('/^' . preg_quote($roleLabel, '/') . '\s*:/i', $line)) {
+                            $filteredAlasanLines[] = $line;
+                        }
+                    }
+                    
+                    // Update the alasan field with filtered reasons
+                    $pelanggaran->alasan = !empty($filteredAlasanLines) ? implode("\n", $filteredAlasanLines) : null;
+                }
+                break;
+            case 'dosen wali':
+                $pelanggaran->approved_by_dosen_wali = true;
+                $pelanggaran->rejected_by_dosen_wali = false;
+                
+                // Remove dosen wali's rejection reasons when approved
+                if ($pelanggaran->alasan) {
+                    $roleLabel = 'Dosen wali';
+                    $alasanLines = explode("\n", $pelanggaran->alasan);
+                    $filteredAlasanLines = [];
+                    
+                    // Keep only reasons from other roles
+                    foreach ($alasanLines as $line) {
+                        $line = trim($line);
+                        if (empty($line)) continue;
+                        
+                        // Skip lines that start with Dosen wali: (case insensitive)
+                        if (!preg_match('/^' . preg_quote($roleLabel, '/') . '\s*:/i', $line)) {
+                            $filteredAlasanLines[] = $line;
+                        }
+                    }
+                    
+                    // Update the alasan field with filtered reasons
+                    $pelanggaran->alasan = !empty($filteredAlasanLines) ? implode("\n", $filteredAlasanLines) : null;
+                }
+                break;
+            case 'ketua jurusan':
+                $pelanggaran->approved_by_ketua_jurusan = true;
+                $pelanggaran->rejected_by_ketua_jurusan = false;
+                
+                // Remove ketua jurusan's rejection reasons when approved
+                if ($pelanggaran->alasan) {
+                    $roleLabel = 'Ketua jurusan';
+                    $alasanLines = explode("\n", $pelanggaran->alasan);
+                    $filteredAlasanLines = [];
+                    
+                    // Keep only reasons from other roles
+                    foreach ($alasanLines as $line) {
+                        $line = trim($line);
+                        if (empty($line)) continue;
+                        
+                        // Skip lines that start with Ketua jurusan: (case insensitive)
+                        if (!preg_match('/^' . preg_quote($roleLabel, '/') . '\s*:/i', $line)) {
+                            $filteredAlasanLines[] = $line;
+                        }
+                    }
+                    
+                    // Update the alasan field with filtered reasons
+                    $pelanggaran->alasan = !empty($filteredAlasanLines) ? implode("\n", $filteredAlasanLines) : null;
+                }
+                break;
+            default:
+                return response()->json(['message' => 'Role tidak dikenali.'], 403);
+        }
+
+        // Check if all roles have approved
+        if (
+            $pelanggaran->approved_by_admin &&
+            $pelanggaran->approved_by_dosen_wali &&
+            $pelanggaran->approved_by_ketua_jurusan
+        ) {
+            $pelanggaran->status_surat = 'approved';
+            $pelanggaran->alasan = null;
+
+            // Get all relevant users for notifications
+            $student = User::where('username', $pelanggaran->username)->first();
+            $reporter = User::where('nama_pemilik', $pelanggaran->nama_pelapor)->first();
+            $academicAdvisor = User::where('role_id', 4)
+                ->where('nama_pemilik', $pelanggaran->nama_dosen_wali)
+                ->first();
+            $departmentHead = User::where('role_id', 3)
+                ->where('nama_pemilik', $pelanggaran->nama_ketua_jurusan)
+                ->first();
+            $admins = User::where('role_id', 1)->get();
+
+            // Send approval emails to all users
+            // Send to student
+            if ($student) {
+                Mail::to($student->email)->send(new StatusPelanggaranAkademikChangedMail($pelanggaran, 'approved', [
+                    'recipientName' => $student->nama_pemilik ?? $student->nama_mhs ?? $student->name,
+                    'recipientRole' => 'mahasiswa'
+                ]));
+            }
+            
+            // Send to reporter
+            if ($reporter) {
+                Mail::to($reporter->email)->send(new StatusPelanggaranAkademikChangedMail($pelanggaran, 'approved', [
+                    'recipientName' => $reporter->nama_pemilik ?? $reporter->name,
+                    'recipientRole' => 'pelapor'
+                ]));
+            }
+            
+            // Send to academic advisor
+            if ($academicAdvisor) {
+                Mail::to($academicAdvisor->email)->send(new StatusPelanggaranAkademikChangedMail($pelanggaran, 'approved', [
+                    'recipientName' => $academicAdvisor->nama_pemilik ?? $academicAdvisor->name,
+                    'recipientRole' => 'dosen wali'
+                ]));
+            }
+            
+            // Send to department head
+            if ($departmentHead) {
+                Mail::to($departmentHead->email)->send(new StatusPelanggaranAkademikChangedMail($pelanggaran, 'approved', [
+                    'recipientName' => $departmentHead->nama_pemilik ?? $departmentHead->name,
+                    'recipientRole' => 'ketua jurusan'
+                ]));
+            }
+            
+            // Send to all admins
+            foreach ($admins as $admin) {
+                Mail::to($admin->email)->send(new StatusPelanggaranAkademikChangedMail($pelanggaran, 'approved', [
+                    'recipientName' => $admin->nama_pemilik ?? $admin->name,
+                    'recipientRole' => 'admin'
+                ]));
+            }
+        } 
+        // If status was rejected but now someone approved, change to diproses
+        else if ($pelanggaran->status_surat === 'rejected') {
+            $pelanggaran->status_surat = 'diproses';
+        }
+
         $pelanggaran->save();
 
-        $user = User::where('username', $pelanggaran->username)->first();
-        Mail::to($user->email)->send(new StatusPelanggaranAkademikChangedMail($pelanggaran, 'approved'));
-
-        return response()->json(['message' => 'Pelanggaran disetujui.']);
+        return response()->json(['message' => 'Persetujuan telah dicatat.']);
     }
+
 
     public function tolak(Request $request, $id)
     {
         $request->validate(['alasan' => 'required|string']);
+
         $pelanggaran = PelanggaranAkademik::findOrFail($id);
         $user = Auth::user();
-        $role = $user->role->nama_role ?? 'User';
-        $alasanBaru = $request->alasan;
+        $role = strtolower($user->role->nama_role ?? 'user');
+        $roleLabel = ucfirst($role);
 
-        if ($pelanggaran->status_surat !== 'rejected') {
-            $pelanggaran->status_surat = 'rejected';
-            $pelanggaran->alasan = $alasanBaru;
-            $pelanggaran->save();
-            // Kirim email penolakan
-            $targetUser = User::where('username', $pelanggaran->username)->first();
-            if ($targetUser) {
-                Mail::to($targetUser->email)->send(new StatusPelanggaranAkademikChangedMail($pelanggaran, 'rejected'));
-            }
-        } else {
-            $alasanLama = $pelanggaran->alasan ? $pelanggaran->alasan."\n" : '';
-            $alasanUpdate = $alasanLama.'Tambahan alasan dari '.$role.': '.$alasanBaru;
-            $pelanggaran->alasan = $alasanUpdate;
-            $pelanggaran->save();
-            // Kirim email update alasan
-            $targetUser = User::where('username', $pelanggaran->username)->first();
-            if ($targetUser) {
-                Mail::to($targetUser->email)->send(new StatusPelanggaranAkademikChangedMail($pelanggaran, 'rejected_update'));
+        $fieldReject = match ($role) {
+            'admin' => 'rejected_by_admin',
+            'dosen wali' => 'rejected_by_dosen_wali',
+            'ketua jurusan' => 'rejected_by_ketua_jurusan',
+            default => null,
+        };
+
+        $fieldApprove = match ($role) {
+            'admin' => 'approved_by_admin',
+            'dosen wali' => 'approved_by_dosen_wali',
+            'ketua jurusan' => 'approved_by_ketua_jurusan',
+            default => null,
+        };
+
+        if (!$fieldReject || !$fieldApprove) {
+            return response()->json(['message' => 'Role tidak dikenali.'], 403);
+        }
+
+        // Check if document was previously approved
+        $wasApproved = $pelanggaran->$fieldApprove;
+        
+        // Set the reject flag to true and approval flag to false
+        $pelanggaran->$fieldReject = true;
+        $pelanggaran->$fieldApprove = false;
+
+        // Format the new reason
+        $alasanBaru = trim($request->alasan);
+        if (!str_starts_with(strtolower($alasanBaru), strtolower($roleLabel . ':'))) {
+            $alasanBaru = $roleLabel . ': ' . $alasanBaru;
+        }
+        
+        // If it was previously approved, add note about approval revocation
+        if ($wasApproved) {
+            $alasanBaru = $roleLabel . ': [PERSETUJUAN DIBATALKAN] ' . $alasanBaru;
+        }
+
+        // Remove previous reasons from this same user/role and add the new one
+        $alasanLama = $pelanggaran->alasan ?? '';
+        $alasanLines = explode("\n", $alasanLama);
+        $filteredAlasanLines = [];
+        
+        // Keep only reasons from other roles
+        foreach ($alasanLines as $line) {
+            $line = trim($line);
+            if (empty($line)) continue;
+            
+            // Skip lines that start with this role's label (case insensitive)
+            if (!preg_match('/^' . preg_quote($roleLabel, '/') . '\s*:/i', $line)) {
+                $filteredAlasanLines[] = $line;
             }
         }
-        return response()->json(['message' => 'Pelanggaran ditolak/alasan diperbarui.']);
+        
+        // Add the new reason
+        $filteredAlasanLines[] = $alasanBaru;
+        
+        // Combine all reasons with line breaks
+        $pelanggaran->alasan = implode("\n", $filteredAlasanLines);
+
+        // Update status to rejected only if all parties have rejected
+        if (
+            $pelanggaran->rejected_by_admin &&
+            $pelanggaran->rejected_by_dosen_wali &&
+            $pelanggaran->rejected_by_ketua_jurusan
+        ) {
+            $pelanggaran->status_surat = 'rejected';
+        } else {
+            // Otherwise, keep it in processing state
+            $pelanggaran->status_surat = 'diproses';
+        }
+        
+        $pelanggaran->save();
+
+        // Get all relevant users to notify
+        $student = User::where('username', $pelanggaran->username)->first();
+        $reporter = User::where('nama_pemilik', $pelanggaran->nama_pelapor)->first();
+        $academicAdvisor = User::where('role_id', 4)
+            ->where('nama_pemilik', $pelanggaran->nama_dosen_wali)
+            ->first();
+        $departmentHead = User::where('role_id', 3)
+            ->where('nama_pemilik', $pelanggaran->nama_ketua_jurusan)
+            ->first();
+
+        // Send email to student
+        if ($student) {
+            Mail::to($student->email)->send(
+                new StatusPelanggaranAkademikChangedMail($pelanggaran, 'rejected', [
+                    'rejectedBy' => $roleLabel,
+                    'alasan' => $alasanBaru
+                ])
+            );
+        }
+        
+        // Send email to reporter
+        if ($reporter) {
+            Mail::to($reporter->email)->send(
+                new StatusPelanggaranAkademikChangedMail($pelanggaran, 'rejected', [
+                    'rejectedBy' => $roleLabel,
+                    'alasan' => $alasanBaru
+                ])
+            );
+        }
+
+        // Send email to academic advisor (if not the one who rejected)
+        if ($academicAdvisor && $role != 'dosen wali') {
+            Mail::to($academicAdvisor->email)->send(
+                new StatusPelanggaranAkademikChangedMail($pelanggaran, 'rejected', [
+                    'rejectedBy' => $roleLabel,
+                    'alasan' => $alasanBaru
+                ])
+            );
+        }
+
+        // Send email to department head (if not the one who rejected)
+        if ($departmentHead && $role != 'ketua jurusan') {
+            Mail::to($departmentHead->email)->send(
+                new StatusPelanggaranAkademikChangedMail($pelanggaran, 'rejected', [
+                    'rejectedBy' => $roleLabel,
+                    'alasan' => $alasanBaru
+                ])
+            );
+        }
+
+        $message = $wasApproved ? 
+            'Persetujuan dibatalkan, pelanggaran ditolak dan alasan telah dicatat.' : 
+            'Pelanggaran ditolak dan alasan telah dicatat.';
+
+        return response()->json(['message' => $message]);
     }
 
     public function reminderTandaTangan($noSurat)
@@ -237,43 +592,152 @@ class PelanggaranAkademikController extends Controller
             return response()->json(['message' => 'Surat tidak dalam status diproses.']);
         }
 
-        $emails = [];
+        $penerima = [];
 
+        // Reminder for signatures
+        // Pelapor
+        if (is_null($pelanggaran->ttd_pelapor)) {
+            $user = User::where('nama_pemilik', $pelanggaran->nama_pelapor)->first();
+            if ($user) {
+                Mail::to($user->email)->send(
+                    new StatusPelanggaranAkademikChangedMail($pelanggaran, 'reminder_ttd_pelanggaran', [
+                        'nama' => $pelanggaran->nama_pelapor
+                    ])
+                );
+                $penerima[] = 'pelapor (ttd)';
+            }
+        }
+
+        // Dosen wali
         if (is_null($pelanggaran->ttd_dosen_wali)) {
-            $emailDosenWali = User::where('role_id', 4)
+            $user = User::where('role_id', 4)
                 ->where('nama_pemilik', $pelanggaran->nama_dosen_wali)
-                ->first()?->email;
-
-            if ($emailDosenWali) {
-                $emails[] = $emailDosenWali;
+                ->first();
+            if ($user) {
+                Mail::to($user->email)->send(
+                    new StatusPelanggaranAkademikChangedMail($pelanggaran, 'reminder_ttd_pelanggaran', [
+                        'nama' => $pelanggaran->nama_dosen_wali
+                    ])
+                );
+                $penerima[] = 'dosen wali (ttd)';
             }
         }
 
+        // Ketua jurusan
         if (is_null($pelanggaran->ttd_ketua_jurusan)) {
-            $emailKetuaJurusan = User::where('role_id', 3)
+            $user = User::where('role_id', 3)
                 ->where('nama_pemilik', $pelanggaran->nama_ketua_jurusan)
-                ->first()?->email;
-
-            if ($emailKetuaJurusan) {
-                $emails[] = $emailKetuaJurusan;
+                ->first();
+            if ($user) {
+                Mail::to($user->email)->send(
+                    new StatusPelanggaranAkademikChangedMail($pelanggaran, 'reminder_ttd_pelanggaran', [
+                        'nama' => $pelanggaran->nama_ketua_jurusan
+                    ])
+                );
+                $penerima[] = 'ketua jurusan (ttd)';
             }
         }
 
-        if (!empty($emails)) {
-            Mail::to($emails)->send(new StatusPelanggaranAkademikChangedMail($pelanggaran, 'reminder_ttd_pelanggaran'));
-
-            $pesan = 'Reminder tanda tangan telah dikirim ke ';
-            if (count($emails) == 2) {
-                $pesan .= 'dosen wali dan ketua jurusan.';
-            } elseif (isset($emailDosenWali)) {
-                $pesan .= 'dosen wali.';
-            } else {
-                $pesan .= 'ketua jurusan.';
+        // Mahasiswa
+        if (is_null($pelanggaran->ttd_mahasiswa)) {
+            $user = User::where('role_id', 2)
+                ->where('nama_pemilik', $pelanggaran->nama_mhs)
+                ->first();
+            if ($user) {
+                Mail::to($user->email)->send(
+                    new StatusPelanggaranAkademikChangedMail($pelanggaran, 'reminder_ttd_pelanggaran', [
+                        'nama' => $pelanggaran->nama_mhs,
+                        'isMahasiswa' => true
+                    ])
+                );
+                $penerima[] = 'mahasiswa (ttd)';
             }
-
-            return response()->json(['message' => $pesan]);
         }
 
-        return response()->json(['message' => 'Tidak ada penerima yang valid untuk pengingat tanda tangan.']);
+        // Reminder for approval/rejection
+        // Admin
+        if (!$pelanggaran->approved_by_admin && !$pelanggaran->rejected_by_admin) {
+            $admins = User::where('role_id', 1)->get();
+            foreach ($admins as $admin) {
+                Mail::to($admin->email)->send(
+                    new StatusPelanggaranAkademikChangedMail($pelanggaran, 'reminder_approval', [
+                        'nama' => $admin->nama_pemilik ?? $admin->name,
+                        'role' => 'admin'
+                    ])
+                );
+            }
+            $penerima[] = 'admin (approval)';
+        }
+
+        // Dosen Wali
+        if (!$pelanggaran->approved_by_dosen_wali && !$pelanggaran->rejected_by_dosen_wali) {
+            $dosenWali = User::where('role_id', 4)
+                ->where('nama_pemilik', $pelanggaran->nama_dosen_wali)
+                ->first();
+            if ($dosenWali) {
+                Mail::to($dosenWali->email)->send(
+                    new StatusPelanggaranAkademikChangedMail($pelanggaran, 'reminder_approval', [
+                        'nama' => $dosenWali->nama_pemilik,
+                        'role' => 'dosen wali'
+                    ])
+                );
+                $penerima[] = 'dosen wali (approval)';
+            }
+        }
+
+        // Ketua Jurusan
+        if (!$pelanggaran->approved_by_ketua_jurusan && !$pelanggaran->rejected_by_ketua_jurusan) {
+            $ketuaJurusan = User::where('role_id', 3)
+                ->where('nama_pemilik', $pelanggaran->nama_ketua_jurusan)
+                ->first();
+            if ($ketuaJurusan) {
+                Mail::to($ketuaJurusan->email)->send(
+                    new StatusPelanggaranAkademikChangedMail($pelanggaran, 'reminder_approval', [
+                        'nama' => $ketuaJurusan->nama_pemilik,
+                        'role' => 'ketua jurusan'
+                    ])
+                );
+                $penerima[] = 'ketua jurusan (approval)';
+            }
+        }
+
+        if (!empty($penerima)) {
+            return response()->json([
+                'message' => 'Reminder telah dikirim ke: ' . implode(', ', $penerima)
+            ]);
+        }
+
+        return response()->json([
+            'message' => 'Tidak ada penerima yang valid untuk pengingat tanda tangan atau approval.'
+        ]);
+    }
+
+
+
+    public function resetAll()
+    {
+        $count = PelanggaranAkademik::count();
+        PelanggaranAkademik::truncate();
+        if ($count > 0) {
+            return response()->json(['success' => true, 'message' => 'Semua data surat Peringatan karena Pelanggaran Akademik berhasil dihapus']);
+        } else {
+            return response()->json(['success' => false, 'message' => 'Data surat sudah kosong']);
+        }
+    }
+
+    public function updateAlasan(Request $request, $noSurat)
+    {
+        $request->validate([
+            'alasan' => 'nullable|string',
+        ]);
+
+        $pelanggaran = PelanggaranAkademik::where('noSurat', $noSurat)->firstOrFail();
+        $pelanggaran->alasan = $request->alasan;
+        $pelanggaran->save();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Alasan penolakan berhasil diperbarui.'
+        ]);
     }
 }
