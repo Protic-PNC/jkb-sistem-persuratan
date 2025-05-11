@@ -7,6 +7,8 @@
             <th scope="col" style="white-space: nowrap; text-align: center;">Semester/Kelas</th>
             <th scope="col" style="white-space: nowrap; text-align: center;">Tanggal Surat</th>
             <th scope="col" style="white-space: nowrap; text-align: center;">Status</th>
+            <th scope="col" style="white-space: nowrap; text-align: center;">Disetujui Oleh</th>
+            <th scope="col" style="white-space: nowrap; text-align: center;">Ditolak Oleh</th>
             <th scope="col" style="white-space: nowrap; text-align: center;">Action</th>
             <th scope="col" style="white-space: nowrap; text-align: center;">Alasan</th>
         </tr>
@@ -22,12 +24,62 @@
                 <td style="white-space: nowrap; text-align: center;">
                     {{ date('d M Y', strtotime($pelanggaran->tglSurat)) }}</td>
                 <td style="white-space: nowrap; text-align: center;">
-                    @if ($pelanggaran->status_surat == 'approved')
-                        <span class="badge bg-success">Disetujui</span>
-                    @elseif ($pelanggaran->status_surat == 'rejected')
+                    @php
+                        $approved =
+                            $pelanggaran->approved_by_admin &&
+                            $pelanggaran->approved_by_dosen_wali &&
+                            $pelanggaran->approved_by_ketua_jurusan;
+                        $rejects =
+                            $pelanggaran->rejected_by_admin &&
+                            $pelanggaran->rejected_by_dosen_wali &&
+                            $pelanggaran->rejected_by_ketua_jurusan;
+                    @endphp
+
+                    @if ($rejects)
                         <span class="badge bg-danger">Ditolak</span>
+                    @elseif ($approved)
+                        <span class="badge bg-success">Disetujui</span>
                     @else
                         <span class="badge bg-warning">Diproses</span>
+                    @endif
+                </td>
+                @php
+                    $approvals = [];
+                    if ($pelanggaran->approved_by_admin) {
+                        $approvals[] = 'Admin';
+                    }
+                    if ($pelanggaran->approved_by_dosen_wali) {
+                        $approvals[] = 'Dosen Wali';
+                    }
+                    if ($pelanggaran->approved_by_ketua_jurusan) {
+                        $approvals[] = 'Ketua Jurusan';
+                    }
+                @endphp
+                <td style="white-space: nowrap; text-align: center;">
+                    @if (count($approvals))
+                        <span class="badge bg-info text-dark text-white">{{ implode(', ', $approvals) }}</span>
+                    @else
+                        <span class="text-muted">Belum Ada</span>
+                    @endif
+                </td>
+                @php
+                    $rejects = [];
+                    if ($pelanggaran->rejected_by_admin && !$pelanggaran->approved_by_admin) {
+                        $rejects[] = 'Admin';
+                    }
+                    if ($pelanggaran->rejected_by_dosen_wali && !$pelanggaran->approved_by_dosen_wali) {
+                        $rejects[] = 'Dosen Wali';
+                    }
+                    if ($pelanggaran->rejected_by_ketua_jurusan && !$pelanggaran->approved_by_ketua_jurusan) {
+                        $rejects[] = 'Ketua Jurusan';
+                    }
+                @endphp
+
+                <td style="white-space: nowrap; text-align: center;">
+                    @if (count($rejects))
+                        <span class="badge bg-info text-dark text-white">{{ implode(', ', $rejects) }}</span>
+                    @else
+                        <span class="text-muted">Belum Ada</span>
                     @endif
                 </td>
                 <td>
