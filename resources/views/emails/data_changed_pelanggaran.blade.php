@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Perubahan Data Pelanggaran Akademik</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+            color: #212529;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: auto;
+            background: #ffffff;
+            border-radius: 8px;
+            padding: 30px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            color: #2c3e50;
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        p {
+            font-size: 16px;
+            line-height: 1.6;
+        }
+
+        ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+
+        li {
+            font-size: 16px;
+            margin-bottom: 8px;
+        }
+
+        .highlight {
+            font-weight: bold;
+            color: #007bff;
+        }
+
+        .warning {
+            font-weight: bold;
+            color: #dc3545;
+        }
+
+        .btn {
+            display: inline-block;
+            margin-top: 20px;
+            background-color: #007bff;
+            color: #ffffff !important;
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .footer {
+            margin-top: 30px;
+            font-size: 14px;
+            color: #6c757d;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h2>
+            Yth.
+            {{ $opsi['recipientName'] ?? 'Bapak/Ibu' }},
+        </h2>
+
+        <p class="warning">{{ $opsi['changeMessage'] ?? 'Perubahan telah dibuat pada dokumen pelanggaran akademik.' }}</p>
+
+        <p>Informasi pelanggaran akademik saat ini:</p>
+
+        <ul>
+            <li><span class="highlight">Nama Mahasiswa:</span> {{ $pelanggaran->nama_mhs }}</li>
+            <li><span class="highlight">NIM:</span> {{ $pelanggaran->username }}</li>
+            <li><span class="highlight">Nama Pelapor:</span> {{ $pelanggaran->nama_pelapor }}</li>
+            <li><span class="highlight">Dosen Wali:</span> {{ $pelanggaran->nama_dosen_wali }}</li>
+            <li><span class="highlight">Ketua Jurusan:</span> {{ $pelanggaran->nama_ketua_jurusan }}</li>
+            <li><span class="highlight">Jenis Peringatan:</span> {{ $pelanggaran->peringatan }}</li>
+            <li><span class="highlight">Semester:</span> {{ $pelanggaran->semester }}</li>
+            <li><span class="highlight">Tanggal Surat:</span> {{ $pelanggaran->tglSurat }}</li>
+            <li><span class="highlight">Status Surat:</span> {{ ucfirst($pelanggaran->status_surat) }}</li>
+        </ul>
+
+        <p>Sebagai <span class="highlight">{{ $opsi['recipientRole'] ?? 'pengguna' }}</span>, Anda mungkin perlu meninjau kembali dokumen ini dan melakukan tindakan yang sesuai.</p>
+
+        <a href="{{ url('http://127.0.0.1:8000') }}" class="btn">Login ke Sistem</a>
+
+        <p class="footer">Terima kasih, Tim Admin</p>
+    </div>
+</body>
+
+</html> 
