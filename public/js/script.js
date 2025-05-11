@@ -283,7 +283,6 @@ document.getElementById("username").addEventListener("input", function () {
             .then((response) => response.json())
             .then((data) => {
                 document.getElementById("nama_mhs").value = data.nama_mhs;
-                document.getElementById("semester").value = data.semester;
                 document.getElementById("kelas_id").value = data.kelas_id;
                 document.getElementById("nama_kelas").value = data.nama_kelas;
                 document.getElementById("nama_dosen_wali").value =
@@ -301,7 +300,7 @@ async function confirmDelete(id) {
         showCancelButton: true,
         confirmButtonText: "Ya, hapus data!",
         cancelButtonText: "Batal",
-        reverseButtons: false
+        reverseButtons: false,
     }).then((result) => {
         if (result.isConfirmed) {
             Swal.fire({
@@ -1456,6 +1455,15 @@ async function saveKelas() {
 }
 
 async function updatePelanggaranAkademik(role_id, nama_pemilik) {
+    let originalNamaPelapor = document
+        .getElementById("original_nama_pelapor")
+        .value.trim();
+    let originalNamaDosen = document
+        .getElementById("original_nama_dosen_wali")
+        .value.trim();
+    let originalNamaKajur = document
+        .getElementById("original_nama_ketua_jurusan")
+        .value.trim();
     let originalNamaMhs = document
         .getElementById("original_nama_mhs")
         .value.trim();
@@ -1478,6 +1486,8 @@ async function updatePelanggaranAkademik(role_id, nama_pemilik) {
         .getElementById("original_isi_pasal")
         .value.trim();
 
+    let namaKajur = document.getElementById("nama_ketua_jurusan").value.trim();
+    let namaDosen = document.getElementById("nama_dosen_wali").value.trim();
     let namaMhs = document.getElementById("nama_mhs").value.trim();
     let username = document.getElementById("username").value.trim();
     let semester = document.getElementById("semester").value.trim();
@@ -1492,23 +1502,31 @@ async function updatePelanggaranAkademik(role_id, nama_pemilik) {
 
     let ttdMahasiswa, ttdPelapor, ttdDosenWali, ttdKetuaJurusan;
 
-    if (namaPelapor === nama_pemilik) {
-        ttdPelapor = document.getElementById("ttd_pelapor").files[0];
+    const ttdPelaporInput = document.getElementById("ttd_pelapor");
+    const ttdDosenWaliInput = document.getElementById("ttd_dosen_wali");
+    const ttdKetuaJurusanInput = document.getElementById("ttd_ketua_jurusan");
+    const ttdMahasiswaInput = document.getElementById("ttd_mahasiswa");
+
+    if (ttdPelaporInput && namaPelapor === nama_pemilik) {
+        ttdPelapor = ttdPelaporInput.files[0];
     }
-    if (namaDosenWali === nama_pemilik) {
-        ttdDosenWali = document.getElementById("ttd_dosen_wali").files[0];
+    if (ttdPelaporInput && namaPelapor === namaDosenWali) {
+        ttdPelapor = ttdPelaporInput.files[0];
+    }
+    if (ttdDosenWaliInput && namaDosenWali === nama_pemilik) {
+        ttdDosenWali = ttdDosenWaliInput.files[0];
     } else {
-        ttdKetuaJurusan =
-            document.getElementById("ttd_ketua_jurusan")?.files[0] || null;
-    }
-    if (role_id !== 2 && role_id !== 3 && role_id !== 4) {
-        ttdPelapor = document.getElementById("ttd_pelapor").files[0];
-        ttdDosenWali = document.getElementById("ttd_dosen_wali").files[0];
-        ttdKetuaJurusan = document.getElementById("ttd_ketua_jurusan").files[0];
+        ttdKetuaJurusan = ttdKetuaJurusanInput?.files[0] || null;
     }
 
-    if (role_id !== 3 && role_id !== 4) {
-        ttdMahasiswa = document.getElementById("ttd_mahasiswa").files[0];
+    if (role_id !== 2 && role_id !== 3 && role_id !== 4) {
+        ttdPelapor = ttdPelaporInput?.files[0] || null;
+        ttdDosenWali = ttdDosenWaliInput?.files[0] || null;
+        ttdKetuaJurusan = ttdKetuaJurusanInput?.files[0] || null;
+    }
+
+    if (role_id !== 3 && role_id !== 4 && ttdMahasiswaInput) {
+        ttdMahasiswa = ttdMahasiswaInput?.files[0] || null;
     }
 
     if (
@@ -1533,6 +1551,9 @@ async function updatePelanggaranAkademik(role_id, nama_pemilik) {
     }
 
     if (
+        namaKajur === originalNamaKajur &&
+        namaDosen === originalNamaDosen &&
+        namaPelapor === originalNamaPelapor &&
         namaMhs === originalNamaMhs &&
         username === originalusername &&
         semester === originalSemester &&
@@ -1638,7 +1659,7 @@ async function savePelanggaranAkademik(role_id) {
     }
 
     Swal.fire({
-        title: "Data berhasil disimpan.!",
+        title: "Data berhasil disimpan.",
         icon: "success",
         showConfirmButton: false,
         timer: 3000,
@@ -1704,7 +1725,7 @@ async function savePengunduranDiri(role_id) {
     }
 
     Swal.fire({
-        title: "Data berhasil disimpan.!",
+        title: "Data berhasil disimpan.",
         icon: "success",
         showConfirmButton: false,
         timer: 3000,
@@ -1896,6 +1917,9 @@ async function rejectAdminSuratPelanggaran(id) {
     const { value: alasan } = await Swal.fire({
         title: "Tolak Surat",
         html: `
+            <div class="mb-3">
+                <p class="text-warning">Jika surat sudah disetujui sebelumnya, tindakan ini akan membatalkan persetujuan.</p>
+            </div>
             <textarea id="alasan-penolakan" class="swal2-textarea" rows="6" placeholder="Masukkan alasan penolakan, pisahkan dengan baris baru untuk setiap poin"></textarea>
         `,
         focusConfirm: false,
@@ -2391,7 +2415,13 @@ async function sendPelanggaranReminder(noSurat) {
             const data = await response.json();
 
             if (response.ok) {
-                Swal.fire("Berhasil!", data.message, "success");
+                Swal.fire({
+                    title: "Berhasil!",
+                    text: data.message,
+                    icon: "success",
+                    showConfirmButton: false,
+                    timer: 3000,
+                });
             } else {
                 Swal.fire(
                     "Gagal",
@@ -2441,11 +2471,18 @@ async function sendMagangReminder(noSurat) {
             const data = await response.json();
 
             if (response.ok) {
-                Swal.fire("Berhasil!", data.message, "success");
+                Swal.fire({
+                    title: "Berhasil!",
+                    text: data.message,
+                    icon: "success",
+                    showConfirmButton: false,
+                    timer: 3000,
+                });
             } else {
                 Swal.fire(
                     "Gagal",
-                    data.message || "Terjadi kesalahan saat mengirim pengingat.",
+                    data.message ||
+                        "Terjadi kesalahan saat mengirim pengingat.",
                     "error"
                 );
             }
@@ -2461,160 +2498,182 @@ async function sendMagangReminder(noSurat) {
 
 function confirmResetUser() {
     Swal.fire({
-        title: 'Apakah Anda yakin?',
+        title: "Apakah Anda yakin?",
         text: "Tindakan ini akan menghapus semua akun kecuali admin!",
-        icon: 'warning',
+        icon: "warning",
         showCancelButton: true,
-        confirmButtonText: 'Ya, reset akun!',
-        cancelButtonText: 'Batal',
+        confirmButtonText: "Ya, reset akun!",
+        cancelButtonText: "Batal",
         customClass: {
-            confirmButton: 'swal2-confirm-user',
-            cancelButton: 'swal2-cancel-user'
-        }
+            confirmButton: "swal2-confirm-user",
+            cancelButton: "swal2-cancel-user",
+        },
     }).then((result) => {
         if (result.isConfirmed) {
-            const form = document.getElementById('resetUserForm');
+            const form = document.getElementById("resetUserForm");
             const formData = new FormData(form);
-            
+
             fetch(form.action, {
-                method: 'POST',
+                method: "POST",
                 body: formData,
                 headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                }
+                    "X-CSRF-TOKEN": document.querySelector(
+                        'meta[name="csrf-token"]'
+                    ).content,
+                },
             })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return response.json();
-            })
-            .then(data => {
-                if (data.success) {
+                .then((response) => {
+                    if (!response.ok) {
+                        throw new Error("Network response was not ok");
+                    }
+                    return response.json();
+                })
+                .then((data) => {
+                    if (data.success) {
+                        Swal.fire({
+                            title: "Berhasil!",
+                            text: data.message || "Semua akun berhasil direset",
+                            icon: "success",
+                            timer: 3000,
+                            showConfirmButton: false,
+                        }).then(() => {
+                            window.location.reload();
+                        });
+                    } else {
+                        Swal.fire({
+                            title: "Informasi",
+                            text: data.message || "Data akun sudah kosong",
+                            icon: "info",
+                            timer: 3000,
+                            showConfirmButton: false,
+                        });
+                    }
+                })
+                .catch((error) => {
+                    console.error("Error:", error);
                     Swal.fire({
-                        title: 'Berhasil!',
-                        text: data.message || 'Semua akun berhasil direset',
-                        icon: 'success',
+                        title: "Error!",
+                        text:
+                            error.message ||
+                            "Terjadi kesalahan saat mereset akun",
+                        icon: "error",
                         timer: 3000,
-                        showConfirmButton: false
-                    }).then(() => {
-                        window.location.reload();
+                        showConfirmButton: false,
                     });
-                } else {
-                    Swal.fire({
-                        title: 'Informasi',
-                        text: data.message || 'Data akun sudah kosong',
-                        icon: 'info',
-                        timer: 3000,
-                        showConfirmButton: false
-                    });
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                Swal.fire({
-                    title: 'Error!',
-                    text: error.message || 'Terjadi kesalahan saat mereset akun',
-                    icon: 'error',
-                    timer: 3000,
-                    showConfirmButton: false
                 });
-            });
         }
     });
 }
 
 async function confirmResetKelas() {
     Swal.fire({
-        title: 'Apakah Anda yakin?',
+        title: "Apakah Anda yakin?",
         text: "Tindakan ini akan menghapus semua kelas!",
-        icon: 'warning',
+        icon: "warning",
         showCancelButton: true,
-        confirmButtonText: 'Ya, reset kelas!',
-        cancelButtonText: 'Batal',
+        confirmButtonText: "Ya, reset kelas!",
+        cancelButtonText: "Batal",
         customClass: {
-            confirmButton: 'swal2-confirm-kelas',
-            cancelButton: 'swal2-cancel-kelas'
-        }
+            confirmButton: "swal2-confirm-kelas",
+            cancelButton: "swal2-cancel-kelas",
+        },
     }).then((result) => {
         if (result.isConfirmed) {
-            const form = document.getElementById('resetKelasForm');
+            const form = document.getElementById("resetKelasForm");
             const formData = new FormData(form);
-            
+
             fetch(form.action, {
-                method: 'POST',
+                method: "POST",
                 body: formData,
                 headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                }
+                    "X-CSRF-TOKEN": document.querySelector(
+                        'meta[name="csrf-token"]'
+                    ).content,
+                },
             })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return response.json();
-            })
-            .then(data => {
-                if (data.success) {
+                .then((response) => {
+                    if (!response.ok) {
+                        throw new Error("Network response was not ok");
+                    }
+                    return response.json();
+                })
+                .then((data) => {
+                    if (data.success) {
+                        Swal.fire({
+                            title: "Berhasil!",
+                            text:
+                                data.message || "Semua kelas berhasil direset",
+                            icon: "success",
+                            timer: 3000,
+                            showConfirmButton: false,
+                        }).then(() => {
+                            window.location.reload();
+                        });
+                    } else {
+                        Swal.fire({
+                            title: "Informasi",
+                            text: data.message || "Data kelas sudah kosong",
+                            icon: "info",
+                            timer: 3000,
+                            showConfirmButton: false,
+                        });
+                    }
+                })
+                .catch((error) => {
+                    console.error("Error:", error);
                     Swal.fire({
-                        title: 'Berhasil!',
-                        text: data.message || 'Semua kelas berhasil direset',
-                        icon: 'success',
+                        title: "Error!",
+                        text:
+                            error.message ||
+                            "Terjadi kesalahan saat mereset kelas",
+                        icon: "error",
                         timer: 3000,
-                        showConfirmButton: false
-                    }).then(() => {
-                        window.location.reload();
+                        showConfirmButton: false,
                     });
-                } else {
-                    Swal.fire({
-                        title: 'Informasi',
-                        text: data.message || 'Data kelas sudah kosong',
-                        icon: 'info',
-                        timer: 3000,
-                        showConfirmButton: false
-                    });
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                Swal.fire({
-                    title: 'Error!',
-                    text: error.message || 'Terjadi kesalahan saat mereset kelas',
-                    icon: 'error',
-                    timer: 3000,
-                    showConfirmButton: false
                 });
-            });
         }
     });
 }
 
 async function approveDosenSuratPelanggaran(id) {
     Swal.fire({
-        title: 'Setujui Surat?',
-        text: 'Apakah Anda yakin ingin menyetujui surat ini?',
-        icon: 'question',
+        title: "Setujui Surat?",
+        text: "Apakah Anda yakin ingin menyetujui surat ini?",
+        icon: "question",
         showCancelButton: true,
-        confirmButtonText: 'Setujui',
-        cancelButtonText: 'Batal',
+        confirmButtonText: "Setujui",
+        cancelButtonText: "Batal",
     }).then(async (result) => {
         if (result.isConfirmed) {
             try {
-                const response = await fetch(`/dashboard/dosen-wali/pelanggaran-akademik/${id}/setujui`, {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                        'Accept': 'application/json',
-                    },
-                });
+                const response = await fetch(
+                    `/dashboard/dosen-wali/pelanggaran-akademik/${id}/setujui`,
+                    {
+                        method: "POST",
+                        headers: {
+                            "X-CSRF-TOKEN": document
+                                .querySelector('meta[name="csrf-token"]')
+                                .getAttribute("content"),
+                            Accept: "application/json",
+                        },
+                    }
+                );
                 const data = await response.json();
                 if (response.ok) {
-                    Swal.fire('Berhasil!', data.message || 'Surat berhasil disetujui.', 'success').then(() => location.reload());
+                    Swal.fire(
+                        "Berhasil!",
+                        data.message || "Surat berhasil disetujui.",
+                        "success"
+                    ).then(() => location.reload());
                 } else {
-                    Swal.fire('Gagal!', data.message || 'Terjadi kesalahan.', 'error');
+                    Swal.fire(
+                        "Gagal!",
+                        data.message || "Terjadi kesalahan.",
+                        "error"
+                    );
                 }
             } catch (error) {
-                Swal.fire('Gagal!', 'Terjadi kesalahan.', 'error');
+                Swal.fire("Gagal!", "Terjadi kesalahan.", "error");
             }
         }
     });
@@ -2622,60 +2681,75 @@ async function approveDosenSuratPelanggaran(id) {
 
 async function rejectDosenSuratPelanggaran(id) {
     const { value: alasan } = await Swal.fire({
-        title: 'Tolak Surat',
-        input: 'textarea',
-        inputLabel: 'Alasan penolakan',
-        inputPlaceholder: 'Masukkan alasan penolakan...',
+        title: "Tolak Surat",
+        input: "textarea",
+        inputLabel: "Alasan penolakan",
+        inputPlaceholder: "Masukkan alasan penolakan...",
         inputAttributes: {
-            'aria-label': 'Masukkan alasan penolakan'
+            "aria-label": "Masukkan alasan penolakan",
         },
         showCancelButton: true,
-        confirmButtonText: 'Tolak',
-        cancelButtonText: 'Batal',
+        confirmButtonText: "Tolak",
+        cancelButtonText: "Batal",
         inputValidator: (value) => {
             if (!value) {
-                return 'Alasan penolakan wajib diisi!';
+                return "Alasan penolakan wajib diisi!";
             }
-        }
+        },
     });
     if (alasan) {
         try {
-            const response = await fetch(`/dashboard/dosen-wali/pelanggaran-akademik/${id}/tolak`, {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ alasan })
-            });
+            const response = await fetch(
+                `/dashboard/dosen-wali/pelanggaran-akademik/${id}/tolak`,
+                {
+                    method: "POST",
+                    headers: {
+                        "X-CSRF-TOKEN": document
+                            .querySelector('meta[name="csrf-token"]')
+                            .getAttribute("content"),
+                        Accept: "application/json",
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({ alasan }),
+                }
+            );
             const data = await response.json();
             if (response.ok) {
-                Swal.fire('Ditolak!', data.message || 'Surat berhasil ditolak.', 'success').then(() => location.reload());
+                Swal.fire(
+                    "Ditolak!",
+                    data.message || "Surat berhasil ditolak.",
+                    "success"
+                ).then(() => location.reload());
             } else {
-                Swal.fire('Gagal!', data.message || 'Terjadi kesalahan.', 'error');
+                Swal.fire(
+                    "Gagal!",
+                    data.message || "Terjadi kesalahan.",
+                    "error"
+                );
             }
         } catch (error) {
-            Swal.fire('Gagal!', 'Terjadi kesalahan.', 'error');
+            Swal.fire("Gagal!", "Terjadi kesalahan.", "error");
         }
     }
 }
 
-document.addEventListener('DOMContentLoaded', function() {
-    const npmInput = document.getElementById('username');
+document.addEventListener("DOMContentLoaded", function () {
+    const npmInput = document.getElementById("username");
     if (npmInput) {
-        npmInput.addEventListener('change', function() {
+        npmInput.addEventListener("change", function () {
             const npm = this.value;
             if (npm) {
                 fetch(`/dashboard/admin/user/get-mahasiswa-by-npm?npm=${npm}`)
-                    .then(response => response.json())
-                    .then(data => {
-                        const namaMhs = document.getElementById('nama_mhs');
-                        const namaDosenWali = document.getElementById('nama_dosen_wali');
-                        const kelasSelect = document.getElementById('kelas_id');
-                        if (namaMhs) namaMhs.value = data.nama_mhs || '';
-                        if (semester) semester.value = data.semester || '';
-                        if (namaDosenWali) namaDosenWali.value = data.nama_dosen_wali || '';
+                    .then((response) => response.json())
+                    .then((data) => {
+                        const namaMhs = document.getElementById("nama_mhs");
+                        const namaDosenWali =
+                            document.getElementById("nama_dosen_wali");
+                        const kelasSelect = document.getElementById("kelas_id");
+                        if (namaMhs) namaMhs.value = data.nama_mhs || "";
+                        if (semester) semester.value = data.semester || "";
+                        if (namaDosenWali)
+                            namaDosenWali.value = data.nama_dosen_wali || "";
                         if (kelasSelect && data.kelas_id) {
                             for (let option of kelasSelect.options) {
                                 if (option.value == data.kelas_id) {
@@ -2690,95 +2764,160 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-function confirmResetPernyataanMagang() {
+async function confirmResetPernyataanMagang() {
     Swal.fire({
-        title: 'Reset Semua Data Surat?',
-        text: 'Tindakan ini akan menghapus semua data surat pernyataan magang! Lanjutkan?',
-        icon: 'warning',
+        title: "Reset Semua Data Surat?",
+        text: "Tindakan ini akan menghapus semua data surat Pernyataan Magang! Lanjutkan?",
+        icon: "warning",
         showCancelButton: true,
-        confirmButtonText: 'Ya, reset data',
-        cancelButtonText: 'Batal',
-        reverseButtons: false
+        confirmButtonText: "Ya, reset data",
+        cancelButtonText: "Batal",
+        reverseButtons: false,
     }).then((result) => {
         if (result.isConfirmed) {
-            fetch('/dashboard/admin/pernyataan-magang/reset', {
-                method: 'POST',
+            fetch("/dashboard/admin/pernyataan-magang/reset", {
+                method: "POST",
                 headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                    'Accept': 'application/json',
+                    "X-CSRF-TOKEN": document.querySelector(
+                        'meta[name="csrf-token"]'
+                    ).content,
+                    Accept: "application/json",
                 },
             })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
+                .then((response) => response.json())
+                .then((data) => {
+                    if (data.success) {
+                        Swal.fire({
+                            title: "Berhasil!",
+                            text:
+                                data.message ||
+                                "Semua data surat berhasil direset",
+                            icon: "success",
+                            timer: 3000,
+                            showConfirmButton: false,
+                        }).then(() => {
+                            window.location.reload();
+                        });
+                    } else {
+                        Swal.fire({
+                            title: "Informasi",
+                            text: data.message || "Data surat sudah kosong",
+                            icon: "info",
+                            timer: 3000,
+                            showConfirmButton: false,
+                        });
+                    }
+                })
+                .catch((error) => {
                     Swal.fire({
-                        title: 'Berhasil!',
-                        text: data.message || 'Semua data surat berhasil direset',
-                        icon: 'success',
+                        title: "Error!",
+                        text:
+                            error.message ||
+                            "Terjadi kesalahan saat mereset data surat",
+                        icon: "error",
                         timer: 3000,
-                        showConfirmButton: false
-                    }).then(() => {
-                        window.location.reload();
+                        showConfirmButton: false,
                     });
-                } else {
-                    Swal.fire({
-                        title: 'Informasi',
-                        text: data.message || 'Data surat sudah kosong',
-                        icon: 'info',
-                        timer: 3000,
-                        showConfirmButton: false
-                    });
-                }
-            })
-            .catch(error => {
-                Swal.fire({
-                    title: 'Error!',
-                    text: error.message || 'Terjadi kesalahan saat mereset data surat',
-                    icon: 'error',
-                    timer: 3000,
-                    showConfirmButton: false
                 });
-            });
+        }
+    });
+}
+
+async function confirmResetPelanggaranAkademik() {
+    Swal.fire({
+        title: "Reset Semua Data Surat?",
+        text: "Tindakan ini akan menghapus semua data surat Peringatan karena Pelanggaran Akademik! Lanjutkan?",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Ya, reset data",
+        cancelButtonText: "Batal",
+        reverseButtons: false,
+    }).then((result) => {
+        if (result.isConfirmed) {
+            fetch("/dashboard/admin/pelanggaran-akademik/reset", {
+                method: "POST",
+                headers: {
+                    "X-CSRF-TOKEN": document.querySelector(
+                        'meta[name="csrf-token"]'
+                    ).content,
+                    Accept: "application/json",
+                },
+            })
+                .then((response) => response.json())
+                .then((data) => {
+                    if (data.success) {
+                        Swal.fire({
+                            title: "Berhasil!",
+                            text:
+                                data.message ||
+                                "Semua data surat berhasil direset",
+                            icon: "success",
+                            timer: 3000,
+                            showConfirmButton: false,
+                        }).then(() => {
+                            window.location.reload();
+                        });
+                    } else {
+                        Swal.fire({
+                            title: "Informasi",
+                            text: data.message || "Data surat sudah kosong",
+                            icon: "info",
+                            timer: 3000,
+                            showConfirmButton: false,
+                        });
+                    }
+                })
+                .catch((error) => {
+                    Swal.fire({
+                        title: "Error!",
+                        text:
+                            error.message ||
+                            "Terjadi kesalahan saat mereset data surat",
+                        icon: "error",
+                        timer: 3000,
+                        showConfirmButton: false,
+                    });
+                });
         }
     });
 }
 
 async function autofillAdminNamaMahasiswaMagang() {
-    var npmInput = document.getElementById('username');
-    var namaMhsInput = document.getElementById('nama_mhs');
+    var npmInput = document.getElementById("username");
+    var namaMhsInput = document.getElementById("nama_mhs");
     if (npmInput && namaMhsInput) {
         var npm = npmInput.value;
         if (npm) {
             fetch(`/dashboard/admin/user/get-mahasiswa-by-npm?npm=${npm}`)
-                .then(response => response.json())
-                .then(data => {
-                    namaMhsInput.value = data.nama_mhs || '';
+                .then((response) => response.json())
+                .then((data) => {
+                    namaMhsInput.value = data.nama_mhs || "";
                 })
                 .catch(() => {
-                    namaMhsInput.value = '';
+                    namaMhsInput.value = "";
                 });
         } else {
-            namaMhsInput.value = '';
+            namaMhsInput.value = "";
         }
     }
 }
 
 async function autofillMahasiswaNamaMahasiswaMagang() {
-    var npmInput = document.getElementById('username');
-    var namaMhsInput = document.getElementById('nama_mhs');
+    var npmInput = document.getElementById("username");
+    var namaMhsInput = document.getElementById("nama_mhs");
     if (npmInput && namaMhsInput) {
         var npm = npmInput.value;
         if (npm) {
             fetch(`/dashboard/mahasiswa/user/get-mahasiswa-by-npm?npm=${npm}`)
-                .then(response => response.json())
-                .then(data => {
-                    namaMhsInput.value = data.nama_mhs || '';
+                .then((response) => response.json())
+                .then((data) => {
+                    namaMhsInput.value = data.nama_mhs || "";
                 })
                 .catch(() => {
-                    namaMhsInput.value = '';
+                    namaMhsInput.value = "";
                 });
         } else {
-            namaMhsInput.value = '';
+            namaMhsInput.value = "";
         }
     }
 }
