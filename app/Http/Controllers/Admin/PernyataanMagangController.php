@@ -272,7 +272,7 @@ class PernyataanMagangController extends Controller
         $count = PernyataanMagang::count();
         PernyataanMagang::truncate();
         if ($count > 0) {
-            return response()->json(['success' => true, 'message' => 'Semua data surat pernyataan magang berhasil dihapus']);
+            return response()->json(['success' => true, 'message' => 'Semua data surat Pernyataan Magang berhasil dihapus']);
         } else {
             return response()->json(['success' => false, 'message' => 'Data surat sudah kosong']);
         }
