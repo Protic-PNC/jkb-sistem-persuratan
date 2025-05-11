@@ -164,7 +164,7 @@
                                 </div>
                             @enderror
                         </div>
-                        @if ($pelanggarans->nama_pelapor == $user->nama_pemilik)
+                        @if ($pelanggarans->nama_pelapor == $user->nama_pemilik || $pelanggarans->nama_dosen_wali == $user->nama_pemilik)
                             <div class="mb-3">
                                 <label for="ttd_pelapor" class="form-label">Upload Tanda Tangan Pelapor</label>
                                 @if ($pelanggarans->ttd_pelapor)
@@ -183,7 +183,8 @@
                                     </div>
                                 @enderror
                             </div>
-                        @else
+                        @endif
+                        @if ($pelanggarans->nama_dosen_wali == $user->nama_pemilik)
                             <div class="mb-3">
                                 <label for="ttd_dosen_wali" class="form-label">Upload Tanda Tangan Dosen Wali</label>
                                 @if ($pelanggarans->ttd_dosen_wali)
