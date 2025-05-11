@@ -22,16 +22,10 @@ class PelanggaranAkademikController extends Controller
     public function index(Request $request)
     {
         $user = Auth::user();
-        // Data kelas perwalian
         $pelanggaranSemuaKelasDosen = PelanggaranAkademik::where('nama_dosen_wali', $user->nama_pemilik)->latest()->get();
-        // Data pelanggaran yang dilaporkan dosen sendiri
-        $pelanggaranDosens = PelanggaranAkademik::where('nama_pelapor', $user->username)->latest()->get();
-
-        // Total untuk masing-masing
+        $pelanggaranDosens = PelanggaranAkademik::where('nama_pelapor', $user->nama_pemilik)->latest()->get();
         $totalPelanggaranAkademikKelas = $pelanggaranSemuaKelasDosen->count();
         $totalPelanggaranAkademikDosen = $pelanggaranDosens->count();
-
-        // Gabungan untuk rekap
         $rekap = $pelanggaranSemuaKelasDosen->merge($pelanggaranDosens);
         $totalPelanggaranAkademik = $rekap->count();
         $totalDisetujui = $rekap->where('status_surat', 'approved')->count();
@@ -83,86 +77,86 @@ class PelanggaranAkademikController extends Controller
     }
 
     public function store(Request $request, PelanggaranAkademik $pelanggaranAkademik)
-{   
-    $validatedData = $request->validate([
-        'nama_mhs' => 'required|string|max:255',
-        'nama_pelapor' => 'required|string|max:255',
-        'nama_dosen_wali' => 'required|string|max:255',
-        'nama_ketua_jurusan' => 'required|string|max:255',
-        'username' => 'required|string|max:255',
-        'semester' => 'required|string|max:255',
-        'kelas_id' => 'required|string|max:255',
-        'peringatan' => 'required|string|in:lisan,tertulis',
-        'hari' => 'required|string|max:255',
-        'tglSurat' => 'required|date',
-        'pasal' => 'required|string|max:255',
-        'isi_pasal' => 'required|string|max:255',
-        'ttd_pelapor' => 'nullable|mimes:jpeg,png,jpg,gif,svg|max:2048'
-    ]);
+    {
+        $validatedData = $request->validate([
+            'nama_mhs' => 'required|string|max:255',
+            'nama_pelapor' => 'required|string|max:255',
+            'nama_dosen_wali' => 'required|string|max:255',
+            'nama_ketua_jurusan' => 'required|string|max:255',
+            'username' => 'required|string|max:255',
+            'semester' => 'required|string|max:255',
+            'kelas_id' => 'required|string|max:255',
+            'peringatan' => 'required|string|in:lisan,tertulis',
+            'hari' => 'required|string|max:255',
+            'tglSurat' => 'required|date',
+            'pasal' => 'required|string|max:255',
+            'isi_pasal' => 'required|string|max:255',
+            'ttd_pelapor' => 'nullable|mimes:jpeg,png,jpg,gif,svg|max:2048'
+        ]);
 
-    if ($request->hasFile('ttd_pelapor')) {
-        $file = $request->file('ttd_pelapor');
-        $filename = 'ttd_pelapor_' . time() . '.' . $file->getClientOriginalExtension();
-        $path = $file->storeAs('ttd_pelapor', $filename);
-        $validatedData['ttd_pelapor'] = str_replace('public/', 'storage/', $path);
-    }
-
-    $existingRecord = $pelanggaranAkademik->where('nama_mhs', $request->nama_mhs)->first();
-    $validatedData['jumlah_peringatan'] = $existingRecord ? $existingRecord->jumlah_peringatan + 1 : 1;
-    $validatedData['status_surat'] = 'belum selesai';
-
-    PelanggaranAkademik::create($validatedData);
-
-    return redirect('/dashboard/dosen-wali/pelanggaran-akademik');
-}
-
-public function update(Request $request, PelanggaranAkademik $pelanggaranAkademik)
-{
-    $rules = [
-        'nama_mhs' => 'required|string|max:255',
-        'nama_pelapor' => 'required|string|max:255',
-        'nama_dosen_wali' => 'required|string|max:255',
-        'nama_ketua_jurusan' => 'required|string|max:255',
-        'username' => 'required|string|max:255',
-        'semester' => 'required|string|max:255',
-        'kelas_id' => 'required|string|max:255',
-        'peringatan' => 'required|string|in:lisan,tertulis',
-        'hari' => 'required|string|max:255',
-        'tglSurat' => 'required|date',
-        'pasal' => 'required|string|max:255',
-        'isi_pasal' => 'required|string|max:255',
-        'ttd_pelapor' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-        'ttd_dosen_wali' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-    ];
-
-    $validatedData = $request->validate($rules);
-
-    if ($request->hasFile('ttd_pelapor')) {
-        if ($pelanggaranAkademik->ttd_pelapor) {
-            Storage::disk('public')->delete($pelanggaranAkademik->ttd_pelapor);
+        if ($request->hasFile('ttd_pelapor')) {
+            $file = $request->file('ttd_pelapor');
+            $filename = 'ttd_pelapor_' . time() . '.' . $file->getClientOriginalExtension();
+            $path = $file->storeAs('ttd_pelapor', $filename);
+            $validatedData['ttd_pelapor'] = str_replace('public/', 'storage/', $path);
         }
-        $file = $request->file('ttd_pelapor');
-        $filename = 'ttd_pelapor_' . time() . '.' . $file->getClientOriginalExtension();
-        $validatedData['ttd_pelapor'] = $file->storeAs('ttd_pelapor', $filename);
+
+        $existingRecord = $pelanggaranAkademik->where('nama_mhs', $request->nama_mhs)->first();
+        $validatedData['jumlah_peringatan'] = $existingRecord ? $existingRecord->jumlah_peringatan + 1 : 1;
+        $validatedData['status_surat'] = 'diproses';
+
+        PelanggaranAkademik::create($validatedData);
+
+        return redirect('/dashboard/dosen-wali/pelanggaran-akademik');
     }
 
-    if ($request->hasFile('ttd_dosen_wali')) {
-        if ($pelanggaranAkademik->ttd_dosen_wali) {
-            Storage::disk('public')->delete($pelanggaranAkademik->ttd_dosen_wali);
+    public function update(Request $request, PelanggaranAkademik $pelanggaranAkademik)
+    {
+        $rules = [
+            'nama_mhs' => 'required|string|max:255',
+            'nama_pelapor' => 'required|string|max:255',
+            'nama_dosen_wali' => 'required|string|max:255',
+            'nama_ketua_jurusan' => 'required|string|max:255',
+            'username' => 'required|string|max:255',
+            'semester' => 'required|string|max:255',
+            'kelas_id' => 'required|string|max:255',
+            'peringatan' => 'required|string|in:lisan,tertulis',
+            'hari' => 'required|string|max:255',
+            'tglSurat' => 'required|date',
+            'pasal' => 'required|string|max:255',
+            'isi_pasal' => 'required|string|max:255',
+            'ttd_pelapor' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'ttd_dosen_wali' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+        ];
+
+        $validatedData = $request->validate($rules);
+
+        if ($request->hasFile('ttd_pelapor')) {
+            if ($pelanggaranAkademik->ttd_pelapor) {
+                Storage::disk('public')->delete($pelanggaranAkademik->ttd_pelapor);
+            }
+            $file = $request->file('ttd_pelapor');
+            $filename = 'ttd_pelapor_' . time() . '.' . $file->getClientOriginalExtension();
+            $validatedData['ttd_pelapor'] = $file->storeAs('ttd_pelapor', $filename);
         }
-        $file = $request->file('ttd_dosen_wali');
-        $filename = 'ttd_dosen_wali_' . time() . '.' . $file->getClientOriginalExtension();
-        $validatedData['ttd_dosen_wali'] = $file->storeAs('ttd_dosen_wali', $filename);
+
+        if ($request->hasFile('ttd_dosen_wali')) {
+            if ($pelanggaranAkademik->ttd_dosen_wali) {
+                Storage::disk('public')->delete($pelanggaranAkademik->ttd_dosen_wali);
+            }
+            $file = $request->file('ttd_dosen_wali');
+            $filename = 'ttd_dosen_wali_' . time() . '.' . $file->getClientOriginalExtension();
+            $validatedData['ttd_dosen_wali'] = $file->storeAs('ttd_dosen_wali', $filename);
+        }
+
+        $validatedData['jumlah_peringatan'] = $request->nama_mhs === $pelanggaranAkademik->nama_mhs
+            ? $pelanggaranAkademik->jumlah_peringatan
+            : $pelanggaranAkademik->jumlah_peringatan + 1;
+
+        $pelanggaranAkademik->update($validatedData);
+
+        return redirect('/dashboard/dosen-wali/pelanggaran-akademik');
     }
-
-    $validatedData['jumlah_peringatan'] = $request->nama_mhs === $pelanggaranAkademik->nama_mhs 
-        ? $pelanggaranAkademik->jumlah_peringatan 
-        : $pelanggaranAkademik->jumlah_peringatan + 1;
-
-    $pelanggaranAkademik->update($validatedData);
-
-    return redirect('/dashboard/dosen-wali/pelanggaran-akademik');
-}
 
     public function destroy(PelanggaranAkademik $pelanggaranAkademik)
     {
@@ -178,7 +172,7 @@ public function update(Request $request, PelanggaranAkademik $pelanggaranAkademi
             'pelanggarans' => $pelanggaranAkademik,
         ])->setPaper('a4', 'portrait');
 
-        return $pdf->stream('Surat Peringatan karena Pelanggaran Peraturan Akademik_' . $pelanggaranAkademik->nama_mhs .'_'. $pelanggaranAkademik->username .'_' . '.pdf');
+        return $pdf->stream('Surat Peringatan karena Pelanggaran Peraturan Akademik_' . $pelanggaranAkademik->nama_mhs . '_' . $pelanggaranAkademik->username . '_' . '.pdf');
     }
 
     public function tolak(Request $request, $id)
@@ -198,8 +192,8 @@ public function update(Request $request, PelanggaranAkademik $pelanggaranAkademi
                 Mail::to($targetUser->email)->send(new StatusPelanggaranAkademikChangedMail($pelanggaran, 'rejected'));
             }
         } else {
-            $alasanLama = $pelanggaran->alasan ? $pelanggaran->alasan."\n" : '';
-            $alasanUpdate = $alasanLama.'Tambahan alasan dari '.$role.': '.$alasanBaru;
+            $alasanLama = $pelanggaran->alasan ? $pelanggaran->alasan . "\n" : '';
+            $alasanUpdate = $alasanLama . 'Tambahan alasan dari ' . $role . ': ' . $alasanBaru;
             $pelanggaran->alasan = $alasanUpdate;
             $pelanggaran->save();
             $targetUser = User::where('username', $pelanggaran->username)->first();
@@ -208,5 +202,21 @@ public function update(Request $request, PelanggaranAkademik $pelanggaranAkademi
             }
         }
         return response()->json(['message' => 'Pelanggaran ditolak/alasan diperbarui.']);
+    }
+
+    public function updateAlasan(Request $request, $noSurat)
+    {
+        $request->validate([
+            'alasan' => 'required|string',
+        ]);
+
+        $pelanggaran = PelanggaranAkademik::where('noSurat', $noSurat)->firstOrFail();
+        $pelanggaran->alasan = $request->alasan;
+        $pelanggaran->save();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Alasan penolakan berhasil diperbarui.'
+        ]);
     }
 }
