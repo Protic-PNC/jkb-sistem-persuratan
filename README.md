@@ -42,7 +42,7 @@ Sistem Persuratan Mahasiswa adalah aplikasi web yang dibangun dengan Laravel unt
 
 ```bash
 git clone https://github.com/Protic-PNC/jkb-sistem-persuratan.git
-cd kb-sistem-persuratan
+cd jkb-sistem-persuratan
 ```
 
 ### 2️⃣ Install Dependencies
