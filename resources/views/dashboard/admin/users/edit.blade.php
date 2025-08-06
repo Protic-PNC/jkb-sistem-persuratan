@@ -96,7 +96,7 @@
                             @enderror
                         </div>
 
-                        <div class="mb-3">
+                        <div class="mb-3" id="kelas-wrapper">
                             <label for="kelas_id" class="form-label">Kelas</label>
                             <select class="form-select @error('kelas_id') is-invalid @enderror" id="kelas_id"
                                 name="kelas_id">

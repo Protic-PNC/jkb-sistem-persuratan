@@ -109,8 +109,12 @@
             </td>
             <td>
                 <p>Cilacap, {{ \Carbon\Carbon::parse($pengundurans->tglSurat)->format('d M Y') }}<br>Pemohon</p>
-                <img src="data:image/png;base64,{{ base64_encode(file_get_contents(storage_path('app/public/' . $pengundurans->ttd_mahasiswa))) }}"
-                    alt="TTD Mahasiswa" style="width: 80px;">
+                @php
+                    $ttdData = \App\Helpers\SignatureHelper::getBase64Signature($pengundurans->ttd_mahasiswa);
+                    if ($ttdData) {
+                        echo '<img src="data:image/png;base64,' . $ttdData . '" alt="TTD Mahasiswa" style="width: 80px;">';
+                    }
+                @endphp
                 <div class="signature-line"></div>
                 {{ $pengundurans->nama_mhs }}
             </td>

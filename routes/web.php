@@ -75,8 +75,6 @@ Route::middleware('admin')->prefix('dashboard/admin')->group(function () {
     Route::post('pelanggaran-akademik/{noSurat}/edit-alasan', [AdminPelanggaranAkademikController::class, 'updateAlasan']);
 });
 
-
-
 Route::get('/dashboard/admin/pengunduran-diri/{pengunduranDiri}/cetak', [AdminPengunduranDiriController::class, 'cetak'])->middleware('admin');
 Route::resource('/dashboard/admin/pengunduran-diri', AdminPengunduranDiriController::class)->middleware('admin');
 Route::post('/dashboard/admin/pengunduran-diri/{pengunduranDiri}/tolak', [AdminPengunduranDiriController::class, 'tolak'])->middleware('admin');
@@ -127,29 +125,38 @@ Route::delete('/dashboard/mahasiswa/pelanggaran-akademik/{pelanggaranAkademik}',
 
 Route::get('/dashboard/mahasiswa/pengunduran-diri/{pengunduranDiri}/cetak', [MahasiswaPengunduranDiriController::class, 'cetak'])->middleware('mahasiswa');
 Route::resource('/dashboard/mahasiswa/pengunduran-diri', MahasiswaPengunduranDiriController::class)->middleware('mahasiswa');
+Route::get('/dashboard/mahasiswa/pengunduran-diri/{id}/upload', [MahasiswaPengunduranDiriController::class, 'uploadForm'])->middleware('mahasiswa');
+Route::post('/dashboard/mahasiswa/pengunduran-diri/{id}/upload', [MahasiswaPengunduranDiriController::class, 'upload'])->middleware('mahasiswa');
 
 Route::get('/dashboard/dosen-wali', [DosenWaliDashboardController::class, 'index'])->middleware('dosen-wali');
 Route::get('/dashboard/dosen-wali/user/get-mahasiswa-by-npm', [DosenWaliUserController::class, 'getMahasiswaByNPM'])->middleware('dosen-wali');
 Route::get('/dashboard/dosen-wali/user/get-dosen-wali', [DosenWaliUserController::class, 'getDosenWali'])->middleware('dosen-wali');
 Route::get('/dashboard/dosen-wali/pelanggaran-akademik/{pelanggaranAkademik}/cetak', [DosenWaliPelanggaranAkademikController::class, 'cetak'])->middleware('dosen-wali');
 Route::resource('/dashboard/dosen-wali/pelanggaran-akademik', DosenWaliPelanggaranAkademikController::class)->middleware('dosen-wali');
-Route::post('/dashboard/dosen-wali/pelanggaran-akademik/{pelanggaranAkademik}/tolak', [DosenWaliPengunduranDiriController::class, 'tolak'])->middleware('dosen-wali');
-Route::post('/dashboard/dosen-wali/pelanggaran-akademik/{pelanggaranAkademik}/setujui', [DosenWaliPengunduranDiriController::class, 'setujui'])->middleware('dosen-wali');
+Route::post('/dashboard/dosen-wali/pelanggaran-akademik/{pelanggaranAkademik}/tolak', [DosenWaliPelanggaranAkademikController::class, 'tolak'])->middleware('dosen-wali');
+Route::post('/dashboard/dosen-wali/pelanggaran-akademik/{pelanggaranAkademik}/setujui', [DosenWaliPelanggaranAkademikController::class, 'setujui'])->middleware('dosen-wali');
 Route::post('/dashboard/dosen-wali/pelanggaran-akademik/{noSurat}/edit-alasan', [DosenWaliPelanggaranAkademikController::class, 'updateAlasan'])->middleware('dosen-wali');
 
 Route::get('/dashboard/dosen-wali/pengunduran-diri/{pengunduranDiri}/cetak', [DosenWaliPengunduranDiriController::class, 'cetak'])->middleware('dosen-wali');
 Route::resource('/dashboard/dosen-wali/pengunduran-diri', DosenWaliPengunduranDiriController::class)->middleware('dosen-wali');
-Route::post('/dashboard/dosen-wali/pengunduran-diri/{pengunduranDiri}/tolak', [DosenWaliPengunduranDiriController::class, 'tolak'])->middleware('dosen-wali');
+Route::post('/dashboard/dosen-wali/pengunduran-diri/{id}/tolak', [DosenWaliPengunduranDiriController::class, 'tolak'])->middleware('dosen-wali');
+Route::post('/dashboard/dosen-wali/pengunduran-diri/{id}/setujui', [DosenWaliPengunduranDiriController::class, 'setujui'])->middleware('dosen-wali');
+Route::post('/dashboard/dosen-wali/pengunduran-diri/{noSurat}/alasan', [DosenWaliPengunduranDiriController::class, 'updateAlasan'])->middleware('dosen-wali');
 
 Route::get('/dashboard/ketua-jurusan', [KetuaJurusanDashboardController::class, 'index'])->middleware('ketua-jurusan');
 Route::get('/dashboard/ketua-jurusan/user/get-mahasiswa-by-npm', [KetuaJurusanUserController::class, 'getMahasiswaByNPM'])->middleware('ketua-jurusan');
 Route::get('/dashboard/ketua-jurusan/user/get-dosen-wali', [KetuaJurusanUserController::class, 'getDosenWali'])->middleware('ketua-jurusan');
 Route::get('/dashboard/ketua-jurusan/pelanggaran-akademik/{pelanggaranAkademik}/cetak', [KetuaJurusanPelanggaranAkademikController::class, 'cetak'])->middleware('ketua-jurusan');
 Route::resource('/dashboard/ketua-jurusan/pelanggaran-akademik', KetuaJurusanPelanggaranAkademikController::class)->middleware('ketua-jurusan');
+Route::post('/dashboard/ketua-jurusan/pelanggaran-akademik/{pelanggaranAkademik}/setujui', [KetuaJurusanPelanggaranAkademikController::class, 'setujui'])->middleware('ketua-jurusan');
+Route::post('/dashboard/ketua-jurusan/pelanggaran-akademik/{pelanggaranAkademik}/tolak', [KetuaJurusanPelanggaranAkademikController::class, 'tolak'])->middleware('ketua-jurusan');
+Route::post('/dashboard/ketua-jurusan/pelanggaran-akademik/{noSurat}/edit-alasan', [KetuaJurusanPelanggaranAkademikController::class, 'updateAlasan'])->middleware('ketua-jurusan');
 
 Route::get('/dashboard/ketua-jurusan/pengunduran-diri/{pengunduranDiri}/cetak', [KetuaJurusanPengunduranDiriController::class, 'cetak'])->middleware('ketua-jurusan');
 Route::resource('/dashboard/ketua-jurusan/pengunduran-diri', KetuaJurusanPengunduranDiriController::class)->middleware('ketua-jurusan');
-Route::post('/dashboard/ketua-jurusan/pengunduran-diri/{pengunduranDiri}/tolak', [KetuaJurusanPengunduranDiriController::class, 'tolak'])->middleware('ketua-jurusan');
+Route::post('/dashboard/ketua-jurusan/pengunduran-diri/{id}/tolak', [KetuaJurusanPengunduranDiriController::class, 'tolak'])->middleware('ketua-jurusan');
+Route::post('/dashboard/ketua-jurusan/pengunduran-diri/{id}/setujui', [KetuaJurusanPengunduranDiriController::class, 'setujui'])->middleware('ketua-jurusan');
+Route::post('/dashboard/ketua-jurusan/pengunduran-diri/{noSurat}/alasan', [KetuaJurusanPengunduranDiriController::class, 'updateAlasan'])->middleware('ketua-jurusan');
 
 Route::get('/dashboard/bagian-keuangan', [BagianKeuanganDashboardController::class, 'index'])->middleware('bagian-keuangan');
 Route::get('/dashboard/bagian-keuangan/pengunduran-diri/{pengunduranDiri}/cetak', [BagianKeuanganPengunduranDiriController::class, 'cetak'])->middleware('bagian-keuangan');
@@ -160,3 +167,15 @@ Route::get('/dashboard/bagian-perpustakaan', [BagianPerpustakaanDashboardControl
 Route::get('/dashboard/bagian-perpustakaan/pengunduran-diri/{pengunduranDiri}/cetak', [BagianPerpustakaanPengunduranDiriController::class, 'cetak'])->middleware('bagian-perpustakaan');
 Route::resource('/dashboard/bagian-perpustakaan/pengunduran-diri', BagianPerpustakaanPengunduranDiriController::class)->middleware('bagian-perpustakaan');
 Route::post('/dashboard/bagian-perpustakaan/pengunduran-diri/{pengunduranDiri}/tolak', [BagianPerpustakaanPengunduranDiriController::class, 'tolak'])->middleware('bagian-perpustakaan');
+
+Route::middleware('admin')->prefix('dashboard/admin')->group(function () {
+    Route::resource('pengunduran-diri', AdminPengunduranDiriController::class);
+    Route::get('pengunduran-diri/{pengunduranDiri}/cetak', [AdminPengunduranDiriController::class, 'cetak']);
+    Route::get('pengunduran-diri/{id}/upload', [AdminPengunduranDiriController::class, 'uploadForm']);
+    Route::post('pengunduran-diri/{id}/upload', [AdminPengunduranDiriController::class, 'upload']);
+    Route::post('pengunduran-diri/{id}/setujui', [AdminPengunduranDiriController::class, 'setujui']);
+    Route::post('pengunduran-diri/{id}/tolak', [AdminPengunduranDiriController::class, 'tolak']);
+    Route::post('pengunduran-diri/{noSurat}/alasan', [AdminPengunduranDiriController::class, 'updateAlasan']);
+    Route::post('pengunduran-diri/{noSurat}/reminder', [AdminPengunduranDiriController::class, 'sendReminder']);
+    Route::post('pengunduran-diri/reset', [AdminPengunduranDiriController::class, 'resetAll']);
+});

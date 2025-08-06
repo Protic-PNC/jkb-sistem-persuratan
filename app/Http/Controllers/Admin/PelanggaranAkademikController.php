@@ -99,29 +99,50 @@ class PelanggaranAkademikController extends Controller
             ->first();
         $admins = User::where('role_id', 1)->get();
 
-        // Send email to student
-        if ($student) {
-            Mail::to($student->email)->send((new PeringatanPelanggaranAkademikMail($pelanggaranAkademik))->with(["recipientName" => $student->nama_pemilik ?? $student->nama_mhs ?? $student->name]));
+        // Track which roles the current user has (they might have multiple)
+        $currentUser = Auth::user();
+        $currentUserRoles = [];
+        
+        // If current user is admin, add that role
+        if ($currentUser->role_id == 1) {
+            $currentUserRoles[] = 'admin';
         }
         
-        // Send email to reporter
-        if ($reporter) {
-            Mail::to($reporter->email)->send((new PeringatanPelanggaranAkademikMail($pelanggaranAkademik))->with(["recipientName" => $reporter->nama_pemilik ?? $reporter->name]));
+        // If current user is the reporter, add that role
+        if ($reporter && $reporter->id === $currentUser->id) {
+            $currentUserRoles[] = 'reporter';
+        }
+
+        // Send email to student
+        if ($student) {
+            Mail::to($student->email)->send((new PeringatanPelanggaranAkademikMail($pelanggaranAkademik))
+                ->with(["recipientName" => $student->nama_pemilik ?? $student->nama_mhs ?? $student->name]));
+        }
+        
+        // Send email to reporter (skip if current user is the reporter)
+        if ($reporter && !in_array('reporter', $currentUserRoles)) {
+            Mail::to($reporter->email)->send((new PeringatanPelanggaranAkademikMail($pelanggaranAkademik))
+                ->with(["recipientName" => $reporter->nama_pemilik ?? $reporter->name]));
         }
 
         // Send email to academic advisor
         if ($academicAdvisor) {
-            Mail::to($academicAdvisor->email)->send((new PeringatanPelanggaranAkademikMail($pelanggaranAkademik))->with(["recipientName" => $academicAdvisor->nama_pemilik ?? $academicAdvisor->name]));
+            Mail::to($academicAdvisor->email)->send((new PeringatanPelanggaranAkademikMail($pelanggaranAkademik))
+                ->with(["recipientName" => $academicAdvisor->nama_pemilik ?? $academicAdvisor->name]));
         }
 
         // Send email to department head
         if ($departmentHead) {
-            Mail::to($departmentHead->email)->send((new PeringatanPelanggaranAkademikMail($pelanggaranAkademik))->with(["recipientName" => $departmentHead->nama_pemilik ?? $departmentHead->name]));
+            Mail::to($departmentHead->email)->send((new PeringatanPelanggaranAkademikMail($pelanggaranAkademik))
+                ->with(["recipientName" => $departmentHead->nama_pemilik ?? $departmentHead->name]));
         }
         
-        // Send email to all admins
+        // Send email to all admins (skip if current user is an admin)
         foreach ($admins as $admin) {
-            Mail::to($admin->email)->send((new PeringatanPelanggaranAkademikMail($pelanggaranAkademik))->with(["recipientName" => $admin->nama_pemilik ?? $admin->name]));
+            if (!in_array('admin', $currentUserRoles) || $admin->id !== $currentUser->id) {
+                Mail::to($admin->email)->send((new PeringatanPelanggaranAkademikMail($pelanggaranAkademik))
+                    ->with(["recipientName" => $admin->nama_pemilik ?? $admin->name]));
+            }
         }
 
         return redirect('/dashboard/admin/pelanggaran-akademik');
@@ -212,6 +233,20 @@ class PelanggaranAkademikController extends Controller
             ->first();
         $admins = User::where('role_id', 1)->get();
         
+        // Track which roles the current user has (they might have multiple)
+        $currentUser = Auth::user();
+        $currentUserRoles = [];
+        
+        // If current user is admin, add that role
+        if ($currentUser->role_id == 1) {
+            $currentUserRoles[] = 'admin';
+        }
+        
+        // If current user is the reporter, add that role
+        if ($reporter && $reporter->id === $currentUser->id) {
+            $currentUserRoles[] = 'reporter';
+        }
+        
         // Send notification emails about the changes
         $changeMessage = "Perubahan telah dibuat pada dokumen pelanggaran akademik. Status persetujuan/penolakan telah direset.";
         if ($originalStatus === 'approved' || $originalStatus === 'rejected') {
@@ -227,8 +262,8 @@ class PelanggaranAkademikController extends Controller
             ]));
         }
         
-        // Send to reporter
-        if ($reporter) {
+        // Send to reporter (skip if current user is the reporter)
+        if ($reporter && !in_array('reporter', $currentUserRoles)) {
             Mail::to($reporter->email)->send(new StatusPelanggaranAkademikChangedMail($pelanggaranAkademik, 'data_changed', [
                 'recipientName' => $reporter->nama_pemilik ?? $reporter->name,
                 'recipientRole' => 'pelapor',
@@ -254,13 +289,15 @@ class PelanggaranAkademikController extends Controller
             ]));
         }
         
-        // Send to all admins
+        // Send to all admins (skip if current user is an admin)
         foreach ($admins as $admin) {
-            Mail::to($admin->email)->send(new StatusPelanggaranAkademikChangedMail($pelanggaranAkademik, 'data_changed', [
-                'recipientName' => $admin->nama_pemilik ?? $admin->name,
-                'recipientRole' => 'admin',
-                'changeMessage' => $changeMessage
-            ]));
+            if (!in_array('admin', $currentUserRoles) || $admin->id !== $currentUser->id) {
+                Mail::to($admin->email)->send(new StatusPelanggaranAkademikChangedMail($pelanggaranAkademik, 'data_changed', [
+                    'recipientName' => $admin->nama_pemilik ?? $admin->name,
+                    'recipientRole' => 'admin',
+                    'changeMessage' => $changeMessage
+                ]));
+            }
         }
 
         return redirect('/dashboard/admin/pelanggaran-akademik');
@@ -429,6 +466,10 @@ class PelanggaranAkademikController extends Controller
             
             // Send to all admins
             foreach ($admins as $admin) {
+                // Skip sending email to the current admin
+                if ($admin->id === Auth::id()) {
+                    continue;
+                }
                 Mail::to($admin->email)->send(new StatusPelanggaranAkademikChangedMail($pelanggaran, 'approved', [
                     'recipientName' => $admin->nama_pemilik ?? $admin->name,
                     'recipientRole' => 'admin'
@@ -659,6 +700,10 @@ class PelanggaranAkademikController extends Controller
         if (!$pelanggaran->approved_by_admin && !$pelanggaran->rejected_by_admin) {
             $admins = User::where('role_id', 1)->get();
             foreach ($admins as $admin) {
+                // Skip sending email to the current admin
+                if ($admin->id === Auth::id()) {
+                    continue;
+                }
                 Mail::to($admin->email)->send(
                     new StatusPelanggaranAkademikChangedMail($pelanggaran, 'reminder_approval', [
                         'nama' => $admin->nama_pemilik ?? $admin->name,
@@ -732,7 +777,48 @@ class PelanggaranAkademikController extends Controller
         ]);
 
         $pelanggaran = PelanggaranAkademik::where('noSurat', $noSurat)->firstOrFail();
-        $pelanggaran->alasan = $request->alasan;
+        $user = Auth::user();
+        $role = ucfirst(strtolower($user->role->nama_role ?? 'User'));
+
+        // Format the alasan with the role prefix if not already present
+        $alasanBaru = trim($request->alasan);
+        if (!empty($alasanBaru) && !str_starts_with(strtolower($alasanBaru), strtolower($role . ':'))) {
+            $alasanBaru = $role . ': ' . $alasanBaru;
+        }
+        
+        // Remove previous reasons from this same user/role and add the new one
+        $alasanLama = $pelanggaran->alasan ?? '';
+        $alasanLines = explode("\n", $alasanLama);
+        $filteredAlasanLines = [];
+        
+        // Keep only reasons from other roles
+        foreach ($alasanLines as $line) {
+            $line = trim($line);
+            if (empty($line)) continue;
+            
+            // Skip lines that start with this role's label (case insensitive)
+            if (!preg_match('/^' . preg_quote($role, '/') . '\s*:/i', $line)) {
+                $filteredAlasanLines[] = $line;
+            }
+        }
+        
+        // Add the new reason if not empty
+        if (!empty($alasanBaru)) {
+            $filteredAlasanLines[] = $alasanBaru;
+        }
+        
+        // Combine all reasons with line breaks
+        $newAlasan = !empty($filteredAlasanLines) ? implode("\n", $filteredAlasanLines) : null;
+        
+        // Check if there's any change in the alasan
+        if ($pelanggaran->alasan === $newAlasan) {
+            return response()->json([
+                'status' => 'info',
+                'message' => 'Tidak ada perubahan yang dilakukan pada alasan.'
+            ]);
+        }
+        
+        $pelanggaran->alasan = $newAlasan;
         $pelanggaran->save();
 
         return response()->json([

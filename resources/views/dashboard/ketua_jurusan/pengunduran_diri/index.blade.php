@@ -1,21 +1,53 @@
 @extends('dashboard.ketua_jurusan.layouts.main')
 
 @section('container')
-    <!-- Sale & Revenue Start -->
     <div class="container-fluid pt-4 px-4">
         <div class="row g-4">
-            <div class="col-sm-6 col-xl-5">
-                <div class="bg-light rounded d-flex align-items-center justify-content-between p-4">
-                    <i class="fa fa-chart-line fa-3x text-primary me-3"></i>
+            <!-- Total Surat Pengunduran Diri -->
+            <div class="col-6 col-md-3 col-xl-3">
+                <div class="bg-light rounded d-flex align-items-center justify-content-start gap-3 p-4">
+                    <i class="fa fa-file-alt fa-3x text-primary"></i>
                     <div class="ms-3">
-                        <p class="mb-2">Total Surat Permohonan Pengunduran Diri</p>
+                        <p class="mb-2">Total Surat</p>
                         <h6 class="mb-0">{{ $totalPengunduranDiri }}</h6>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Surat Belum Selesai -->
+            <div class="col-6 col-md-3 col-xl-3">
+                <div class="bg-light rounded d-flex align-items-center justify-content-start gap-3 p-4">
+                    <i class="fa fa-clock fa-3x text-warning"></i>
+                    <div class="ms-3">
+                        <p class="mb-2">Diproses</p>
+                        <h6 class="mb-0">{{ $totalDiproses ?? 0 }}</h6>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Surat Selesai -->
+            <div class="col-6 col-md-3 col-xl-3">
+                <div class="bg-light rounded d-flex align-items-center justify-content-start gap-3 p-4">
+                    <i class="fa fa-check-circle fa-3x text-success"></i>
+                    <div class="ms-3">
+                        <p class="mb-2">Disetujui</p>
+                        <h6 class="mb-0">{{ $totalDisetujui ?? 0 }}</h6>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Surat Ditolak -->
+            <div class="col-6 col-md-3 col-xl-3">
+                <div class="bg-light rounded d-flex align-items-center justify-content-start gap-3 p-4">
+                    <i class="fa fa-times-circle fa-3x text-danger"></i>
+                    <div class="ms-3">
+                        <p class="mb-2">Ditolak</p>
+                        <h6 class="mb-0">{{ $totalDitolak ?? 0 }}</h6>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    <!-- Sale & Revenue End -->
 
     <!-- Recent Sales Start -->
     <div class="container-fluid mb-4 pt-4 px-3">

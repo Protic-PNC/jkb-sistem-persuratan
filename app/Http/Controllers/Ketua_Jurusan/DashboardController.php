@@ -21,6 +21,12 @@ class DashboardController extends Controller
         $pelanggaranAkademikSemuaKelas = PelanggaranAkademik::all();
         $pengunduranDiriSemuaKelas = PengunduranDiri::all();
 
+        // Get pengunduran diri statistics
+        $totalPengunduranDiri = $pengunduranDiriSemuaKelas->count();
+        $totalDiproses = $pengunduranDiriSemuaKelas->whereIn('status_surat', ['belum selesai', 'diproses'])->count();
+        $totalDisetujui = $pengunduranDiriSemuaKelas->where('status_surat', 'selesai')->count();
+        $totalDitolak = $pengunduranDiriSemuaKelas->where('status_surat', 'ditolak')->count();
+
         return view('dashboard.ketua_jurusan.index', [
             'title' => 'Dashboard Ketua Jurusan',
             'pelanggaranKelas' => $pelanggaranAkademikSemuaKelas,
@@ -28,7 +34,10 @@ class DashboardController extends Controller
             'pelanggarans' => $pelanggaranKajurs,
             'totalPelanggaranAkademikKajur' => $pelanggaranKajurs->count(),
             'totalPelanggaranAkademikSemuaKelas' => $pelanggaranAkademikSemuaKelas->count(),
-            'totalPengunduranSemuaKelas' => $pengunduranDiriSemuaKelas->count()
+            'totalPengunduranDiri' => $totalPengunduranDiri,
+            'totalDiproses' => $totalDiproses,
+            'totalDisetujui' => $totalDisetujui,
+            'totalDitolak' => $totalDitolak
         ]);
     }
 }

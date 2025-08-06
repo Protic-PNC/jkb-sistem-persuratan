@@ -5,30 +5,20 @@
     <div class="container-fluid pt-4 px-4">
         <div class="row g-4">
             <div class="col-sm-6 col-xl-5">
-                <div class="bg-light rounded d-flex align-items-center justify-content-between p-4">
-                    <i class="fa fa-chart-bar fa-3x text-primary me-3"></i>
+                <div class="bg-light rounded d-flex flex-row align-items-center p-4">
+                    <i class="fa fa-file-alt fa-3x text-primary me-3"></i>
                     <div class="ms-3">
-                        <p class="mb-2">Total Surat Peringatan Pelanggaran Peraturan Akademik Semua Kelas</p>
-                        <h6 class="mb-0">{{ $totalPelanggaranAkademikSemuaKelas }}</h6>
+                        <p class="mb-2">Total Surat Pengunduran Diri</p>
+                        <h6 class="mb-0">{{ $totalPengunduranDiri ?? 0 }}</h6>
                     </div>
                 </div>
             </div>
             <div class="col-sm-6 col-xl-5">
-                <div class="bg-light rounded d-flex align-items-center justify-content-between p-4">
-                    <i class="fa fa-chart-bar fa-3x text-primary me-3"></i>
+                <div class="bg-light rounded d-flex flex-row align-items-center p-4">
+                    <i class="fa fa-file-alt fa-3x text-primary me-3"></i>
                     <div class="ms-3">
-                        <p class="mb-2">Total Surat Peringatan karena Pelanggaran Peraturan Akademik Ketua Jurusan</p>
-                        <h6 class="mb-0">{{ $totalPelanggaranAkademikKajur }}</h6>
-                    </div>
-                </div>
-            </div>
-            <div class="col-sm-6 col-xl-5">
-                <div class="bg-light rounded d-flex align-items-center justify-content-between p-4">
-                    <i class="fa fa-chart-bar fa-3x text-primary me-3"></i>
-                    <div class="ms-3">
-                        <p class="mb-2">Total Surat Permohonan Pengunduran Diri Semua Kelas
-                        </p>
-                        {{-- <h6 class="mb-0">{{ $total }}</h6> --}}
+                        <p class="mb-2">Total Surat Peringatan Pelanggaran Peraturan Akademik</p>
+                        <h6 class="mb-0">{{ $totalDiproses + $totalDisetujui + $totalDitolak ?? 0 }}</h6>
                     </div>
                 </div>
             </div>
@@ -40,7 +30,7 @@
     <div class="container-fluid pt-4 px-4">
         <div class="bg-light text-center rounded p-4">
             <div class="d-flex align-items-center justify-content-between mb-4">
-                <h6 class="mb-0">Daftar Surat Peringatan Pelanggaran Akademik Semua Kelas Terbaru</h6>
+                <h6 class="mb-0">Daftar Surat Peringatan Pelanggaran Peraturan Akademik Semua Kelas Terbaru</h6>
                 <a href="/dashboard/ketua-jurusan/pelanggaran-akademik">Lihat Semua</a>
             </div>
             <div class="table-responsive">
@@ -66,7 +56,10 @@
             </div>
         </div>
     </div>
-    <div class="container-fluid mb-4 pt-4 px-4">
+    <!-- Recent Sales End -->
+    
+    <!-- Recent Sales Start -->
+    <div class="container-fluid pt-4 px-4">
         <div class="bg-light text-center rounded p-4">
             <div class="d-flex align-items-center justify-content-between mb-4">
                 <h6 class="mb-0">Daftar Surat Peringatan Pelanggaran Akademik Ketua Jurusan Terbaru</h6>
@@ -95,6 +88,9 @@
             </div>
         </div>
     </div>
+    <!-- Recent Sales End -->
+    
+    <!-- Recent Sales Start -->
     <div class="container-fluid mb-4 pt-4 px-4">
         <div class="bg-light text-center rounded p-4">
             <div class="d-flex align-items-center justify-content-between mb-4">

@@ -1,66 +1,250 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# 📋 Sistem Persuratan Mahasiswa
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+<div align="center">
+  <img src="https://laravel.com/img/logomark.min.svg" alt="Laravel" width="50" height="52">
+  <h3>Sistem Manajemen Persuratan untuk Mahasiswa</h3>
+  <p>Aplikasi web berbasis Laravel untuk mengelola surat pernyataan magang, pelanggaran akademik, dan pengunduran diri dengan alur persetujuan multi-level.</p>
+  
+  ![Laravel](https://img.shields.io/badge/Laravel-FF2D20?style=for-the-badge&logo=laravel&logoColor=white)
+  ![PHP](https://img.shields.io/badge/PHP-777BB4?style=for-the-badge&logo=php&logoColor=white)
+  ![MySQL](https://img.shields.io/badge/MySQL-005C84?style=for-the-badge&logo=mysql&logoColor=white)
+</div>
 
-## About Laravel
+---
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## 🎯 Tentang Proyek
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+Sistem Persuratan Mahasiswa adalah aplikasi web yang dibangun dengan Laravel untuk mengelola berbagai jenis surat administratif mahasiswa. Sistem ini menyediakan alur persetujuan yang terstruktur dengan melibatkan berbagai peran pengguna dalam institusi pendidikan.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+### ✨ Fitur Utama
 
-## Learning Laravel
+-   📄 **Pernyataan Magang** - Pengajuan dan persetujuan surat pernyataan magang
+-   ⚠️ **Pelanggaran Akademik** - Pencatatan dan pengelolaan pelanggaran dengan notifikasi email
+-   🎓 **Pengunduran Diri** - Sistem pengajuan dengan alur persetujuan multi-departemen
+-   👥 **Multi-Role System** - 6 peran pengguna dengan hak akses berbeda
+-   📊 **Dashboard** - Monitoring dan pelaporan terintegrasi
+-   🖨️ **Print System** - Cetak surat dalam format yang sesuai
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+---
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+## 🛠️ Persyaratan Sistem
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+| Komponen       | Versi Minimum                           |
+| -------------- | --------------------------------------- |
+| **PHP**        | 8.2+                                    |
+| **Composer**   | Latest                                  |
+| **Database**   | MySQL 8.0+ / PostgreSQL 13+ / SQLite 3+ |
+| **Web Server** | Apache 2.4+ / Nginx 1.18+               |
 
-## Laravel Sponsors
+---
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+## 🚀 Instalasi
 
-### Premium Partners
+### 1️⃣ Clone Repository
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+```bash
+git clone https://github.com/Protic-PNC/jkb-sistem-persuratan.git
+cd jkb-sistem-persuratan
+```
 
-## Contributing
+### 2️⃣ Install Dependencies
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+```bash
+composer install
+```
 
-## Code of Conduct
+### 3️⃣ Konfigurasi Environment
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+```bash
+cp .env.example .env
+php artisan key:generate
+```
 
-## Security Vulnerabilities
+### 4️⃣ Setup Database
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+Edit file `.env` dan sesuaikan konfigurasi database:
 
-## License
+```env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=nama_database
+DB_USERNAME=username
+DB_PASSWORD=password
+```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+### 📧 Konfigurasi Email (Opsional)
+
+Untuk mengaktifkan fitur notifikasi email, tambahkan konfigurasi SMTP di file `.env`:
+
+```env
+MAIL_MAILER=smtp
+MAIL_HOST=smtp.gmail.com
+MAIL_PORT=587
+MAIL_USERNAME=your-email@gmail.com
+MAIL_PASSWORD=your-app-password
+MAIL_ENCRYPTION=tls
+MAIL_FROM_ADDRESS="your-email@gmail.com"
+MAIL_FROM_NAME="Politeknik Negeri Cilacap"
+```
+
+> **📝 Catatan untuk Gmail:**
+>
+> -   Gunakan **App Password** bukan password akun Gmail biasa
+> -   Aktifkan 2-Factor Authentication di akun Gmail
+> -   Generate App Password di: [Google Account Settings](https://myaccount.google.com/apppasswords)
+
+### 5️⃣ Migrasi & Seeding
+
+```bash
+php artisan migrate --seed
+```
+
+### 6️⃣ Storage Link
+
+```bash
+php artisan storage:link
+```
+
+### 7️⃣ Jalankan Server
+
+```bash
+php artisan serve
+```
+
+🎉 **Aplikasi berhasil berjalan di:** `http://localhost:8000`
+
+---
+
+## 🔐 Akun Default
+
+Setelah seeding berhasil, gunakan akun berikut untuk login Admin:
+
+```
+Username: 123
+Password: 123
+```
+
+---
+
+## 📧 Konfigurasi Email Tambahan
+
+### Gmail SMTP Setup
+
+Sistem ini menggunakan Gmail SMTP untuk pengiriman notifikasi email. Berikut langkah-langkah konfigurasinya:
+
+#### 1. Setup Gmail App Password
+
+1. **Aktifkan 2-Factor Authentication** di akun Gmail Anda
+2. Kunjungi [Google App Passwords](https://myaccount.google.com/apppasswords)
+3. Pilih "Mail" dan generate password khusus aplikasi
+4. Gunakan password yang dihasilkan sebagai `MAIL_PASSWORD`
+
+#### 2. Konfigurasi Environment
+
+```env
+MAIL_MAILER=smtp
+MAIL_HOST=smtp.gmail.com
+MAIL_PORT=587
+MAIL_USERNAME=your-email@gmail.com
+MAIL_PASSWORD=generated-app-password
+MAIL_ENCRYPTION=tls
+MAIL_FROM_ADDRESS="your-email@gmail.com"
+MAIL_FROM_NAME="Politeknik Negeri Cilacap"
+```
+
+#### 3. Test Email Configuration
+
+Jalankan command berikut untuk memastikan email berfungsi dengan baik:
+
+```bash
+php artisan tinker
+```
+
+Kemudian jalankan:
+
+```php
+Mail::raw('Test email dari Sistem Persuratan', function($message) {
+    $message->to('test@example.com')
+            ->subject('Test Email');
+});
+```
+
+## 👥 Manajemen Peran & Hak Akses
+
+<details>
+<summary><b>🔧 Admin (Role ID: 1)</b></summary>
+
+-   ✅ Mengelola semua pengguna (CRUD)
+-   ✅ Mengelola kelas
+-   ✅ Mengelola semua jenis surat
+-   ✅ Approve/Reject semua surat
+-   ✅ Cetak surat
+-   ✅ Kirim reminder
+-   ✅ Akses log sistem
+</details>
+
+<details>
+<summary><b>🎓 Mahasiswa (Role ID: 2)</b></summary>
+
+-   ✅ Ajukan surat pernyataan magang
+-   ✅ Lihat pelanggaran akademik
+-   ✅ Ajukan surat pengunduran diri
+-   ✅ Upload dokumen pendukung
+-   ✅ Cetak surat
+-   ✅ Edit profil pribadi
+</details>
+
+<details>
+<summary><b>👨‍💼 Ketua Jurusan (Role ID: 3)</b></summary>
+
+-   ✅ Approve/Reject pelanggaran akademik
+-   ✅ Approve/Reject pengunduran diri
+-   ✅ Berikan alasan persetujuan/penolakan
+-   ✅ Cetak surat
+</details>
+
+<details>
+<summary><b>👨‍🏫 Dosen Wali (Role ID: 4)</b></summary>
+
+-   ✅ Approve/Reject pelanggaran akademik
+-   ✅ Approve/Reject pengunduran diri
+-   ✅ Berikan alasan persetujuan/penolakan
+-   ✅ Cetak surat
+</details>
+
+<details>
+<summary><b>💰 Bagian Keuangan (Role ID: 5)</b></summary>
+
+-   ✅ Approve/Reject pengunduran diri (berdasarkan status keuangan)
+-   ✅ Cetak surat pengunduran diri
+</details>
+
+<details>
+<summary><b>📚 Bagian Perpustakaan (Role ID: 6)</b></summary>
+
+-   ✅ Approve/Reject pengunduran diri (berdasarkan status peminjaman)
+-   ✅ Cetak surat pengunduran diri
+</details>
+
+---
+
+## 📋 Alur Persetujuan
+
+### 🔄 Pernyataan Magang
+
+```
+Mahasiswa → Admin → ✅ Approved
+```
+
+### ⚠️ Pelanggaran Akademik
+
+```
+Admin → Dosen Wali → Ketua Jurusan → ✅ Approved
+```
+
+### 🎓 Pengunduran Diri
+
+```
+Mahasiswa → Dosen Wali → Ketua Jurusan → Bagian Keuangan → Bagian Perpustakaan → ✅ Approved
+```

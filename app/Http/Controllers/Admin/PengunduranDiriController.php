@@ -20,12 +20,22 @@ class PengunduranDiriController extends Controller
     public function index(Request $request)
     {
         $pengundurans = PengunduranDiri::all();
+        $totalPengunduranDiri = PengunduranDiri::count();
+        $totalDiproses = PengunduranDiri::where('status_surat', 'belum selesai')->orWhere('status_surat', 'diproses')->count();
+        $totalDisetujui = PengunduranDiri::where('status_surat', 'selesai')->count();
+        $totalDitolak = PengunduranDiri::where('status_surat', 'ditolak')->count();
 
-        $totalPengunduranDiri = $pengundurans->count();
+        if ($request->ajax()) {
+            return view('dashboard.admin.pengunduran_diri.table', compact('pengundurans'))->render();
+        }
+
         return view('dashboard.admin.pengunduran_diri.index', [
             'title' => 'Permohonan Pengunduran Diri',
             'pengundurans' => $pengundurans,
             'totalPengunduranDiri' => $totalPengunduranDiri,
+            'totalDiproses' => $totalDiproses,
+            'totalDisetujui' => $totalDisetujui,
+            'totalDitolak' => $totalDitolak,
         ]);
     }
 
@@ -96,14 +106,12 @@ class PengunduranDiriController extends Controller
             $validatedData['ttd_ketua_jurusan'] = str_replace('public/', 'storage/', $path);
         }
 
-        $validatedData['status_surat'] = ($request->hasFile('ttd_mahasiswa') &&
-            $request->hasFile('ttd_dosen_wali') &&
-            $request->hasFile('ttd_ketua_jurusan')) ? 'selesai' : 'belum selesai';
+        $validatedData['status_surat'] = 'diproses';
 
         $pengunduranDiri = PengunduranDiri::create($validatedData);
         $user = User::where('username', $request->username)->first();
 
-        if ($pengunduranDiri->status_surat == 'belum selesai' && $user) {
+        if ($user) {
             $message = "Halo {$pengunduranDiri->nama_mhs}, terdapat Surat Permohonan Pengunduran Diri No. Surat: {$pengunduranDiri->noSurat} untuk Anda. Harap segera untuk diproses pada website berikut http://127.0.0.1:8000";
             $no_telp = $user->no_telp;
 
@@ -131,38 +139,11 @@ class PengunduranDiriController extends Controller
             Log::info('Email notification sent successfully upon creation.', [
                 'email' => $user->email
             ]);
-        } else if ($pengunduranDiri->status_surat == 'selesai' && $user) {
-
-            $message = "Halo {$pengunduranDiri->nama_mhs}, Surat Permohonan Pengunduran Diri dengan No. Surat: {$pengunduranDiri->noSurat} telah selesai.";
-            $no_telp = $user->no_telp;
-
-            $response = Http::withHeaders([
-                'Authorization' => 'GExfSpLCzErZt59W5DCZ',
-            ])->post('https://api.fonnte.com/send', [
-                'target' => $no_telp,
-                'message' => $message,
-                'countryCode' => '62',
-            ]);
-
-            if ($response->successful()) {
-                Log::info('WhatsApp message sent successfully.', [
-                    'no_telp' => $no_telp,
-                    'response' => $response->body(),
-                ]);
-                Mail::to($user->email)->send(new PermohonanPengunduranDiriMail($pengunduranDiri));
-                Log::info('Email sent successfully.', [
-                    'email' => $user->email
-                ]);
-            } else {
-                Log::error('Failed to send WhatsApp message.', [
-                    'no_telp' => $no_telp,
-                    'response' => $response->body(),
-                ]);
-            }
         }
 
         return redirect('/dashboard/admin/pengunduran-diri');
     }
+    
     public function update(Request $request, PengunduranDiri $pengunduranDiri)
     {
         $rules = [
@@ -183,6 +164,7 @@ class PengunduranDiriController extends Controller
         ];
 
         $validatedData = $request->validate($rules);
+        
         if ($request->hasFile('ttd_mahasiswa')) {
             if ($pengunduranDiri->ttd_mahasiswa) {
                 Storage::disk('public')->delete($pengunduranDiri->ttd_mahasiswa);
@@ -212,18 +194,18 @@ class PengunduranDiriController extends Controller
 
         $statusSebelumnya = $pengunduranDiri->status_surat;
 
-        $validatedData['status_surat'] = (
-            ($pengunduranDiri->ttd_mahasiswa || $request->hasFile('ttd_mahasiswa')) &&
-            ($pengunduranDiri->ttd_dosen_wali || $request->hasFile('ttd_dosen_wali')) &&
-            ($pengunduranDiri->ttd_ketua_jurusan || $request->hasFile('ttd_ketua_jurusan'))
-        ) ? 'selesai' : $statusSebelumnya;
+        // If document was approved or rejected before, reset to diproses
+        if ($statusSebelumnya === 'selesai' || $statusSebelumnya === 'ditolak') {
+            $validatedData['status_surat'] = 'diproses';
+        } else {
+            $validatedData['status_surat'] = $statusSebelumnya;
+        }
 
         $pengunduranDiri->update($validatedData);
         $user = User::where('username', $request->username)->first();
 
-        if ($pengunduranDiri->status_surat == 'selesai' && $statusSebelumnya != 'selesai' && $user) {
-
-            $message = "Halo {$pengunduranDiri->nama_mhs}, Surat Peringatan karena Pelanggaran Peraturan Akademik dengan No. Surat: {$pengunduranDiri->noSurat} telah selesai.";
+        if ($user) {
+            $message = "Halo {$pengunduranDiri->nama_mhs}, Surat Permohonan Pengunduran Diri No. Surat: {$pengunduranDiri->noSurat} telah diperbarui.";
             $no_telp = $user->no_telp;
 
             $response = Http::withHeaders([
@@ -267,43 +249,159 @@ class PengunduranDiriController extends Controller
             'pengundurans' => $pengunduranDiri,
         ])->setPaper('a4', 'portrait');
 
-        return $pdf->stream('Surat Permohonan Pengunduran Diri_' . $pengunduranDiri->nama_mhs . '_' . $pengunduranDiri->username . '_' . '.pdf');
+        return $pdf->stream('Surat Permohonan Pengunduran Diri_' . $pengunduranDiri->nama_mhs .'_'. $pengunduranDiri->username .'_' . '.pdf');
     }
 
-    public function tolak(PengunduranDiri $pengunduranDiri)
+    public function uploadForm($id)
     {
-        $pengunduranDiri->status_surat = 'ditolak';
-        $pengunduranDiri->save();
-        $message = "Halo {$pengunduranDiri->nama_mhs}, Surat Permohonan Pengunduran Diri dengan No. Surat: {$pengunduranDiri->noSurat} telah ditolak.";
-        $user = User::where('username', $pengunduranDiri->username)->first();
+        $pengundurans = PengunduranDiri::findOrFail($id);
+        return view('dashboard.admin.pengunduran_diri.upload', [
+            'title' => 'Upload Surat Pengunduran Diri',
+            'pengundurans' => $pengundurans
+        ]);
+    }
+
+    public function upload(Request $request, $id)
+    {
+        if (!$request->hasFile('file_pdf')) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Tidak ada file yang diupload.'
+            ]);
+        }
+
+        $request->validate([
+            'file_pdf' => 'required|mimes:pdf|max:2048',
+        ]);
+
+        $pengundurans = PengunduranDiri::findOrFail($id);
+        $file = $request->file('file_pdf');
+
+        if ($pengundurans->file_pdf && Storage::disk('public')->exists($pengundurans->file_pdf)) {
+            Storage::disk('public')->delete($pengundurans->file_pdf);
+        }
+
+        $path = $file->store('surat-pengunduran-diri', 'public');
+        $pengundurans->file_pdf = $path;
+        if ($pengundurans->status_surat === 'ditolak') {
+            $pengundurans->status_surat = 'diproses';
+            $pengundurans->alasan = null;
+        }
+
+        $pengundurans->save();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'File berhasil diupload.'
+        ]);
+    }
+
+    public function setujui($id)
+    {
+        $pengundurans = PengunduranDiri::findOrFail($id);
+        $pengundurans->status_surat = 'selesai';
+        $pengundurans->alasan = null;
+        $pengundurans->save();
+        $user = User::where('username', $pengundurans->username)->first();
 
         if ($user) {
+            $message = "Halo {$pengundurans->nama_mhs}, Surat Permohonan Pengunduran Diri No. Surat: {$pengundurans->noSurat} telah disetujui.";
             $no_telp = $user->no_telp;
+
             $response = Http::withHeaders([
-                'Authorization' => 'YOUR_API_KEY',
+                'Authorization' => 'GExfSpLCzErZt59W5DCZ',
             ])->post('https://api.fonnte.com/send', [
                 'target' => $no_telp,
                 'message' => $message,
                 'countryCode' => '62',
             ]);
 
-            if ($response->successful()) {
-                Log::info('WhatsApp notification sent successfully.', [
-                    'no_telp' => $no_telp,
-                    'response' => $response->body(),
-                ]);
-            } else {
-                Log::error('Failed to send WhatsApp notification.', [
-                    'no_telp' => $no_telp,
-                    'response' => $response->body(),
-                ]);
-            }
-            Mail::to($user->email)->send(new PermohonanPengunduranDiriMail($pengunduranDiri));
-            Log::info('Email notification sent successfully.', [
-                'email' => $user->email
-            ]);
+            Mail::to($user->email)->send(new PermohonanPengunduranDiriMail($pengundurans));
         }
 
-        return redirect('/dashboard/admin/pengunduran-diri')->with('status', 'Surat ditolak');
+        return response()->json(['message' => 'Surat disetujui.']);
+    }
+
+    public function tolak(Request $request, $id)
+    {
+        $request->validate(['alasan' => 'required|string']);
+        $pengundurans = PengunduranDiri::findOrFail($id);
+        $pengundurans->status_surat = 'ditolak';
+        $pengundurans->alasan = $request->alasan;
+        $pengundurans->save();
+        $user = User::where('username', $pengundurans->username)->first();
+
+        if ($user) {
+            $message = "Halo {$pengundurans->nama_mhs}, Surat Permohonan Pengunduran Diri No. Surat: {$pengundurans->noSurat} telah ditolak. Alasan: {$pengundurans->alasan}";
+            $no_telp = $user->no_telp;
+
+            $response = Http::withHeaders([
+                'Authorization' => 'GExfSpLCzErZt59W5DCZ',
+            ])->post('https://api.fonnte.com/send', [
+                'target' => $no_telp,
+                'message' => $message,
+                'countryCode' => '62',
+            ]);
+
+            Mail::to($user->email)->send(new PermohonanPengunduranDiriMail($pengundurans));
+        }
+
+        return response()->json(['message' => 'Surat ditolak.']);
+    }
+
+    public function updateAlasan(Request $request, $noSurat)
+    {
+        $request->validate([
+            'alasan' => 'nullable|string',
+        ]);
+
+        $pengundurans = PengunduranDiri::where('noSurat', $noSurat)->firstOrFail();
+        $pengundurans->alasan = $request->alasan;
+        $pengundurans->save();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Alasan penolakan berhasil diperbarui.'
+        ]);
+    }
+
+    public function sendReminder($noSurat)
+    {
+        $pengundurans = PengunduranDiri::where('noSurat', $noSurat)->firstOrFail();
+        $user = User::where('username', $pengundurans->username)->first();
+
+        if (!$user) {
+            return response()->json([
+                'message' => 'User tidak ditemukan.'
+            ], 404);
+        }
+
+        $message = "Halo {$pengundurans->nama_mhs}, terdapat Surat Permohonan Pengunduran Diri No. Surat: {$pengundurans->noSurat} untuk Anda. Harap segera untuk diproses pada website berikut http://127.0.0.1:8000";
+        $no_telp = $user->no_telp;
+
+        $response = Http::withHeaders([
+            'Authorization' => 'hYMRNdtcPe83pM1cTb5p',
+        ])->post('https://api.fonnte.com/send', [
+            'target' => $no_telp,
+            'message' => $message,
+            'countryCode' => '62',
+        ]);
+
+        Mail::to($user->email)->send(new PermohonanPengunduranDiriMail($pengundurans));
+
+        return response()->json([
+            'message' => 'Pengingat berhasil dikirim ke email dan WhatsApp mahasiswa.'
+        ]);
+    }
+
+    public function resetAll()
+    {
+        $count = PengunduranDiri::count();
+        PengunduranDiri::truncate();
+        if ($count > 0) {
+            return response()->json(['success' => true, 'message' => 'Semua data surat Permohonan Pengunduran Diri berhasil dihapus']);
+        } else {
+            return response()->json(['success' => false, 'message' => 'Data surat sudah kosong']);
+        }
     }
 }

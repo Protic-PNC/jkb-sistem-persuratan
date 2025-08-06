@@ -126,7 +126,7 @@
                     
                     @if ($pelanggaran->rejected_by_admin && !$pelanggaran->approved_by_admin)
                     <button type="button" class="btn btn-sm btn-warning text-white"
-                        onclick="editAlasan('{{ $pelanggaran->noSurat }}', `{!! addslashes($pelanggaran->alasan ?? '') !!}`)">
+                        onclick="editAlasan('{{ $pelanggaran->noSurat }}', `{!! addslashes($pelanggaran->alasan ?? '') !!}`, 'admin', '/dashboard/admin/pelanggaran-akademik')">
                         Ubah Alasan
                     </button>
                     @endif
@@ -134,7 +134,7 @@
                 <td style="text-align: center;">
                     @if ($pelanggaran->status_surat == 'diproses' && $pelanggaran->alasan)
                         <button class="btn btn-sm btn-outline-danger"
-                            onclick="showAlasanPelanggaran(`{!! addslashes($pelanggaran->alasan) !!}`)"
+                            onclick="showAlasanPelanggaran(`{!! addslashes($pelanggaran->alasan) !!}`, 'Admin')"
                             style="white-space: nowrap; padding: 5px 15px;">
                             Lihat Alasan
                         </button>
@@ -147,129 +147,21 @@
     </tbody>
 </table>
 
-<div class="modal fade" id="editAlasanModal" tabindex="-1" aria-labelledby="editAlasanLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <form method="post" action="" id="editAlasanForm">
-            @csrf
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="editAlasanLabel">Ubah Alasan Penolakan</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label for="alasanInput" class="form-label">Alasan</label>
-                        <textarea class="form-control" id="alasanInput" name="alasan" rows="3"></textarea>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
-                </div>
-            </div>
-        </form>
-    </div>
-</div>
-
-
 <script>
-    let originalAlasan = "";
-
-    function editAlasan(noSurat, alasan) {
-        const form = document.getElementById("editAlasanForm");
-        if (!form) return;
-
-        form.setAttribute("action", `/dashboard/admin/pelanggaran-akademik/${noSurat}/edit-alasan`);
-        document.getElementById("alasanInput").value = alasan;
-        originalAlasan = alasan;
-        const modal = new bootstrap.Modal(document.getElementById("editAlasanModal"));
-        modal.show();
+    function confirmDelete(noSurat) {
+        Swal.fire({
+            title: 'Konfirmasi Hapus',
+            text: 'Apakah Anda yakin ingin menghapus dokumen ini?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Ya, Hapus!',
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                document.getElementById(`delete-form-${noSurat}`).submit();
+            }
+        });
     }
-
-    document.addEventListener("DOMContentLoaded", function() {
-        const editAlasanForm = document.getElementById("editAlasanForm");
-        if (editAlasanForm) {
-            editAlasanForm.addEventListener("submit", async function(e) {
-                e.preventDefault();
-
-                const form = e.target;
-                const url = form.getAttribute("action");
-                const formData = new FormData(form);
-                let currentAlasan = formData.get("alasan").trim();
-                const prefix = "Admin:";
-
-                // If alasan is not empty, add prefix to each line if needed
-                if (currentAlasan) {
-                    currentAlasan = currentAlasan
-                        .split("\n")
-                        .map(line => {
-                            line = line.trim();
-                            return line.toLowerCase().startsWith(prefix.toLowerCase()) ? line :
-                                prefix + " " + line;
-                        })
-                        .join("\n");
-                }
-
-                // Cek apakah alasan diubah
-                if (currentAlasan === originalAlasan.trim()) {
-                    Swal.fire({
-                        icon: "info",
-                        title: "Tidak Ada Perubahan",
-                        text: "Alasan tidak diubah.",
-                        timer: 2000,
-                        showConfirmButton: false,
-                    });
-                    return;
-                }
-
-                try {
-                    const submitButton = form.querySelector('button[type="submit"]');
-                    if (submitButton) submitButton.disabled = true;
-
-                    formData.set("alasan", currentAlasan);
-
-                    const response = await fetch(url, {
-                        method: "POST",
-                        headers: {
-                            "X-CSRF-TOKEN": document.querySelector(
-                                'meta[name="csrf-token"]').getAttribute("content"),
-                            Accept: "application/json",
-                        },
-                        body: formData,
-                    });
-
-                    const result = await response.json();
-
-                    if (submitButton) submitButton.disabled = false;
-
-                    if (response.ok) {
-                        const modal = bootstrap.Modal.getInstance(document.getElementById(
-                            "editAlasanModal"));
-                        modal.hide();
-
-                        Swal.fire({
-                            icon: "success",
-                            title: "Berhasil!",
-                            text: result.message || "Alasan berhasil diperbarui.",
-                            timer: 2000,
-                            showConfirmButton: false,
-                        }).then(() => {
-                            location.reload();
-                        });
-                    } else {
-                        throw new Error(result.message || "Gagal memperbarui alasan.");
-                    }
-                } catch (error) {
-                    const submitButton = form.querySelector('button[type="submit"]');
-                    if (submitButton) submitButton.disabled = false;
-
-                    Swal.fire({
-                        icon: "error",
-                        title: "Terjadi Kesalahan",
-                        text: error.message,
-                    });
-                }
-            });
-        }
-    });
 </script>
