@@ -1,8 +1,6 @@
-# 📋 Sistem Persuratan Mahasiswa
-
 <div align="center">
   <img src="https://laravel.com/img/logomark.min.svg" alt="Laravel" width="50" height="52">
-  <h3>Sistem Manajemen Persuratan untuk Mahasiswa</h3>
+  <h3>Sistem Persuratan Mahasiswa Jurusan Komputer dan Bisnis Politeknik Negeri Cilacap</h3>
   <p>Aplikasi web berbasis Laravel untuk mengelola surat pernyataan magang, pelanggaran akademik, dan pengunduran diri dengan alur persetujuan multi-level.</p>
   
   ![Laravel](https://img.shields.io/badge/Laravel-FF2D20?style=for-the-badge&logo=laravel&logoColor=white)
@@ -43,8 +41,8 @@ Sistem Persuratan Mahasiswa adalah aplikasi web yang dibangun dengan Laravel unt
 ### 1️⃣ Clone Repository
 
 ```bash
-git clone https://github.com/Protic-PNC/jkb-sistem-persuratan.git
-cd jkb-sistem-persuratan
+git clone https://github.com/username/persuratan-mahasiswa-evan.git
+cd persuratan-mahasiswa-evan
 ```
 
 ### 2️⃣ Install Dependencies
@@ -100,6 +98,14 @@ MAIL_FROM_NAME="Politeknik Negeri Cilacap"
 php artisan migrate --seed
 ```
 
+#### 📥 Download Database (Opsional)
+
+Jika Anda ingin menggunakan database yang sudah terisi dengan data contoh:
+
+1. **Download database:** [📁 Download Database](https://drive.google.com/file/d/1WUF0vKfvCQY5sW8B4iOnEtDdtMsB9rpU/view?usp=sharing)
+2. **Import ke database MySQL Anda**
+3. **Skip langkah migrate --seed** jika menggunakan database download
+
 ### 6️⃣ Storage Link
 
 ```bash
@@ -118,7 +124,7 @@ php artisan serve
 
 ## 🔐 Akun Default
 
-Setelah seeding berhasil, gunakan akun berikut untuk login Admin:
+Setelah seeding berhasil, gunakan akun berikut untuk login:
 
 ```
 Username: 123
