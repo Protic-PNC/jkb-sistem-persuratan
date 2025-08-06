@@ -41,8 +41,8 @@ Sistem Persuratan Mahasiswa adalah aplikasi web yang dibangun dengan Laravel unt
 ### 1️⃣ Clone Repository
 
 ```bash
-git clone https://github.com/username/persuratan-mahasiswa-evan.git
-cd persuratan-mahasiswa-evan
+git clone https://github.com/Protic-PNC/jkb-sistem-persuratan.git
+cd kb-sistem-persuratan
 ```
 
 ### 2️⃣ Install Dependencies
